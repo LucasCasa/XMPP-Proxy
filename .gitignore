@@ -69,6 +69,7 @@ local.properties
 # ---- Intellij ----
 # User-specific stuff:
 .idea/
+*.iml
 
 # ---- Maven ----
 
