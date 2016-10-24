@@ -1,9 +1,6 @@
 # ---- Java ----
 *.class
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
 # Package Files #
 *.jar
 *.war
@@ -36,35 +33,8 @@ local.properties
 # Locally stored "Eclipse launch configurations"
 *.launch
 
-# PyDev specific (Python IDE for Eclipse)
-*.pydevproject
-
-# CDT-specific (C/C++ Development Tooling)
-.cproject
-
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
-
-# Java annotation processor (APT)
-.factorypath
-
-# PDT-specific (PHP Development Tools)
-.buildpath
-
-# sbteclipse plugin
-.target
-
-# Tern plugin
-.tern-project
-
-# TeXlipse plugin
-.texlipse
-
-# STS (Spring Tool Suite)
-.springBeans
-
-# Code Recommenders
-.recommenders/
 
 # ---- Intellij ----
 # User-specific stuff:
