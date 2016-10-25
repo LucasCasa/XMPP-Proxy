@@ -2,10 +2,13 @@ package ar.itba.edu.ar.pdc;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
@@ -16,7 +19,7 @@ public class Server {
     public static void main(String[] args){
         Selector selector;
         try{
-            selector = Selector.open();
+            selector = ConnectionHandler.getInstance().s;
 
             ServerSocketChannel listnChannel = ServerSocketChannel.open();
             SocketChannel originServer = SocketChannel.open();
@@ -25,12 +28,12 @@ public class Server {
             listnChannel.configureBlocking(false); // must be nonblocking to register
             // Register selector with channel. The returned key is ignored
             listnChannel.register(selector, SelectionKey.OP_ACCEPT);
-
             if (!originServer.connect(new InetSocketAddress("localhost", 5222))) {
                 while (!originServer.finishConnect()) {
                     System.out.print(".a"); // Do something else
                 }
             }
+            //SelectionKey srvKey = originServer.register(selector,SelectionKey.OP_READ, new ArrayList<ProxyConnection>());
             //SelectionKey sk = originServer.keyFor(selector);
 
             TCPProtocol protocol = new XMPPSelectorProtocol(4096);
@@ -55,7 +58,7 @@ public class Server {
                     // Client socket channel is available for writing and
                     // key is valid (i.e., channel not closed)?
                     if (key.isValid() && key.isWritable()) {
-                        protocol.handleWrite(key,originServer);
+                        protocol.handleWrite(key);
                     }
                     keyIter.remove(); // remove from set of selected keys
                 }
