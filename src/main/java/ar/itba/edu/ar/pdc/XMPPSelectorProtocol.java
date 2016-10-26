@@ -1,5 +1,7 @@
 package ar.itba.edu.ar.pdc;
 
+import ar.itba.edu.ar.pdc.xmlparser.XMLParser;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.InetSocketAddress;
@@ -39,9 +41,11 @@ public class XMPPSelectorProtocol implements TCPProtocol {
         if(((ProxyConnection) key.attachment()).clientKey.equals(key)) {
             SocketChannel clntChan = (SocketChannel) key.channel();
             ProxyConnection pc = (ProxyConnection) key.attachment();
-            long bytesRead = clntChan.read(pc.clientBuffer);
+            ByteBuffer aux = ByteBuffer.allocate(4096);
+            long bytesRead = clntChan.read(aux);
             System.out.println("LEO DEL CLIENTE: " + bytesRead);
-            System.out.println(new String(pc.clientBuffer.array()));
+            System.out.println(new String(aux.array()).substring(0,aux.position()));
+            pc.clientMessages.add(XMLParser.parse(new String(aux.array()).substring(0,aux.position())));
             if (bytesRead == -1) { // Did the other end close?
                 clntChan.close();
             } else if (bytesRead > 0) {
@@ -54,9 +58,11 @@ public class XMPPSelectorProtocol implements TCPProtocol {
         }else if(((ProxyConnection) key.attachment()).serverKey.equals(key)){
             SocketChannel srvChan = (SocketChannel)key.channel();
             ProxyConnection pc = (ProxyConnection) key.attachment();
-            long bytesRead = srvChan.read(pc.serverBuffer);
+            ByteBuffer aux = ByteBuffer.allocate(4096);
+            long bytesRead = srvChan.read(aux);
             System.out.println("LEO DEL SERVIDOR: " + bytesRead);
-            System.out.println(new String(pc.serverBuffer.array()));
+            System.out.println(new String(aux.array()).substring(0,aux.position()));
+            pc.serverMessages.add(XMLParser.parse(new String(aux.array()).substring(0,aux.position())));
             if (bytesRead == -1) { // Did the other end close?
                 srvChan.close();
             } else if (bytesRead > 0) {
@@ -69,7 +75,6 @@ public class XMPPSelectorProtocol implements TCPProtocol {
 
 
     }
-
     public void handleWrite(SelectionKey key) throws IOException {
         /*
          * Channel is available for writing, and key is valid (i.e., client
@@ -78,29 +83,43 @@ public class XMPPSelectorProtocol implements TCPProtocol {
         // Retrieve data read earlier
         if(((ProxyConnection) key.attachment()).clientKey.equals(key)) {
             ProxyConnection pc = (ProxyConnection) key.attachment();
-            pc.serverBuffer.flip(); // Prepare buffer for writing
-            SocketChannel srvChan = (SocketChannel) pc.clientKey.channel();
+            SocketChannel cliChan = (SocketChannel) pc.clientKey.channel();
             System.out.println("MANDO AL CLIENTE");
-            srvChan.write(pc.serverBuffer);
-            if (!pc.serverBuffer.hasRemaining()) { // Buffer completely written?
+            ByteBuffer bf = ByteBuffer.allocate(4096);
+
+            for(String s : pc.serverMessages){
+                bf.put(s.getBytes());
+                System.out.println(s);
+            }
+            bf.flip();
+            pc.serverMessages.clear();
+            cliChan.write(bf);
+            if (!bf.hasRemaining()) { // Buffer completely written?
                 // Nothing left, so no longer interested in writes
                 pc.clientKey.interestOps(SelectionKey.OP_READ);
                 pc.serverKey.interestOps(SelectionKey.OP_READ);
                 pc.waiting = false;
             }
-            pc.serverBuffer.compact(); // Make room for more data to be read in
         }else if(((ProxyConnection) key.attachment()).serverKey.equals(key)) {
             ProxyConnection pc = (ProxyConnection)key.attachment();
-            pc.clientBuffer.flip(); // Prepare buffer for writing
-            SocketChannel cliChan = (SocketChannel) pc.serverKey.channel();
+
+            SocketChannel srvChan = (SocketChannel) pc.serverKey.channel();
             System.out.println("MANDO AL SERVIDOR");
-            cliChan.write(pc.clientBuffer);
-            if (!pc.clientBuffer.hasRemaining()) { // Buffer completely written?
+            ByteBuffer bf = ByteBuffer.allocate(4096);
+
+            for(String s : pc.clientMessages){
+                bf.put(s.getBytes());
+                System.out.println(new String(s.getBytes()));
+            }
+            bf.flip();
+            pc.clientMessages.clear();
+            srvChan.write(bf);
+            if (!bf.hasRemaining()) { // Buffer completely written?
                 // Nothing left, so no longer interested in writes
                 pc.clientKey.interestOps(SelectionKey.OP_READ);
                 pc.serverKey.interestOps(SelectionKey.OP_READ);
             }
-            pc.clientBuffer.compact(); // Make room for more data to be read in
+
         }
 
     }
