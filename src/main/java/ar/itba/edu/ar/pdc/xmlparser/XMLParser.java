@@ -16,17 +16,21 @@ public class XMLParser {
 		StringBuilder sb = new StringBuilder(str);
 		int j = sb.indexOf("from='");
 		int i = sb.indexOf("to='");
+
 		if(i != -1 && j != -1){
 			parseTo(sb,i,j);
 		}
+
 		if(i !=-1){
 			parseFrom(sb,i);
 		}
+
 		return sb.toString();
 		
 	}
+
+
 	private static void parseTo(StringBuilder sb, int i, int j) {
-		//String to = sb.substring(i+6,j);
 		int k = sb.indexOf("'>");
 		if(k == -1){
 			return;
@@ -36,14 +40,15 @@ public class XMLParser {
 		if(start == -1 || end == -1){
 			return;
 		}
-		//String from = sb.substring(j+ 4, k);
-		 //Hasta aca tengo from y to
-		//Falta chequear si al from , el to lo tiene en bloqueados
-		//Ahora quiero interceptar el mensaje
 
+		//Falta chequear si al from , el to lo tiene en bloqueados
 		String message = sb.substring(start, end);
 		if(!message.isEmpty()){
-			sb.replace(start+6, end, "maggie te re doy");
+
+			/*aca hago la modificacion del mensaje*/
+			StringBuilder messageToBeTransformed = new StringBuilder(sb.substring(start+6, end));
+			messageToBeTransformed = convertMessage(messageToBeTransformed);
+
 		}
 		
 		
@@ -54,7 +59,45 @@ public class XMLParser {
 		int k = s.indexOf("'xmlns");
 		if(k == -1)
 			return;
-		String from = s.substring(j+6,k );		
+		String from = s.substring(j+6,k );
 	}
+
+
+	private static StringBuilder convertMessage(StringBuilder message){
+
+		String aux = message.toString();
+		char[] vector = aux.toCharArray();
+		int strBlen = message.length();
+		int longitud= aux.length();
+
+		for(int i=0; i<longitud;i++){
+			switch (vector[i]){
+				case 'a':
+					vector[i]= '4';
+					break;
+				case 'e':
+					vector[i]= '3';
+					break;
+				case 'i':
+					vector[i]= '1';
+					break;
+				case 'o':
+					vector[i]= '0';
+					break;
+				case 'c':
+					vector[i]= '<';
+					break;
+			}
+		}
+
+		aux = String.copyValueOf(vector);
+		message = message.replace(0, strBlen, aux);
+
+		return message;
+
+	}
+
+
+
 	
 }
