@@ -1,25 +1,27 @@
 package ar.itba.edu.ar.pdc;
 
+import ar.itba.edu.ar.pdc.Connection.ConnectionHandler;
+import ar.itba.edu.ar.pdc.Protocol.TCPProtocol;
+import ar.itba.edu.ar.pdc.Protocol.XMPPSelectorProtocol;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * Created by Muffin on 24/10/16.
+ * Created by Team Muffin on 24/10/16.
+ * Main Class. Has the Selector
  */
 public class Server {
 
     public static void main(String[] args){
         Selector selector;
         try{
-            selector = ConnectionHandler.getInstance().s;
+            selector = ConnectionHandler.getInstance().getSelector();
 
             ServerSocketChannel listnChannel = ServerSocketChannel.open();
             SocketChannel originServer = SocketChannel.open();
@@ -33,8 +35,6 @@ public class Server {
                     System.out.print(".a"); // Do something else
                 }
             }
-            //SelectionKey srvKey = originServer.register(selector,SelectionKey.OP_READ, new ArrayList<ProxyConnection>());
-            //SelectionKey sk = originServer.keyFor(selector);
 
             TCPProtocol protocol = new XMPPSelectorProtocol(4096);
             while (true) { // Run forever, processing available I/O operations
@@ -48,11 +48,11 @@ public class Server {
                 while (keyIter.hasNext()) {
                     SelectionKey key = keyIter.next(); // Key is bit mask
                     // Server socket channel has pending connection requests?
-                    if (key.isAcceptable()) {
+                    if (key.isValid() && key.isAcceptable()) {
                         protocol.handleAccept(key);
                     }
                     // Client socket channel has pending data?
-                    if (key.isReadable()) {
+                    if (key.isValid() && key.isReadable()) {
                         protocol.handleRead(key);
                     }
                     // Client socket channel is available for writing and

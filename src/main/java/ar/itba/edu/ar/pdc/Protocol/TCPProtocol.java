@@ -1,12 +1,11 @@
-package ar.itba.edu.ar.pdc;
+package ar.itba.edu.ar.pdc.Protocol;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
 
 /**
- * Created by Muffin on 24/10/16.
+ * Created by Team Muffin on 24/10/16.
+ * TCP Protocol Interface
  */
 public interface TCPProtocol {
     void handleAccept(SelectionKey key) throws IOException;

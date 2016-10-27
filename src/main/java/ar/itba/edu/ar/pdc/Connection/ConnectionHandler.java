@@ -1,4 +1,4 @@
-package ar.itba.edu.ar.pdc;
+package ar.itba.edu.ar.pdc.Connection;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
@@ -6,10 +6,11 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
 /**
- * Created by lucas on 25/10/16.
+ * Created by Team Muffin on 25/10/16.
+ * Manage the Selector
  */
 public class ConnectionHandler{
-    Selector s;
+    private Selector s;
     private static ConnectionHandler ch = new ConnectionHandler();
 
     private ConnectionHandler(){
@@ -26,5 +27,9 @@ public class ConnectionHandler{
 
     public SelectionKey addConnection(SocketChannel sc,Object attr) throws IOException{
         return sc.register(s,SelectionKey.OP_READ,attr);
+    }
+
+    public Selector getSelector() {
+        return s;
     }
 }

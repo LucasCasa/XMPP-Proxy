@@ -1,12 +1,14 @@
-package ar.itba.edu.ar.pdc;
+package ar.itba.edu.ar.pdc.xmlparser;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by root on 26/10/16.
+ * Created by Team Muffin on 26/10/16.
+ * Esta clase se encarga de convertir el texto que recibe
  */
 public class MessageConverter {
+
     public MessageConverter(){
 
     }
@@ -36,9 +38,6 @@ public class MessageConverter {
     private static StringBuilder convertToL33t(StringBuilder message){
 
         String aux = message.toString();
-        char[] vector = aux.toCharArray();
-        int strBlen = message.length();
-        int longitud= aux.length();
         List<Character> nc = new ArrayList<>();
         for(char c : aux.toCharArray()){
             switch (c){

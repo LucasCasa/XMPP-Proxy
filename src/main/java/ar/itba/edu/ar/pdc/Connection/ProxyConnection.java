@@ -1,4 +1,4 @@
-package ar.itba.edu.ar.pdc;
+package ar.itba.edu.ar.pdc.Connection;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -6,13 +6,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by Muffin on 25/10/16.
+ * Created by Team Muffin on 25/10/16.
+ * The information of the connection
  */
 public class ProxyConnection {
     private SelectionKey clientKey;
     private SelectionKey serverKey;
     private List<String> clientMessages = new LinkedList<>();
     private List<String> serverMessages = new LinkedList<>();
+    private String JIDName = null;
+    private String JID = null;
     private boolean waiting;
 
     public ProxyConnection(SelectionKey ck, SelectionKey sk){
@@ -20,7 +23,6 @@ public class ProxyConnection {
         serverKey = sk;
         waiting = false;
     }
-
     public ByteBuffer getClientBuffer(){
         return fillBuffer(clientMessages);
     }
@@ -32,7 +34,6 @@ public class ProxyConnection {
         int length = 0;
         for(String s : msg){
             length += s.getBytes().length;
-            System.out.println(length);
         }
         ByteBuffer bf = ByteBuffer.allocate(length);
         for(String s : msg){
@@ -54,9 +55,27 @@ public class ProxyConnection {
     public SelectionKey getClientKey() {
         return clientKey;
     }
+    public void setJID(String JID){
 
+        String[] JIDSplit = JID.split("/");
+        if(JIDSplit.length >0){
+            this.JIDName = JIDSplit[0];
+        }else {
+            this.JIDName = JID;
+        }
+        this.JID = JID;
+        System.out.println("TENGO ID: " + JIDName);
+    }
     public boolean isWaiting() {
         return waiting;
+    }
+
+    public String getJID() {
+        return JID;
+    }
+
+    public String getJIDName() {
+        return JIDName;
     }
 
     public SelectionKey getServerKey() {

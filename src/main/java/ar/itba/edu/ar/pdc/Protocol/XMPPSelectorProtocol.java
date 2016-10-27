@@ -1,20 +1,21 @@
-package ar.itba.edu.ar.pdc;
+package ar.itba.edu.ar.pdc.Protocol;
 
+import ar.itba.edu.ar.pdc.Connection.ConnectionHandler;
+import ar.itba.edu.ar.pdc.Connection.ProxyConnection;
+import ar.itba.edu.ar.pdc.xmlparser.MessageConverter;
 import ar.itba.edu.ar.pdc.xmlparser.XMLParser;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.InetSocketAddress;
 import java.nio.*;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
-import java.util.List;
 
 /**
- * Created by lucas on 24/10/16.
- */
+ * Created by Team Muffin on 24/10/16.
+ * Manage the connections
+ **/
 public class XMPPSelectorProtocol implements TCPProtocol {
     private int bufSize; // Size of I/O buffer
 
@@ -41,10 +42,9 @@ public class XMPPSelectorProtocol implements TCPProtocol {
         if(((ProxyConnection) key.attachment()).getClientKey().equals(key)) {
             SocketChannel clntChan = (SocketChannel) key.channel();
             ProxyConnection pc = (ProxyConnection) key.attachment();
-            ByteBuffer aux = ByteBuffer.allocate(4096);
+            ByteBuffer aux = ByteBuffer.allocate(bufSize);
             long bytesRead = clntChan.read(aux);
             System.out.println("LEO DEL CLIENTE: " + bytesRead);
-            System.out.println(new String(aux.array()).substring(0,aux.position()));
             String auxS = new String(aux.array()).substring(0,aux.position());
             if(XMLParser.isMessage(auxS)){
                 auxS = MessageConverter.transform(auxS);
@@ -52,6 +52,9 @@ public class XMPPSelectorProtocol implements TCPProtocol {
             pc.addClientMessage(auxS);
             if (bytesRead == -1) { // Did the other end close?
                 clntChan.close();
+                pc.getServerKey().channel().close();
+                key.cancel();
+                pc.getServerKey().cancel();
             } else if (bytesRead > 0) {
                 // Indicate via key that reading/writing are both of interest now.
                 key.interestOps(SelectionKey.OP_READ);
@@ -62,17 +65,21 @@ public class XMPPSelectorProtocol implements TCPProtocol {
         }else if(((ProxyConnection) key.attachment()).getServerKey().equals(key)){
             SocketChannel srvChan = (SocketChannel)key.channel();
             ProxyConnection pc = (ProxyConnection) key.attachment();
-            ByteBuffer aux = ByteBuffer.allocate(4096);
+            ByteBuffer aux = ByteBuffer.allocate(bufSize);
             long bytesRead = srvChan.read(aux);
             System.out.println("LEO DEL SERVIDOR: " + bytesRead);
-            System.out.println(new String(aux.array()).substring(0,aux.position()));
             String auxS = new String(aux.array()).substring(0,aux.position());
             if(XMLParser.isMessage(auxS)){
                 auxS = MessageConverter.transform(auxS);
+            }else  if(XMLParser.isJID(auxS)){
+                pc.setJID(XMLParser.getJID(auxS));
             }
             pc.addServerMessage(auxS);
             if (bytesRead == -1) { // Did the other end close?
                 srvChan.close();
+                pc.getClientKey().channel().close();
+                key.cancel();
+                pc.getClientKey().cancel();
             } else if (bytesRead > 0) {
                 // Indicate via key that reading/writing are both of interest now.
                 pc.getClientKey().interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
