@@ -27,18 +27,18 @@ public class XMPPSelectorProtocol implements TCPProtocol {
         clntChan.configureBlocking(false); // Must be nonblocking to register
         // Register the selector with new channel for read and attach byte buffer
         ProxyConnection pc = new ProxyConnection(null,null);
-        pc.clientKey = ConnectionHandler.getInstance().addConnection(clntChan,pc);
+        pc.setClientKey(ConnectionHandler.getInstance().addConnection(clntChan,pc));
         SocketChannel serverChannel = SocketChannel.open();
         serverChannel.connect(new InetSocketAddress("localhost", 5222));
         serverChannel.configureBlocking(false);
-        pc.serverKey = ConnectionHandler.getInstance().addConnection(serverChannel,pc);
+        pc.setServerKey(ConnectionHandler.getInstance().addConnection(serverChannel,pc));
 
     }
 
     public void handleRead(SelectionKey key) throws IOException {
         // Client socket channel has pending data
 
-        if(((ProxyConnection) key.attachment()).clientKey.equals(key)) {
+        if(((ProxyConnection) key.attachment()).getClientKey().equals(key)) {
             SocketChannel clntChan = (SocketChannel) key.channel();
             ProxyConnection pc = (ProxyConnection) key.attachment();
             ByteBuffer aux = ByteBuffer.allocate(4096);
@@ -46,20 +46,20 @@ public class XMPPSelectorProtocol implements TCPProtocol {
             System.out.println("LEO DEL CLIENTE: " + bytesRead);
             System.out.println(new String(aux.array()).substring(0,aux.position()));
             String auxS = new String(aux.array()).substring(0,aux.position());
-            if(XMLParser.parse(auxS)){
+            if(XMLParser.isMessage(auxS)){
                 auxS = MessageConverter.transform(auxS);
             }
-            pc.clientMessages.add(auxS);
+            pc.addClientMessage(auxS);
             if (bytesRead == -1) { // Did the other end close?
                 clntChan.close();
             } else if (bytesRead > 0) {
                 // Indicate via key that reading/writing are both of interest now.
                 key.interestOps(SelectionKey.OP_READ);
-                pc.serverKey.interestOps(SelectionKey.OP_WRITE);
-                pc.waiting = true;
+                pc.getServerKey().interestOps(SelectionKey.OP_WRITE);
+                pc.setWaiting(true);
             }
 
-        }else if(((ProxyConnection) key.attachment()).serverKey.equals(key)){
+        }else if(((ProxyConnection) key.attachment()).getServerKey().equals(key)){
             SocketChannel srvChan = (SocketChannel)key.channel();
             ProxyConnection pc = (ProxyConnection) key.attachment();
             ByteBuffer aux = ByteBuffer.allocate(4096);
@@ -67,16 +67,16 @@ public class XMPPSelectorProtocol implements TCPProtocol {
             System.out.println("LEO DEL SERVIDOR: " + bytesRead);
             System.out.println(new String(aux.array()).substring(0,aux.position()));
             String auxS = new String(aux.array()).substring(0,aux.position());
-            if(XMLParser.parse(auxS)){
+            if(XMLParser.isMessage(auxS)){
                 auxS = MessageConverter.transform(auxS);
             }
-            pc.serverMessages.add(auxS);
+            pc.addServerMessage(auxS);
             if (bytesRead == -1) { // Did the other end close?
                 srvChan.close();
             } else if (bytesRead > 0) {
                 // Indicate via key that reading/writing are both of interest now.
-                pc.clientKey.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
-                pc.serverKey.interestOps(SelectionKey.OP_READ);
+                pc.getClientKey().interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+                pc.getServerKey().interestOps(SelectionKey.OP_READ);
             }
         }
 
@@ -89,43 +89,30 @@ public class XMPPSelectorProtocol implements TCPProtocol {
          * channel not closed).
          */
         // Retrieve data read earlier
-        if(((ProxyConnection) key.attachment()).clientKey.equals(key)) {
+        if(((ProxyConnection) key.attachment()).getClientKey().equals(key)) {
             ProxyConnection pc = (ProxyConnection) key.attachment();
-            SocketChannel cliChan = (SocketChannel) pc.clientKey.channel();
+            SocketChannel cliChan = (SocketChannel) pc.getClientKey().channel();
             System.out.println("MANDO AL CLIENTE");
-            ByteBuffer bf = ByteBuffer.allocate(4096);
-
-            for(String s : pc.serverMessages){
-                bf.put(s.getBytes());
-                System.out.println(s);
-            }
-            bf.flip();
-            pc.serverMessages.clear();
+            ByteBuffer bf = pc.getServerBuffer();
             cliChan.write(bf);
             if (!bf.hasRemaining()) { // Buffer completely written?
                 // Nothing left, so no longer interested in writes
-                pc.clientKey.interestOps(SelectionKey.OP_READ);
-                pc.serverKey.interestOps(SelectionKey.OP_READ);
-                pc.waiting = false;
+                pc.getClientKey().interestOps(SelectionKey.OP_READ);
+                pc.getServerKey().interestOps(SelectionKey.OP_READ);
+                pc.setWaiting(false);
             }
-        }else if(((ProxyConnection) key.attachment()).serverKey.equals(key)) {
+        }else if(((ProxyConnection) key.attachment()).getServerKey().equals(key)) {
             ProxyConnection pc = (ProxyConnection)key.attachment();
 
-            SocketChannel srvChan = (SocketChannel) pc.serverKey.channel();
+            SocketChannel srvChan = (SocketChannel) pc.getServerKey().channel();
             System.out.println("MANDO AL SERVIDOR");
-            ByteBuffer bf = ByteBuffer.allocate(4096);
-
-            for(String s : pc.clientMessages){
-                bf.put(s.getBytes());
-                System.out.println(new String(s.getBytes()));
-            }
-            bf.flip();
-            pc.clientMessages.clear();
+            ByteBuffer bf =pc.getClientBuffer();
             srvChan.write(bf);
             if (!bf.hasRemaining()) { // Buffer completely written?
                 // Nothing left, so no longer interested in writes
-                pc.clientKey.interestOps(SelectionKey.OP_READ);
-                pc.serverKey.interestOps(SelectionKey.OP_READ);
+                pc.getClientKey().interestOps(SelectionKey.OP_READ);
+                pc.getServerKey().interestOps(SelectionKey.OP_READ);
+                pc.setWaiting(false);
             }
 
         }

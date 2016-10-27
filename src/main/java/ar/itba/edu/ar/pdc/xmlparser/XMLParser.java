@@ -11,7 +11,7 @@ public class XMLParser {
 
 	}
 
-	public static boolean parse(String str){
+	public static boolean isMessage(String str){
 		StringBuilder sb = new StringBuilder(str);
 		int j = sb.indexOf("from='");
 		int i = sb.indexOf("to='");

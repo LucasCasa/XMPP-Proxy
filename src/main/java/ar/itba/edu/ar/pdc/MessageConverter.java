@@ -25,7 +25,7 @@ public class MessageConverter {
 
 			/*aca hago la modificacion del mensaje*/
             StringBuilder messageToBeTransformed = new StringBuilder(sb.substring(start, end));
-            messageToBeTransformed = convertMessage(messageToBeTransformed);
+            messageToBeTransformed = convertToL33t(messageToBeTransformed);
 
             return sb.replace(start,end,messageToBeTransformed.toString()).toString();
         }
@@ -33,7 +33,7 @@ public class MessageConverter {
         return m;
     }
 
-    private static StringBuilder convertMessage(StringBuilder message){
+    private static StringBuilder convertToL33t(StringBuilder message){
 
         String aux = message.toString();
         char[] vector = aux.toCharArray();
