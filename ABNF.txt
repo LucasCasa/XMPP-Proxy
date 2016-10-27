@@ -1,0 +1,16 @@
+S 			= (Query / Response) CL RF
+
+Query 		= C SP Param SP Param / D SP Param / E
+
+C 			= "LOGIN" / "REGISTER" / "MULTIPLEX"
+
+D 			= "UNMULTIPLEX" / "SILENCE" / "UNSILENCE" / "L33T" / "UNL33T"
+
+E 			= "ACCESS" / "BYTES"
+
+Param 		= *VCHAR
+
+Response 	= "RESULT" SP Message
+
+Message 	= "OK" / "ERROR" / 1*DIGIT
+
