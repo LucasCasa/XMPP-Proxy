@@ -1,5 +1,8 @@
 package ar.itba.edu.ar.pdc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by root on 26/10/16.
  */
@@ -12,7 +15,7 @@ public class MessageConverter {
         StringBuilder sb = new StringBuilder(m);
 
 
-        int start = sb.indexOf("<body>");
+        int start = sb.indexOf("<body>")+6;
         int end = sb.indexOf("</body>");
 
         //Falta chequear si al from , el to lo tiene en bloqueados
@@ -21,10 +24,10 @@ public class MessageConverter {
         if(!message.isEmpty()){
 
 			/*aca hago la modificacion del mensaje*/
-            StringBuilder messageToBeTransformed = new StringBuilder(sb.substring(start+6, end));
+            StringBuilder messageToBeTransformed = new StringBuilder(sb.substring(start, end));
             messageToBeTransformed = convertMessage(messageToBeTransformed);
 
-            return messageToBeTransformed.toString();
+            return sb.replace(start,end,messageToBeTransformed.toString()).toString();
         }
 
         return m;
@@ -36,31 +39,36 @@ public class MessageConverter {
         char[] vector = aux.toCharArray();
         int strBlen = message.length();
         int longitud= aux.length();
-
-        for(int i=0; i<longitud;i++){
-            switch (vector[i]){
+        List<Character> nc = new ArrayList<>();
+        for(char c : aux.toCharArray()){
+            switch (c){
                 case 'a':
-                    vector[i]= '4';
+                    nc.add('4');
                     break;
                 case 'e':
-                    vector[i]= '3';
+                    nc.add('3');
                     break;
                 case 'i':
-                    vector[i]= '1';
+                    nc.add('1');
                     break;
                 case 'o':
-                    vector[i]= '0';
+                    nc.add('0');
                     break;
                 case 'c':
-                    vector[i]= '<';
+                    nc.add('&');
+                    nc.add('l');
+                    nc.add('t');
+                    nc.add(';');
                     break;
+                default:
+                    nc.add(c);
             }
         }
-
-        aux = String.copyValueOf(vector);
-        message = message.replace(0, strBlen, aux);
-
-        return message;
+        char[] c = new char[nc.size()];
+        for(int i = 0; i<nc.size();i++){
+            c[i] = nc.get(i);
+        }
+        return new StringBuilder(String.copyValueOf(c));
 
     }
 }

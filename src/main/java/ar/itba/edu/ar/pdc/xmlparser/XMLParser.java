@@ -16,6 +16,15 @@ public class XMLParser {
 		int j = sb.indexOf("from='");
 		int i = sb.indexOf("to='");
 		int k = sb.indexOf("body");
+		if(sb.indexOf("message") == -1){
+			return false;
+		}
+		if(k == -1){
+			return false;
+		}
+		if(i == -1){
+			return false;
+		}
 
 		if(i != -1 && j != -1){
 

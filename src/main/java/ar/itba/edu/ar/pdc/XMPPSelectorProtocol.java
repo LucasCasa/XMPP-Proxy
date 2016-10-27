@@ -45,7 +45,11 @@ public class XMPPSelectorProtocol implements TCPProtocol {
             long bytesRead = clntChan.read(aux);
             System.out.println("LEO DEL CLIENTE: " + bytesRead);
             System.out.println(new String(aux.array()).substring(0,aux.position()));
-            pc.clientMessages.add(XMLParser.parse(new String(aux.array()).substring(0,aux.position())));
+            String auxS = new String(aux.array()).substring(0,aux.position());
+            if(XMLParser.parse(auxS)){
+                auxS = MessageConverter.transform(auxS);
+            }
+            pc.clientMessages.add(auxS);
             if (bytesRead == -1) { // Did the other end close?
                 clntChan.close();
             } else if (bytesRead > 0) {
@@ -62,7 +66,11 @@ public class XMPPSelectorProtocol implements TCPProtocol {
             long bytesRead = srvChan.read(aux);
             System.out.println("LEO DEL SERVIDOR: " + bytesRead);
             System.out.println(new String(aux.array()).substring(0,aux.position()));
-            pc.serverMessages.add(XMLParser.parse(new String(aux.array()).substring(0,aux.position())));
+            String auxS = new String(aux.array()).substring(0,aux.position());
+            if(XMLParser.parse(auxS)){
+                auxS = MessageConverter.transform(auxS);
+            }
+            pc.serverMessages.add(auxS);
             if (bytesRead == -1) { // Did the other end close?
                 srvChan.close();
             } else if (bytesRead > 0) {
