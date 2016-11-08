@@ -1,6 +1,5 @@
 package ar.itba.edu.ar.pdc.admin;
 
-import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 
 public class Reader {
@@ -19,11 +18,12 @@ public class Reader {
 	
 	public void Read(CharBuffer cb){
 		StringBuilder sb = new StringBuilder("");
+		cb.flip();
 		while(cb.hasRemaining()){
 			char c = cb.get();
 			if(c == separator){
 				int value = validate(sb);
-				if(validate(sb) != 0 ){
+				if(value != 0 ){
 					checkParameters(cb,value);
 					return;
 				}else{
@@ -31,10 +31,17 @@ public class Reader {
 					return;
 				}
 			}else{
-				sb.append(c);
+				sb = sb.append(c);
 			}
 		}
-		//mandar mensaje de unknown error
+		if(sb.toString().equals("BYTES.\n.")){
+			//llamo a bytes
+		}else if(sb.toString().equals("ACCESS.\n.")){
+			//llamo a acces
+		}else{
+			//mandar mensaje de unknown error
+		}
+		
 	}
 
 
@@ -64,75 +71,216 @@ public class Reader {
 			case unl33t:
 				unl33t(cb);
 				break;
-			case access:
-				access(cb);
-				break;
-			case bytes:
-				bytes(cb);
-				break;
 		}
 		
-	}
-
-
-	private void bytes(CharBuffer cb) {
-		StringBuilder sb = new StringBuilder("");
-		while(cb.hasRemaining()){
-			
-		}
 	}
 
 
 	private void unl33t(CharBuffer cb) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	private void access(CharBuffer cb) {
-		// TODO Auto-generated method stub
+		int aux = 0;
+		StringBuilder sb = new StringBuilder("");
+		while(cb.hasRemaining()){
+			char c = cb.get();
+			if(c == '\n' && aux == 0){
+				aux ++;
+				//llego a la primera separacion ahora tiene que ver el final
+			}else if (aux == 0){
+				sb = sb.append(c);
+			}else if( c == '.' && aux == 1){
+				aux ++;
+			}else if( c == '\n' && aux == 2){
+				System.out.println("llamo a la funcion de unl33t");
+				//llamo a la funcion de unl33t
+			}else{
+				System.out.println("tirar error de que estan mal los parametros");
+				//tirar error de que estan mal los parametros
+			}
+		}
 		
 	}
 
 
 	private void l33t(CharBuffer cb) {
-		// TODO Auto-generated method stub
+		int aux = 0;
+		StringBuilder sb = new StringBuilder("");
+		while(cb.hasRemaining()){
+			char c = cb.get();
+			if(c == '\n' && aux == 0){
+				aux ++;
+				//llego a la primera separacion ahora tiene que ver el final
+			}else if (aux == 0){
+				sb = sb.append(c);
+			}else if( c == '.' && aux == 1){
+				aux ++;
+			}else if( c == '\n' && aux == 2){
+				System.out.println("llamo a la funcion de l33t");
+				//llamo a la funcion de l33t
+			}else{
+				System.out.println("tirar error de que estan mal los parametros");
+				//tirar error de que estan mal los parametros
+			}
+		}
 		
 	}
 
 
 	private void multiplex(CharBuffer cb) {
-		// TODO Auto-generated method stub
+		StringBuilder name = new StringBuilder("");
+		StringBuilder sb = new StringBuilder("");
+		int aux = 0;
+		int param = 0;
+		while(cb.hasRemaining()){
+			char c = cb.get();
+			if(c == separator && param == 0){
+				param ++;
+			}else if(c == '\n' && aux == 0){
+				aux ++;
+				//llego a la primera separacion ahora tiene que ver el final
+			}else if (aux == 0 && param == 0){
+				name = name.append(c);
+			}else if(aux == 0 && param == 1){
+				sb = sb.append(c);
+			}else if( c == '.' && aux == 1){
+				aux ++;
+			}else if( c == '\n' && aux == 2){
+				System.out.println("llamo a la funcion de multiplex");
+				//llamo a la funcion de multiplex
+			}else{
+				System.out.println("tirar error de que estan mal los parametros");
+				//tirar error de que estan mal los parametros
+			}
+		}
 		
 	}
 
 
 	private void unsilence(CharBuffer cb) {
-		// TODO Auto-generated method stub
+		int aux = 0;
+		StringBuilder sb = new StringBuilder("");
+		while(cb.hasRemaining()){
+			char c = cb.get();
+			if(c == '\n' && aux == 0){
+				aux ++;
+				//llego a la primera separacion ahora tiene que ver el final
+			}else if (aux == 0){
+				sb = sb.append(c);
+			}else if( c == '.' && aux == 1){
+				aux ++;
+			}else if( c == '\n' && aux == 2){
+				System.out.println("llamo a la funcion de unsilence");
+				//llamo a la funcion de unsilence
+			}else{
+				System.out.println("tirar error de que estan mal los parametros");
+				//tirar error de que estan mal los parametros
+			}
+		}
 		
 	}
 
 
 	private void silence(CharBuffer cb) {
-		// TODO Auto-generated method stub
-		
+		int aux = 0;
+		StringBuilder sb = new StringBuilder("");
+		while(cb.hasRemaining()){
+			char c = cb.get();
+			if(c == '\n' && aux == 0){
+				aux ++;
+				//llego a la primera separacion ahora tiene que ver el final
+			}else if (aux == 0){
+				sb = sb.append(c);
+			}else if( c == '.' && aux == 1){
+				aux ++;
+			}else if( c == '\n' && aux == 2){
+				System.out.println("llamo a la funcion de silence");
+				//llamo a la funcion de silence
+			}else{
+				System.out.println("tirar error de que estan mal los parametros");
+				//tirar error de que estan mal los parametros
+			}
+		}		
 	}
 
 
 	private void see(CharBuffer cb) {
-		// TODO Auto-generated method stub
+		int aux = 0;
+		StringBuilder sb = new StringBuilder("");
+		while(cb.hasRemaining()){
+			char c = cb.get();
+			if(c == '\n' && aux == 0){
+				aux ++;
+				//llego a la primera separacion ahora tiene que ver el final
+			}else if (aux == 0){
+				sb = sb.append(c);
+			}else if( c == '.' && aux == 1){
+				aux ++;
+			}else if( c == '\n' && aux == 2){
+				System.out.println("llamo a la funcion de see");
+				//llamo a la funcion de see
+			}else{
+				System.out.println("tirar error de que estan mal los parametros");
+				//tirar error de que estan mal los parametros
+			}
+		}
 		
 	}
 
 
 	private void register(CharBuffer cb) {
-		// TODO Auto-generated method stub
+		StringBuilder name = new StringBuilder("");
+		StringBuilder pass = new StringBuilder("");
+		int aux = 0;
+		int param = 0;
+		while(cb.hasRemaining()){
+			char c = cb.get();
+			if(c == separator && param == 0){
+				param ++;
+			}else if(c == '\n' && aux == 0){
+				aux ++;
+				//llego a la primera separacion ahora tiene que ver el final
+			}else if (aux == 0 && param == 0){
+				name = name.append(c);
+			}else if(aux == 0 && param == 1){
+				pass = pass.append(c);
+			}else if( c == '.' && aux == 1){
+				aux ++;
+			}else if( c == '\n' && aux == 2){
+				System.out.println("llamo a la funcion de register");
+				//llamo a la funcion de l33t
+			}else{
+				System.out.println("tirar error de que estan mal los parametros");
+				//tirar error de que estan mal los parametros
+			}
+		}
 		
 	}
 
 
 	private void login(CharBuffer cb) {
-		// TODO Auto-generated method stub
+		StringBuilder name = new StringBuilder("");
+		StringBuilder pass = new StringBuilder("");
+		int aux = 0;
+		int param = 0;
+		while(cb.hasRemaining()){
+			char c = cb.get();
+			if(c == separator && param == 0){
+				param ++;
+			}else if(c == '\n' && aux == 0){
+				aux ++;
+				//llego a la primera separacion ahora tiene que ver el final
+			}else if (aux == 0 && param == 0){
+				name = name.append(c);
+			}else if(aux == 0 && param == 1){
+				pass = pass.append(c);
+			}else if( c == '.' && aux == 1){
+				aux ++;
+			}else if( c == '\n' && aux == 2){
+				System.out.println("llamo a la funcion de login");
+				//llamo a la funcion de l33t
+			}else{
+				System.out.println("tirar error de que estan mal los parametros");
+				//tirar error de que estan mal los parametros
+			}
+		}
 		
 	}
 
@@ -172,5 +320,15 @@ public class Reader {
 		}
 		return 0;
 	}
+	
+	public static void main(String[] args) {
+		Reader r = new Reader();
+		String a  = "MULTIPLEX A B\n.\n";
+		CharBuffer cb = CharBuffer.allocate(100);
+		cb.put(a);
+		r.Read(cb);
+		
+	}
+	
 
 }
