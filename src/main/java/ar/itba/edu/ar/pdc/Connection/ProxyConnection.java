@@ -55,7 +55,7 @@ public class ProxyConnection {
     public SelectionKey getClientKey() {
         return clientKey;
     }
-    public void setJID(String JID){
+    public void setJID(boolean JID){
 
         String[] JIDSplit = JID.split("/");
         if(JIDSplit.length >0){

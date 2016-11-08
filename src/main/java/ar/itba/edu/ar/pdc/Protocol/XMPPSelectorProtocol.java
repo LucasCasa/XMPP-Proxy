@@ -46,7 +46,8 @@ public class XMPPSelectorProtocol implements TCPProtocol {
             long bytesRead = clntChan.read(aux);
             System.out.println("LEO DEL CLIENTE: " + bytesRead);
             String auxS = new String(aux.array()).substring(0,aux.position());
-            if(XMLParser.isMessage(auxS)){
+            //XMLParser.isMessage(aux);
+            if(XMLParser.isMessage(aux)){
                 auxS = MessageConverter.transform(auxS);
             }
             pc.addClientMessage(auxS);
@@ -69,10 +70,10 @@ public class XMPPSelectorProtocol implements TCPProtocol {
             long bytesRead = srvChan.read(aux);
             System.out.println("LEO DEL SERVIDOR: " + bytesRead);
             String auxS = new String(aux.array()).substring(0,aux.position());
-            if(XMLParser.isMessage(auxS)){
+            if(XMLParser.isMessage(aux)){
                 auxS = MessageConverter.transform(auxS);
-            }else  if(XMLParser.isJID(auxS)){
-                pc.setJID(XMLParser.getJID(auxS));
+            }else if(XMLParser.isJID(aux)){
+                pc.setJID(XMLParser.isJID(aux));
             }
             pc.addServerMessage(auxS);
             if (bytesRead == -1) { // Did the other end close?
