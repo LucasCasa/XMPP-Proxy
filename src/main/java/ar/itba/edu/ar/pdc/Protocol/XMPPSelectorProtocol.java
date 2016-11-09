@@ -39,7 +39,8 @@ public class XMPPSelectorProtocol implements TCPProtocol {
     public void handleRead(SelectionKey key) throws IOException {
         // Client socket channel has pending data
 
-        if(((ProxyConnection) key.attachment()).getClientKey().equals(key)) {
+        ((ProxyConnection) key.attachment()).handleRead(key);
+        /*if(((ProxyConnection) key.attachment()).getClientKey().equals(key)) {
             SocketChannel clntChan = (SocketChannel) key.channel();
             ProxyConnection pc = (ProxyConnection) key.attachment();
             ByteBuffer aux = ByteBuffer.allocate(bufSize);
@@ -88,7 +89,7 @@ public class XMPPSelectorProtocol implements TCPProtocol {
             }
         }
 
-
+    */
 
     }
     public void handleWrite(SelectionKey key) throws IOException {
@@ -97,7 +98,9 @@ public class XMPPSelectorProtocol implements TCPProtocol {
          * channel not closed).
          */
         // Retrieve data read earlier
-        if(((ProxyConnection) key.attachment()).getClientKey().equals(key)) {
+
+        ((ProxyConnection) key.attachment()).handleWrite(key);
+        /*if(((ProxyConnection) key.attachment()).getClientKey().equals(key)) {
             ProxyConnection pc = (ProxyConnection) key.attachment();
             SocketChannel cliChan = (SocketChannel) pc.getClientKey().channel();
             System.out.println("MANDO AL CLIENTE");
@@ -124,6 +127,6 @@ public class XMPPSelectorProtocol implements TCPProtocol {
             }
 
         }
-
+    */
     }
 }

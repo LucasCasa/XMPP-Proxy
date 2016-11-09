@@ -75,34 +75,68 @@ public class XMLParser {
 
         return true;
     }
+    public static boolean startWith(String s, ByteBuffer bf){
+        Charset utf18 = Charset.forName("UTF-8");
+        bf.flip();
+        CharBuffer buff = utf18.decode(bf); //Tengo el buffer en chars
+        out.println("ESTOY POR ENTRAR EN STARTWITH PRIVATE STATIC");
+        return startWith(s,buff);
+    }
+
+    private static boolean startWith(String s, CharBuffer cb){
+        out.println("ENTRE EN STARTWITH PRIVATE STATIC Y ESTOY POR ENTRAR AL FOR");
+        out.println("EL STRING VALE: " + s);
+        out.println("EL CHARBUFFER VALE: " + cb);
+
+        for(int i = 0; i< s.length();i++){
+            if(cb.get(i) != s.charAt(i)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean contains(String s, ByteBuffer bf){
+        Charset utf18 = Charset.forName("UTF-8");
+        bf.flip();
+        CharBuffer buff = utf18.decode(bf); //Tengo el buffer en chars
+        return compare(buff,s);
+    }
 
     private static boolean compare(CharBuffer aux, String str){
 
         int buffLength = aux.length();
         int strLenth = str.length();
-        int i=0;
+        int i=aux.position();
         int j=0;
 
-        for(; i < buffLength && i < strLenth;){
-            if((aux.charAt(i) != str.charAt(j)) && j< strLenth){
+        while(i < buffLength){
+            /*if((aux.charAt(i) != str.charAt(j)) && j< strLenth){
                 i++;
             }else{
                 i++;
                 j++;
+            }*/
+            while( i < buffLength && aux.charAt(i) != str.charAt(j)){
+                i++;
             }
+            while(i < buffLength && aux.charAt(i) == str.charAt(j)){
+                i++;
+                j++;
+                if(j == strLenth){
+                    return true;
+                }
+            }
+            j=0;
         }
-
-        if(i > buffLength){
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
 
     public static String getBody(ByteBuffer buffer){
         Charset utf18 = Charset.forName("UTF-8");
         CharBuffer buff = utf18.decode(buffer); //Tengo el buffer en chars
+        StringBuilder answer = new StringBuilder();
 
         /*Lo que necesito para manejarme con el buffer*/
         int length = buff.length();
@@ -121,29 +155,37 @@ public class XMLParser {
         /**/
 
 
-        for(int i=currentPosition; i < length && (isBeginTagBody || isEndTagBody);){
+        for(int i=currentPosition,j=1; i < length ;){
             if(buff.charAt(i) == '<'){
-                while(buff.charAt(i) !='>' && i < length){
-                    aux.append(buff.charAt(i));
+                while(buff.charAt(i + j) !='>'){
+                    aux.append(buff.charAt(i + j));
                 }
 
                 isBeginTagBody = compare(aux, beginTagBody);
-                isEndTagBody = compare(aux, endTagBody);
-
+                //isEndTagBody = compare(aux, endTagBody);
+                i=j;
+                j=1;
+                if(isBeginTagBody) {
+                    while (buff.charAt(i + j) != '<') {
+                        answer.append(buff.charAt(i + j));
+                        j++;
+                    }
+                }
                 i=length;
             }
 
         }
 
-        return aux.toString();
+        return answer.toString();
 
     }
 
 
     public static String getAuth(ByteBuffer buffer){
         Charset utf18 = Charset.forName("UTF-8");
+        buffer.flip();
         CharBuffer buff = utf18.decode(buffer); //Tengo el buffer en chars
-
+        StringBuilder answer = new StringBuilder();
         /*Lo que necesito para manejarme con el buffer*/
         int length = buff.length();
         int currentPosition = buffer.position(); //Posicion actual del ByteBuffer. Es importante porque el buffer es circular.
@@ -155,28 +197,96 @@ public class XMLParser {
         /**/
 
         /*Las variables auxiliares que necesito*/
-        CharBuffer aux = null;
+        CharBuffer aux = CharBuffer.allocate(4096);
         String authBegin = "auth ";
         String authEnd = "/auth";
         /**/
 
+        //aux.append('J');
+        //aux.append('A');
+        //out.println("ANTES DE ENTRAR AL WHILE, aux vale " + aux.flip());
 
-        for(int i=currentPosition; i < length && (isBeginAuthTag || isEndAuthTag);){
+        out.println("ESTOY AFUERA DEL WHILEEEEEEEE");
+        out.println("CURRENT POSITION VALE: " + currentPosition);
+        out.println("LENGTH  VALE: " + length);
+        for(int i=0, j=0; i < length ;){
             if(buff.charAt(i) == '<'){
-                while(buff.charAt(i) !='>' && i < length){
-                    aux.append(buff.charAt(i));
+                out.println("ENTRE ACCAAAAAA");
+                while(buff.charAt(i+j) != '>'){
+                    out.print(buff.charAt(i+j));
+                    aux.append(buff.charAt(i + j));
+                    j++;
                 }
-
+                //i=j;
+                aux.append(buff.charAt(i+j));
+                out.print(buff.charAt(i+j));
+                out.println();
+                out.println("aux VALE: " + aux.flip());
                 isBeginAuthTag = compare(aux, authBegin);
-                isEndAuthTag = compare(aux, authEnd);
 
+
+                i=j;
+               ;
+                j=1;
+
+
+                if(isBeginAuthTag){
+
+                   while(buff.charAt(i + j)!= '<'){
+                       answer.append(buff.charAt(i + j));
+                       j++;
+                   }
+
+
+                }
                 i=length;
             }
 
+            out.println("ANSWER VALE: " + answer);
+
         }
 
-        return aux.toString();
 
+        return answer.toString();
+
+    }
+
+    public static String getTo(ByteBuffer buffer){
+        Charset utf18 = Charset.forName("UTF-8");
+        buffer.flip();
+        CharBuffer buff = utf18.decode(buffer);
+
+        int length = buff.length();
+        CharBuffer aux = CharBuffer.allocate(4096);
+        for(int i=0,j=0; i< length;i++){
+            //out.println("ENTRE AL FOOR");
+            if(buff.charAt(i) == 't'){
+               // out.println("ENTRE A LA T");
+                if(buff.charAt(i+1) == 'o'){
+                   // out.println("ENTRE A LA O");
+                    if(buff.charAt(i+2) == '='){
+                        //out.println("ENTRE AL =");
+                        if (buff.charAt(i + 3) == '\'') {
+
+                            j=i+4;
+                           // out.print("J VALE: " + j);
+                           // out.println("ENTRE A LA '");
+
+                            while(buff.charAt(j)!= '\''){
+                               // out.println("ENTRE EL WHILEEEEEEEE");
+                                aux.append(buff.charAt(j));
+                               // out.print(buff.charAt(j));
+                                j++;
+                            }
+                            i = length;
+                        }
+                    }
+                }
+            }
+        }
+        out.println("AUX AHORA VALE: " + aux.flip());
+        //aux.flip();
+        return aux.toString();
     }
 
 
