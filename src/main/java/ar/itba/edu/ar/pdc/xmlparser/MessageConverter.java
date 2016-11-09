@@ -30,38 +30,38 @@ public class MessageConverter {
         /**/
 
 
-        out.println("BUFF AHORA TIENE: "+ buff);
+        //out.println("BUFF AHORA TIENE: "+ buff);
         int i=0;
-        out.println("i vale: "+ i);
-        out.println("LENGTH VALE: "+ length);
+        //out.println("i vale: "+ i);
+        //out.println("LENGTH VALE: "+ length);
         int j=0;
         boolean inBody = false;
 
         for(; i < length ;i++){
-                out.println("ENTRE EN EL CICLO FOR DE MESSAGE CONVERTER");
+                //out.println("ENTRE EN EL CICLO FOR DE MESSAGE CONVERTER");
                 if(buff.charAt(i) == '<') {
-                    out.println("ENTRE EN <");
+                    //out.println("ENTRE EN <");
                     if(buff.charAt(i+1) == 'b'){
-                        out.println("ENTRE EN b");
+                        //out.println("ENTRE EN b");
                         if(buff.charAt(i+2) == 'o'){
-                            out.println("ENTRE EN o");
+                            //out.println("ENTRE EN o");
                             if(buff.charAt(i+3) == 'd'){
-                                out.println("ENTRE EN d");
+                                //out.println("ENTRE EN d");
                                 if(buff.charAt(i+4) == 'y'){
-                                    out.println("ENTRE EN y");
+                                    //out.println("ENTRE EN y");
                                     if(buff.charAt(i+5) == '>'){
-                                        out.println("ENTRE EN >");
+                                        //out.println("ENTRE EN >");
                                         i+=5;
                                         //inBody = true;
-                                        out.println("I AHORA VALE: " + i);
+                                        //out.println("I AHORA VALE: " + i);
                                         j=i+1;
-                                        out.println("J AHORA PASA A VALER: " + j);
-                                        out.println("EL CARACTER CORRESPONDIENTE ANTES DE ENTRAR AL WHILE ES :" + buff.charAt(j));
+                                        //out.println("J AHORA PASA A VALER: " + j);
+                                        //out.println("EL CARACTER CORRESPONDIENTE ANTES DE ENTRAR AL WHILE ES :" + buff.charAt(j));
                                         while(buff.charAt(j) != '<'){
-                                            out.println("ENTREEEEEE");
+                                            //out.println("ENTREEEEEE");
                                             switch (buff.charAt(j)){
                                                 case 'a':
-                                                    out.println("MODIFICO EL CARACTER?");
+                                                    //out.println("MODIFICO EL CARACTER?");
 
                                                     buff.put(j, '4'); //= '4';
                                                     j++;
@@ -89,7 +89,7 @@ public class MessageConverter {
                                                     j++;
                                                     break;
                                             }
-                                            out.println("DESPUES DE LA TRANSFORMACION : " + buff.toString());
+                                            //out.println("DESPUES DE LA TRANSFORMACION : " + buff.toString());
                                             i=length;
                                     }
                                 }

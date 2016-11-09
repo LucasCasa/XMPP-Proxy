@@ -16,77 +16,18 @@ public class XMLParser {
 
 	}
 
-	public static boolean isMessage(ByteBuffer buffer){
-	    Charset utf18 = Charset.forName("UTF-8");
-        CharBuffer buff = utf18.decode(buffer); //Tengo el buffer en chars
-
-        /*Lo que necesito para manejarme con el buffer*/
-        int length = buff.length();
-        int currentPosition = buffer.position(); //Posicion actual del ByteBuffer. Es importante porque el buffer es circular.
-        /**/
-
-        /*Las variables boolean que necesito para ir comparando partes del xml*/
-        boolean isXMLTag = false;
-        boolean isXMLSuccessTag = false;
-        boolean isStreamTag = false;
-        boolean isBeginAuthTag = false;
-        boolean isEndAuthTag = false;
-        boolean isBeginTagBody = false;
-        boolean isEndTagBody = false;
-        /**/
-
-        /*Las variables auxiliares que necesito*/
-        CharBuffer aux = null;
-        String xmlTag = "?xml ?";
-        String xmlSuccesfulTag = "?xml success ?";
-        String stream = "stream:stream ";
-        String authBegin = "auth ";
-        String authEnd = "/auth";
-        String beginTagBody = "body";
-        String endTagBody = "/body";
-        /**/
-
-        for(int i=currentPosition; i < length && (isXMLTag || isXMLSuccessTag || isStreamTag || isBeginAuthTag || isEndAuthTag || isBeginTagBody || isEndTagBody);){
-            if(buff.charAt(i) == '<'){
-                while(buff.charAt(i) !='>' && i < length){
-                    aux.append(buff.charAt(i));
-                }
-
-                if(i > length){
-                    return false;
-                }
-                isXMLTag = compare(aux, xmlTag);
-                isXMLSuccessTag = compare(aux, xmlSuccesfulTag);
-                isStreamTag = compare(aux, stream);
-                isBeginAuthTag = compare(aux, authBegin);
-                isEndAuthTag = compare(aux, authEnd);
-                isBeginTagBody = compare(aux, beginTagBody);
-                isEndTagBody = compare(aux, endTagBody);
-
-                i+=aux.length() + 1;
-                aux.clear();
-            }
-
-        }
-
-        if(!((isXMLTag || isXMLSuccessTag) && isStreamTag && isBeginAuthTag && isEndAuthTag && isBeginTagBody && isEndTagBody)){
-            return false;
-        }
-
-        return true;
-    }
     public static boolean startWith(String s, ByteBuffer bf){
         Charset utf18 = Charset.forName("UTF-8");
         bf.flip();
         CharBuffer buff = utf18.decode(bf); //Tengo el buffer en chars
-        out.println("ESTOY POR ENTRAR EN STARTWITH PRIVATE STATIC");
+       // out.println("ESTOY POR ENTRAR EN STARTWITH PRIVATE STATIC");
         return startWith(s,buff);
     }
 
     private static boolean startWith(String s, CharBuffer cb){
-        out.println("ENTRE EN STARTWITH PRIVATE STATIC Y ESTOY POR ENTRAR AL FOR");
+        /*out.println("ENTRE EN STARTWITH PRIVATE STATIC Y ESTOY POR ENTRAR AL FOR");
         out.println("EL STRING VALE: " + s);
-        out.println("EL CHARBUFFER VALE: " + cb);
+        out.println("EL CHARBUFFER VALE: " + cb);*/
 
         for(int i = 0; i< s.length();i++){
             if(cb.get(i) != s.charAt(i)){
@@ -100,10 +41,10 @@ public class XMLParser {
         Charset utf18 = Charset.forName("UTF-8");
         bf.flip();
         CharBuffer buff = utf18.decode(bf); //Tengo el buffer en chars
-        return compare(buff,s);
+        return contains(buff,s);
     }
 
-    private static boolean compare(CharBuffer aux, String str){
+    private static boolean contains(CharBuffer aux, String str){
 
         int buffLength = aux.length();
         int strLenth = str.length();
@@ -161,7 +102,7 @@ public class XMLParser {
                     aux.append(buff.charAt(i + j));
                 }
 
-                isBeginTagBody = compare(aux, beginTagBody);
+                isBeginTagBody = contains(aux, beginTagBody);
                 //isEndTagBody = compare(aux, endTagBody);
                 i=j;
                 j=1;
@@ -197,7 +138,6 @@ public class XMLParser {
         /**/
 
         /*Las variables auxiliares que necesito*/
-        CharBuffer aux = CharBuffer.allocate(4096);
         String authBegin = "auth ";
         String authEnd = "/auth";
         /**/
@@ -205,33 +145,22 @@ public class XMLParser {
         //aux.append('J');
         //aux.append('A');
         //out.println("ANTES DE ENTRAR AL WHILE, aux vale " + aux.flip());
+        /*
 
         out.println("ESTOY AFUERA DEL WHILEEEEEEEE");
         out.println("CURRENT POSITION VALE: " + currentPosition);
-        out.println("LENGTH  VALE: " + length);
+        out.println("LENGTH  VALE: " + length);*/
         for(int i=0, j=0; i < length ;){
             if(buff.charAt(i) == '<'){
-                out.println("ENTRE ACCAAAAAA");
+                //out.println("ENTRE ACCAAAAAA");
                 while(buff.charAt(i+j) != '>'){
-                    out.print(buff.charAt(i+j));
-                    aux.append(buff.charAt(i + j));
+                    //out.print(buff.charAt(i+j));
                     j++;
                 }
-                //i=j;
-                aux.append(buff.charAt(i+j));
-                out.print(buff.charAt(i+j));
-                out.println();
-                out.println("aux VALE: " + aux.flip());
-                isBeginAuthTag = compare(aux, authBegin);
-
-
+                isBeginAuthTag = contains(buff, authBegin);
                 i=j;
-               ;
                 j=1;
-
-
                 if(isBeginAuthTag){
-
                    while(buff.charAt(i + j)!= '<'){
                        answer.append(buff.charAt(i + j));
                        j++;
@@ -242,11 +171,9 @@ public class XMLParser {
                 i=length;
             }
 
-            out.println("ANSWER VALE: " + answer);
+            //out.println("ANSWER VALE: " + answer);
 
         }
-
-
         return answer.toString();
 
     }
@@ -255,27 +182,19 @@ public class XMLParser {
         Charset utf18 = Charset.forName("UTF-8");
         buffer.flip();
         CharBuffer buff = utf18.decode(buffer);
-
+        StringBuilder sb = new StringBuilder();
         int length = buff.length();
-        CharBuffer aux = CharBuffer.allocate(4096);
         for(int i=0,j=0; i< length;i++){
-            //out.println("ENTRE AL FOOR");
             if(buff.charAt(i) == 't'){
-               // out.println("ENTRE A LA T");
+
                 if(buff.charAt(i+1) == 'o'){
-                   // out.println("ENTRE A LA O");
+
                     if(buff.charAt(i+2) == '='){
-                        //out.println("ENTRE AL =");
+
                         if (buff.charAt(i + 3) == '\'') {
-
                             j=i+4;
-                           // out.print("J VALE: " + j);
-                           // out.println("ENTRE A LA '");
-
                             while(buff.charAt(j)!= '\''){
-                               // out.println("ENTRE EL WHILEEEEEEEE");
-                                aux.append(buff.charAt(j));
-                               // out.print(buff.charAt(j));
+                                sb.append(buff.charAt(j));
                                 j++;
                             }
                             i = length;
@@ -284,9 +203,8 @@ public class XMLParser {
                 }
             }
         }
-        out.println("AUX AHORA VALE: " + aux.flip());
-        //aux.flip();
-        return aux.toString();
+        //out.println("AUX AHORA VALE: " + aux.flip());
+        return sb.toString();
     }
 
 

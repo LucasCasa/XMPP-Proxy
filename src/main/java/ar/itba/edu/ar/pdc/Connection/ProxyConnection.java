@@ -68,23 +68,29 @@ public class ProxyConnection {
     public void handleWrite(SelectionKey key){
 
         try {
+            int byteWrite = 0;
             if (status == Status.WAITING_SERVER) {
                 serverBuffer.clear();
                 serverBuffer.put((ConnectionHandler.INITIAL_STREAM[0] + serverName + ConnectionHandler.INITIAL_STREAM[1]).getBytes("UTF-8"));
                 out.println(new String(serverBuffer.array()));
                 serverBuffer.flip();
-                int byteWrite= ((SocketChannel)key.channel()).write(serverBuffer);
+                byteWrite = ((SocketChannel)key.channel()).write(serverBuffer);
                 key.interestOps(SelectionKey.OP_READ);
             }else if(status == Status.CONNECTED){
                 if(key.equals(clientKey)){
                     serverBuffer.flip();
-                    ((SocketChannel)clientKey.channel()).write(serverBuffer);
+                    System.out.println("MANDO CLI: " + new String(serverBuffer.array()));
+                    byteWrite = ((SocketChannel)clientKey.channel()).write(serverBuffer);
                     clientKey.interestOps(SelectionKey.OP_READ);
+                    serverBuffer.clear();
                 }else{
                     clientBuffer.flip();
-                    ((SocketChannel)serverKey.channel()).write(clientBuffer);
+                    System.out.println("MANDO SRV: " + new String(clientBuffer.array()));
+                    byteWrite = ((SocketChannel)serverKey.channel()).write(clientBuffer);
                     serverKey.interestOps(SelectionKey.OP_READ);
+                    clientBuffer.clear();
                 }
+
             }
 
         }catch (Exception e){
@@ -94,21 +100,20 @@ public class ProxyConnection {
 
     public void handleRead(SelectionKey key){
         try{
-            int bytesRead = ((SocketChannel) key.channel()).read(clientBuffer);
+            int bytesRead = 0;
             if(status == Status.STARTING){
+                bytesRead = ((SocketChannel) key.channel()).read(clientBuffer);
                 //if lo que leo tiene stream y esta bien formado -> mando los 2 cosos, sino me quedo esperando el stream
                 out.println(new String(clientBuffer.array()));
                 if(XMLParser.startWith("<?xml",clientBuffer)){
-                    out.println("ME TIRO UN XML");
+
                 }
                 if(XMLParser.contains("<stream:stream",clientBuffer)){
-                    out.println("TIENE UN STREAM");
                     serverName = XMLParser.getTo(clientBuffer);
                     clientBuffer.clear();
                     clientBuffer.put(ConnectionHandler.INITIAL_SERVER_STREAM);
                     clientBuffer.put(ConnectionHandler.NEGOTIATION);
                     clientBuffer.flip();
-                    out.println(new String(clientBuffer.array()));
                     ((SocketChannel) key.channel()).write(clientBuffer);
                     status = Status.NEGOTIATING;
                     key.interestOps(SelectionKey.OP_READ);
@@ -121,8 +126,6 @@ public class ProxyConnection {
                     byte[] d = Base64.decodeBase64(XMLParser.getAuth(clientBuffer).getBytes("UTF-8"));
                     String stringData = new String(d);
                     JIDName = stringData.substring(1, stringData.indexOf(0, 1));
-                    //Validacion de cambio de servidor
-                    out.println("SE ESTA AUTENTICANDO");
                     out.println(new String(clientBuffer.array()));
                     serverKey.interestOps(SelectionKey.OP_WRITE);
                     status = Status.WAITING_SERVER;
@@ -148,22 +151,17 @@ public class ProxyConnection {
 
             }else if(status == Status.CONNECTED){
                 //Ya estoy conectado, aca toda la logica del proxy
-                out.println("MIRA MAMA ESTOY CONECTADO");
                 if(key.equals(clientKey)){
                     clientBuffer.clear();
                     bytesRead = ((SocketChannel)clientKey.channel()).read(clientBuffer);
+                    if(XMLParser.startWith("<message",clientBuffer)){
+                            if(XMLParser.contains("<body",clientBuffer)){
+                                clientBuffer = MessageConverter.convertToL33t(clientBuffer);
+                                clientBuffer.position(clientBuffer.limit());
+                            }
+                    }
                     clientKey.interestOps(SelectionKey.OP_READ);
                     serverKey.interestOps(SelectionKey.OP_WRITE);
-                    if(XMLParser.startWith("<message",clientBuffer)){
-                        //if(XMLParser.startWith("<body", serverBuffer)){
-                            out.println("EL MENSAJE TIENE UN tAG MESSAGE, IUPIIII!");
-                            if(XMLParser.contains("<body",clientBuffer)){
-                                out.println("EL MENSAJE TIENE UN tAG BODY, IUPIIII!");
-                                clientBuffer = MessageConverter.convertToL33t(clientBuffer);
-                                out.println("EL CONTENIDO DE BODY MODIFICADO ES: " + new String(clientBuffer.array()));
-                            }
-                        //}
-                    }
                 }else{
                     serverBuffer.clear();
                     bytesRead = ((SocketChannel)serverKey.channel()).read(serverBuffer);
