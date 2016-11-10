@@ -1,5 +1,6 @@
 package ar.itba.edu.ar.pdc.Connection;
 
+import ar.itba.edu.ar.pdc.Metrics;
 import ar.itba.edu.ar.pdc.xmlparser.MessageConverter;
 import ar.itba.edu.ar.pdc.xmlparser.XMLParser;
 
@@ -7,18 +8,17 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import org.apache.commons.codec.binary.Base64;
-
-import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
 
 import static java.lang.System.out;
+import static java.lang.System.setOut;
 
 /**
  * Created by Team Muffin on 25/10/16.
  * The information of the connection
  */
-public class ProxyConnection {
+public class ProxyConnection implements Connection{
     private SelectionKey clientKey;
     private SelectionKey serverKey;
 
@@ -66,7 +66,7 @@ public class ProxyConnection {
         return bf;
     }
     public void handleWrite(SelectionKey key){
-
+        Metrics.incrementAccess();
         try {
             int byteWrite = 0;
             if (status == Status.WAITING_SERVER) {
@@ -79,26 +79,27 @@ public class ProxyConnection {
             }else if(status == Status.CONNECTED){
                 if(key.equals(clientKey)){
                     serverBuffer.flip();
-                    System.out.println("MANDO CLI: " + new String(serverBuffer.array()));
+                    System.out.println(JID + " Esta recibiendo");
                     byteWrite = ((SocketChannel)clientKey.channel()).write(serverBuffer);
                     clientKey.interestOps(SelectionKey.OP_READ);
                     serverBuffer.clear();
                 }else{
                     clientBuffer.flip();
-                    System.out.println("MANDO SRV: " + new String(clientBuffer.array()));
+                    System.out.println(JID + " Esta enviando");
                     byteWrite = ((SocketChannel)serverKey.channel()).write(clientBuffer);
                     serverKey.interestOps(SelectionKey.OP_READ);
                     clientBuffer.clear();
                 }
 
             }
-
+            Metrics.addBytes(byteWrite);
         }catch (Exception e){
             e.printStackTrace();
         }
     }
 
     public void handleRead(SelectionKey key){
+        Metrics.incrementAccess();
         try{
             int bytesRead = 0;
             if(status == Status.STARTING){
@@ -125,7 +126,7 @@ public class ProxyConnection {
                 if(XMLParser.startWith("<auth",clientBuffer)) {
                     byte[] d = Base64.decodeBase64(XMLParser.getAuth(clientBuffer).getBytes("UTF-8"));
                     String stringData = new String(d);
-                    JIDName = stringData.substring(1, stringData.indexOf(0, 1));
+                    setJID(stringData.substring(1, stringData.indexOf(0, 1)));
                     out.println(new String(clientBuffer.array()));
                     serverKey.interestOps(SelectionKey.OP_WRITE);
                     status = Status.WAITING_SERVER;
@@ -143,8 +144,10 @@ public class ProxyConnection {
                         status = Status.CONNECTED;
                         clientKey.interestOps(SelectionKey.OP_READ|SelectionKey.OP_WRITE);
                 }else if(XMLParser.startWith("<failure",serverBuffer)){
-                        status = Status.NEGOTIATING;
-                    clientKey.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+                    clientKey.channel().close();
+                    serverKey.channel().close();
+                    clientKey.cancel();
+                    serverKey.cancel();
                 }
 
                     //System.out.println(new String(clientBuffer.array()));
@@ -153,22 +156,47 @@ public class ProxyConnection {
                 //Ya estoy conectado, aca toda la logica del proxy
                 if(key.equals(clientKey)){
                     clientBuffer.clear();
-                    bytesRead = ((SocketChannel)clientKey.channel()).read(clientBuffer);
-                    if(XMLParser.startWith("<message",clientBuffer)){
-                            if(XMLParser.contains("<body",clientBuffer)){
-                                clientBuffer = MessageConverter.convertToL33t(clientBuffer);
-                                clientBuffer.position(clientBuffer.limit());
-                            }
-                    }
                     clientKey.interestOps(SelectionKey.OP_READ);
                     serverKey.interestOps(SelectionKey.OP_WRITE);
+                    bytesRead = ((SocketChannel)clientKey.channel()).read(clientBuffer);
+                    out.println(new String(clientBuffer.array()));
+                    if(XMLParser.startWith("<message",clientBuffer)){
+                            if(XMLParser.contains("<body",clientBuffer)){
+                                if(ConnectionHandler.isSilenced(JID)){
+                                    clientBuffer.clear();
+                                    Metrics.incrementBlocked();
+                                    serverKey.interestOps(SelectionKey.OP_READ);
+                                }else{
+                                    if(ConnectionHandler.isL33t(JID)) {
+                                        clientBuffer = MessageConverter.convertToL33t(clientBuffer);
+                                        clientBuffer.position(clientBuffer.limit());
+                                        out.println(new String(clientBuffer.array()));
+                                        Metrics.incrementL33ted();
+                                    }
+                                    if(ConnectionHandler.isMultiplex(JID)){
+                                        //MULTIPLEXO
+                                    }
+                                }
+
+                            }
+                    }
+
                 }else{
                     serverBuffer.clear();
                     bytesRead = ((SocketChannel)serverKey.channel()).read(serverBuffer);
+                    if(XMLParser.startWith("<message",serverBuffer) && XMLParser.contains("<body",serverBuffer)){
+                        /*if(ConnectionHandler.isSilenced(XMLParser.getFrom())){
+                            serverBuffer.clear();
+                            Metrics.incrementBlocked();
+                        }*/
+                    }
                     serverKey.interestOps(SelectionKey.OP_READ);
                     clientKey.interestOps(SelectionKey.OP_WRITE);
 
                 }
+            }
+            if(bytesRead == 0){
+                System.out.println("0");
             }
             if (bytesRead == -1) { // Did the other end close?
                 clientKey.channel().close();
@@ -190,16 +218,11 @@ public class ProxyConnection {
     public SelectionKey getClientKey() {
         return clientKey;
     }
-    public void setJID(String JID){
 
-        String[] JIDSplit = JID.split("/");
-        if(JIDSplit.length >0){
-            this.JIDName = JIDSplit[0];
-        }else {
-            this.JIDName = JID;
-        }
-        this.JID = JID;
-        out.println("TENGO ID: " + JIDName);
+    public void setJID(String JID){
+        JIDName = JID;
+        this.JID = JIDName + "@" + serverName;
+        out.println("TENGO ID: " + this.JID);
     }
     public boolean isWaiting() {
         return waiting;

@@ -1,5 +1,7 @@
 package ar.itba.edu.ar.pdc.Protocol;
 
+import ar.itba.edu.ar.pdc.Connection.AdminConnection;
+import ar.itba.edu.ar.pdc.Connection.Connection;
 import ar.itba.edu.ar.pdc.Connection.ConnectionHandler;
 import ar.itba.edu.ar.pdc.Connection.ProxyConnection;
 import ar.itba.edu.ar.pdc.xmlparser.MessageConverter;
@@ -24,22 +26,29 @@ public class XMPPSelectorProtocol implements TCPProtocol {
     }
 
     public void handleAccept(SelectionKey key) throws IOException {
-        SocketChannel clntChan = ((ServerSocketChannel) key.channel()).accept();
-        clntChan.configureBlocking(false); // Must be nonblocking to register
-        // Register the selector with new channel for read and attach byte buffer
-        ProxyConnection pc = new ProxyConnection(null,null);
-        pc.setClientKey(ConnectionHandler.getInstance().addConnection(clntChan,pc));
-        SocketChannel serverChannel = SocketChannel.open();
-        serverChannel.connect(new InetSocketAddress("localhost", 5222));
-        serverChannel.configureBlocking(false);
-        pc.setServerKey(ConnectionHandler.getInstance().addConnection(serverChannel,pc));
+        if((Boolean)key.attachment()){ //ES ADMIN
+            SocketChannel channel = ((ServerSocketChannel) key.channel()).accept();
+            channel.configureBlocking(false);
+            AdminConnection ac = new AdminConnection();
+            ConnectionHandler.getInstance().addConnection(channel, ac);
 
+        }else {
+            SocketChannel clntChan = ((ServerSocketChannel) key.channel()).accept();
+            clntChan.configureBlocking(false); // Must be nonblocking to register
+            // Register the selector with new channel for read and attach byte buffer
+            ProxyConnection pc = new ProxyConnection(null, null);
+            pc.setClientKey(ConnectionHandler.getInstance().addConnection(clntChan, pc));
+            SocketChannel serverChannel = SocketChannel.open();
+            serverChannel.connect(new InetSocketAddress("localhost", 5222));
+            serverChannel.configureBlocking(false);
+            pc.setServerKey(ConnectionHandler.getInstance().addConnection(serverChannel, pc));
+        }
     }
 
     public void handleRead(SelectionKey key) throws IOException {
         // Client socket channel has pending data
 
-        ((ProxyConnection) key.attachment()).handleRead(key);
+        ((Connection) key.attachment()).handleRead(key);
         /*if(((ProxyConnection) key.attachment()).getClientKey().equals(key)) {
             SocketChannel clntChan = (SocketChannel) key.channel();
             ProxyConnection pc = (ProxyConnection) key.attachment();
@@ -99,7 +108,7 @@ public class XMPPSelectorProtocol implements TCPProtocol {
          */
         // Retrieve data read earlier
 
-        ((ProxyConnection) key.attachment()).handleWrite(key);
+        ((Connection) key.attachment()).handleWrite(key);
         /*if(((ProxyConnection) key.attachment()).getClientKey().equals(key)) {
             ProxyConnection pc = (ProxyConnection) key.attachment();
             SocketChannel cliChan = (SocketChannel) pc.getClientKey().channel();

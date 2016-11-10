@@ -24,12 +24,16 @@ public class Server {
             selector = ConnectionHandler.getInstance().getSelector();
 
             ServerSocketChannel listnChannel = ServerSocketChannel.open();
+            ServerSocketChannel adminChannel = ServerSocketChannel.open();
             SocketChannel originServer = SocketChannel.open();
             listnChannel.socket().bind(new InetSocketAddress(42069));
+            adminChannel.socket().bind(new InetSocketAddress(42070));
             originServer.configureBlocking(false);
+            adminChannel.configureBlocking(false);
             listnChannel.configureBlocking(false); // must be nonblocking to register
             // Register selector with channel. The returned key is ignored
-            listnChannel.register(selector, SelectionKey.OP_ACCEPT);
+            listnChannel.register(selector, SelectionKey.OP_ACCEPT,false);
+            adminChannel.register(selector, SelectionKey.OP_ACCEPT,true);
             if (!originServer.connect(new InetSocketAddress("localhost", 5222))) {
                 while (!originServer.finishConnect()) {
                     System.out.print(".a"); // Do something else

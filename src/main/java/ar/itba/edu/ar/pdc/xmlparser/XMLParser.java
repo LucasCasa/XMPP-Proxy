@@ -29,7 +29,7 @@ public class XMLParser {
         out.println("EL STRING VALE: " + s);
         out.println("EL CHARBUFFER VALE: " + cb);*/
 
-        for(int i = 0; i< s.length();i++){
+        for(int i = 0; i< s.length() && i < cb.length() ;i++){
             if(cb.get(i) != s.charAt(i)){
                 return false;
             }
