@@ -19,7 +19,7 @@ public class MessageConverter {
         buffer.flip();
         CharBuffer buff = utf18.decode(buffer);
         CharBuffer answer = CharBuffer.allocate(buff.capacity()*4);
-
+        answer.clear();
         /*Lo que necesito para manejarme con el buffer*/
         int length = buff.length();
         int currentPosition = buffer.position(); //Posicion actual del ByteBuffer. Es importante porque el buffer es circular.
@@ -50,39 +50,39 @@ public class MessageConverter {
                 o = false;
                 d = false;
                 y = false;
-                answer.put(k,c);
+                answer.put(c);
                 k++;
             }else{
                 if(c == '<'){
                     lower = true;
-                    answer.put(k,c);
+                    answer.put(c);
                     k++;
                 }
 
                 if(c == 'b'){
                     b= true;
-                    answer.put(k,c);
+                    answer.put(c);
                     k++;
                 }
 
                 if(c== 'o' ){
                     o = true;
                     //out.println("entre aca, tengo que meter la o");
-                    answer.put(k,c);
+                    answer.put(c);
                     k++;
                 }
 
                 if(c=='d' ){
                     d = true;
                     //out.println("entre aca, tengo que meter la d");
-                    answer.put(k,c);
+                    answer.put(c);
                     k++;
                 }
 
                 if(c=='y' ){
                     y=true;
                    // out.println("entre aca, tengo que meter la y");
-                    answer.put(k,c);
+                    answer.put(c);
                     k++;
                 }
 
@@ -90,7 +90,7 @@ public class MessageConverter {
 
                 if(c=='>'){
                    // out.println("CIERRE TAG");
-                    answer.put(k,c);
+                    answer.put(c);
                     k++;
 
                     if(lower && b && o && d && y){
@@ -101,38 +101,38 @@ public class MessageConverter {
                             switch (c) {
                                 case 'a':
                                     //out.println("MODIFICO EL CARACTER?");
-                                    answer.put(k,'4');
+                                    answer.put('4');
                                     //buff.put(j, '4'); //= '4';
                                     j++;
                                     k++;
                                     break;
                                 case 'e':
-                                    answer.put(k,'3');
+                                    answer.put('3');
                                     //buff.put(j, '3');
                                     j++;
                                     k++;
                                     break;
                                 case 'i':
-                                    answer.put(k, '1');
+                                    answer.put('1');
                                     //buff.put(j, '1');
                                     j++;
                                     k++;
                                     break;
                                 case 'o':
-                                    answer.put(k, '0');
+                                    answer.put('0');
                                     j++;
                                     k++;
                                     break;
                                 case 'c':
-                                    answer.put(k, '&');
-                                    answer.put(k+1, 'l');
-                                    answer.put(k+2, 't');
-                                    answer.put(k+3, ';');
+                                    answer.put('&');
+                                    answer.put('l');
+                                    answer.put('t');
+                                    answer.put(';');
                                     k+=4;
                                     j++;
                                     break;
                                 default:
-                                    answer.put(k,c);
+                                    answer.put(c);
                                     k++;
                                     j++;
                                     break;
@@ -141,7 +141,7 @@ public class MessageConverter {
                         }
                         //out.println("SALI DEL WHILE");
                         //out.println("EL CARACTER ES <?" + c);
-                        answer.put(k, c);
+                        answer.put(c);
                         k++;
                         //out.println("I VALE ESTO: " + i);
                         //out.println("LA LONGITUD DEL BUFFER ORIGINAL ES: " + length);
@@ -156,13 +156,10 @@ public class MessageConverter {
         }
         //out.println("SALI DEL FOR");
         //out.println("LA RESPUESTA ES: " + answer);
+        answer.flip();
         buffer.clear();
-        int w = 0;
-        while(answer.get(w) != 0 && w < answer.length()){
-            buffer.put(w,(byte)answer.get(w));
-            w++;
-        }
-        buffer.limit(w);
+        buffer.put(Charset.forName("UTF-8").encode(answer));
+        //buffer.position(k);
         return buffer;
 
     }

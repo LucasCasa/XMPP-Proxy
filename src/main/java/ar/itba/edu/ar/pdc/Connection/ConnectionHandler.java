@@ -33,7 +33,7 @@ public class ConnectionHandler{
         try {
             s = Selector.open();
             leet = new HashSet<>();
-            leet.add("test@muffin.com");
+            leet.add("lucas@muffin.com");
             leet.add("nicolas@muffin.com");
         }catch (Exception e){
             e.printStackTrace();

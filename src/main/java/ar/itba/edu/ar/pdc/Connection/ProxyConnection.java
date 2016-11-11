@@ -169,7 +169,7 @@ public class ProxyConnection implements Connection{
                                 }else{
                                     if(ConnectionHandler.isL33t(JID)) {
                                         clientBuffer = MessageConverter.convertToL33t(clientBuffer);
-                                        clientBuffer.position(clientBuffer.limit());
+                                        //clientBuffer.position(clientBuffer.limit());
                                         out.println(new String(clientBuffer.array()));
                                         Metrics.incrementL33ted();
                                     }
