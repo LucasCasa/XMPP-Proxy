@@ -3,10 +3,6 @@ package ar.itba.edu.ar.pdc.xmlparser;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.lang.System.out;
 
 /**
  * Created by Team Muffin on 26/10/16.
@@ -128,10 +124,10 @@ public class MessageConverter {
                                     k++;
                                     break;
                                 case 'c':
-                                    answer.put(j, '&');
-                                    answer.put(j+1, 'l');
-                                    answer.put(j+2, 't');
-                                    answer.put(j+3, ';');
+                                    answer.put(k, '&');
+                                    answer.put(k+1, 'l');
+                                    answer.put(k+2, 't');
+                                    answer.put(k+3, ';');
                                     k+=4;
                                     j++;
                                     break;
