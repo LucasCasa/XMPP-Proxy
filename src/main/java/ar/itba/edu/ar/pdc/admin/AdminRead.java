@@ -2,7 +2,7 @@ package ar.itba.edu.ar.pdc.admin;
 
 import java.util.Scanner;
 
-public class AdminConnection {
+public class AdminRead {
 
 	private final static int access = 0;
 	private final static int login = 1;
@@ -25,9 +25,11 @@ public class AdminConnection {
 			String aux = s.nextLine();
 			String rta = Validate(aux);
 			if(rta == null){
+				System.out.println("HUBO ERROR");
 				//hubo error
 			}
 			else{
+				System.out.println(rta);
 				//mandar al servidor
 			}
 		}
@@ -37,8 +39,8 @@ public class AdminConnection {
 
 	private static String Validate(String s) {
 		StringBuilder sb = new StringBuilder("");
-		for(int i=0; s.charAt(i) != '\n';i++){
-			int c = s.charAt(i);
+		for(int i=0; i<s.length();i++){
+			char c = s.charAt(i);
 			if(c == ' '){
 				value = isCorrect(sb);
 				if(value == -1){
@@ -51,14 +53,11 @@ public class AdminConnection {
 				case 2:
 					return readTwoParam(s,i+1);
 				}
-			}else if(c == '\n'){
-				return readNoParam(s,i);
 			}else{
 				sb.append(c);
 			}
 		}
-		return null;
-
+		return readNoParam(sb);
 	}
 
 	private static String readTwoParam(String s, int i) {
@@ -67,12 +66,11 @@ public class AdminConnection {
 		Converter conv = new ConverterImpl();
 		String rta = null;
 		int cant = 0;
-		for(int j=i;s.charAt(j)!='\n';j++){
+		for(int j=i;j<s.length();j++){
 			char c = s.charAt(j);
 			if(c == ' ' && cant == 0){
 				cant ++;
-			}
-			if(cant == 0){
+			}else if(cant == 0){
 				s1.append(c);
 			}else{
 				s2.append(c);
@@ -81,7 +79,6 @@ public class AdminConnection {
 		if(cant == 0 && value == multiplex){
 			rta = conv.multiplex(s1.toString());
 		}
-
 		switch(value){
 		case login:
 			rta = conv.login(s1.toString(), s2.toString());
@@ -101,7 +98,7 @@ public class AdminConnection {
 		String rta = null;
 		StringBuilder s1 = new StringBuilder("");
 		Converter conv = new ConverterImpl();
-		for(int j=i;s.charAt(j)!='\n';j++){
+		for(int j=i;j<s.length();j++){
 			char c = s.charAt(j);
 			s1.append(c);
 		}
@@ -126,8 +123,9 @@ public class AdminConnection {
 
 	}
 
-	private static String readNoParam(String s,int i) {
+	private static String readNoParam(StringBuilder s) {
 		String rta = null;
+		value = isCorrect(s);
 		Converter conv = new ConverterImpl();
 		switch(value){
 		case bytes:
@@ -144,7 +142,6 @@ public class AdminConnection {
 		String string = sb.toString().toUpperCase();
 		if(string.equals("LOGIN")){
 			return login;
-
 		}else if(string.equals("REGISTER")){
 			return register;
 
