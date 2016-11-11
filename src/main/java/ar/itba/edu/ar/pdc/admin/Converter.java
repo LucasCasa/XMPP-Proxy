@@ -18,5 +18,6 @@ public interface Converter {
 	public String resultOk(String message);
 	public String resultError(String message);
 	public String resultSee(List<String> result);
+	public String exit();
 	
 }

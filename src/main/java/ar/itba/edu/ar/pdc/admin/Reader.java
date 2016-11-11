@@ -15,7 +15,6 @@ public class Reader {
 	private final static int see = 10;
 	private final static char separator = ' ';
 	
-	
 	public void Read(CharBuffer cb){
 		StringBuilder sb = new StringBuilder("");
 		cb.flip();

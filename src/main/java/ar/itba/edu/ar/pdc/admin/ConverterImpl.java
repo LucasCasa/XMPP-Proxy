@@ -13,6 +13,7 @@ public class ConverterImpl implements Converter {
 	private final String unsilence = "UNSILENCE";
 	private final String unl33t = "UNL33T";
 	private final String see = "SEE";
+	private final String exit = "EXIT";
 	
 	private final String result = "RESULT";
 	private final String ok = "OK";
@@ -137,6 +138,11 @@ public class ConverterImpl implements Converter {
 		}
 		s.append(endOfMessage);
 		return s.toString();
+	}
+
+	@Override
+	public String exit() {
+		return exit + endOfMessage;
 	}
 	
 	

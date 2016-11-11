@@ -1,6 +1,15 @@
 package ar.itba.edu.ar.pdc.admin;
 
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 import java.util.Scanner;
+
+import ar.itba.edu.ar.pdc.Connection.ConnectionHandler;
 
 public class AdminRead {
 
@@ -14,19 +23,45 @@ public class AdminRead {
 	private final static int unsilence = 7;
 	private final static int unl33t = 8;
 	private final static int see = 9;
-	private final static int [] params = {0,2,2,2,1,0,1,1,1,1}; 
+	private final static int exit = 10;
+	private final static int [] params = {0,2,2,2,1,0,1,1,1,1,0}; 
+	
+	private final static String error = "Parametros invalidos";
 
 	private static int value = -1;
 
 	public static void main(String[] args) {
-		System.out.println("Start Writing");
+		Selector selector;
+		try{
+			selector = ConnectionHandler.getInstance().getSelector();
+			ServerSocketChannel serverChannel = ServerSocketChannel.open();
+			serverChannel.socket().bind(new InetSocketAddress(42070));
+			serverChannel.configureBlocking(false);
+			serverChannel.register(selector, SelectionKey.OP_ACCEPT,true);
+			System.out.println("Empeza a escribir");
+			ByteBuffer bd = readInput();
+			((SocketChannel) serverChannel.keyFor(selector).channel()).write(bd);
+			System.out.println(bd);
+			
+			
+		}catch(Exception e){
+			
+		}
+
+
+	}
+	
+	private static ByteBuffer readInput(){
+		Charset utf8 = Charset.forName("UTF-8");
+		Converter c = new ConverterImpl();
+		String rta = null;
 		Scanner s = new Scanner(System.in);
 		while(s.hasNext()){
 			String aux = s.nextLine();
-			String rta = Validate(aux);
+			 rta = Validate(aux);
 			if(rta == null){
 				System.out.println("HUBO ERROR");
-				//hubo error
+				rta = c.resultError(error);
 			}
 			else{
 				System.out.println(rta);
@@ -34,7 +69,7 @@ public class AdminRead {
 			}
 		}
 		s.close();
-
+		return utf8.encode(rta);
 	}
 
 	private static String Validate(String s) {
@@ -64,7 +99,7 @@ public class AdminRead {
 		StringBuilder s1 = new StringBuilder("");
 		StringBuilder s2 = new StringBuilder("");
 		Converter conv = new ConverterImpl();
-		String rta = null;
+		String rta = conv.resultError(error);
 		int cant = 0;
 		for(int j=i;j<s.length();j++){
 			char c = s.charAt(j);
@@ -95,9 +130,10 @@ public class AdminRead {
 	}
 
 	private static String readOneParam(String s,int i) {
-		String rta = null;
+		
 		StringBuilder s1 = new StringBuilder("");
 		Converter conv = new ConverterImpl();
+		String rta = conv.resultError(error);
 		for(int j=i;j<s.length();j++){
 			char c = s.charAt(j);
 			s1.append(c);
@@ -124,15 +160,18 @@ public class AdminRead {
 	}
 
 	private static String readNoParam(StringBuilder s) {
-		String rta = null;
 		value = isCorrect(s);
 		Converter conv = new ConverterImpl();
+		String rta = conv.resultError(error);
 		switch(value){
 		case bytes:
 			rta = conv.bytes();
 			break;
 		case access:
 			rta = conv.access();
+			break;
+		case exit:
+			rta = conv.exit();
 			break;
 		}
 		return rta;
@@ -169,6 +208,8 @@ public class AdminRead {
 		}else if(string.equals("BYTES")){
 			return bytes;
 
+		}else if (string.equals("EXIT")){
+			return exit;
 		}
 		return -1;
 	}
