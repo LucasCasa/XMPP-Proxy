@@ -131,6 +131,18 @@ public class MessageConverter {
                                     k+=4;
                                     j++;
                                     break;
+                                case '&':
+                                    while((c = buff.charAt(j)) != ';'){
+                                        j++;
+                                    }
+                                        answer.put('&');
+                                    answer.put('a');
+                                    answer.put('m');
+                                    answer.put('p');
+                                    answer.put(';');
+                                    k+=5;
+                                    j++;
+                                    break;
                                 default:
                                     answer.put(c);
                                     k++;
