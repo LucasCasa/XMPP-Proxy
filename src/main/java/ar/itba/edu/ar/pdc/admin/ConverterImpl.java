@@ -1,12 +1,8 @@
 package ar.itba.edu.ar.pdc.admin;
 
-import java.nio.ByteBuffer;
-
-import sun.applet.Main;
+import java.util.List;
 
 public class ConverterImpl implements Converter {
-	private static ByteBuffer bb;
-
 	private final String access = "ACCESS";
 	private final String login = "LOGIN";
 	private final String register = "REGISTER";
@@ -24,6 +20,7 @@ public class ConverterImpl implements Converter {
 	
 	private final String separator = " ";
 	private final String endOfMessage = "\n.\n";
+	private final String enter = "\n";
 
 	@Override
 	public String login(final String user, final String pass) {
@@ -110,10 +107,39 @@ public class ConverterImpl implements Converter {
 		}
 		return null;
 	}
-	
-	public static void main(String[] args) {
-		
+
+	@Override
+	public String resultOk(String message) {
+		if(message == null){
+			return result + separator + ok + endOfMessage;
+		}
+		return result + separator + ok + separator + message.toUpperCase() + endOfMessage;
 	}
+
+	@Override
+	public String resultError(String message) {
+		if(message == null){
+			return result + separator + error + endOfMessage;
+		}
+		return result + separator + error + separator + message.toUpperCase() + endOfMessage;
+	}
+
+	@Override
+	public String resultSee(List<String> result) {
+		if(result == null){
+			
+		}else if(result.isEmpty()){
+			return result + separator + "EMPTY" + endOfMessage;
+		}
+		StringBuilder s = new StringBuilder(result + ok + enter);
+		for(String r:result ){
+			s.append(r + enter);
+		}
+		s.append(endOfMessage);
+		return s.toString();
+	}
+	
+	
 
 
 

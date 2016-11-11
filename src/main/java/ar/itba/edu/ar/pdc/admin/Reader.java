@@ -3,17 +3,17 @@ package ar.itba.edu.ar.pdc.admin;
 import java.nio.CharBuffer;
 
 public class Reader {
-	private final int access = 1;
-	private final int login = 2;
-	private final int register = 3;
-	private final int multiplex = 4;
-	private final int l33t = 5;
-	private final int bytes = 6;
-	private final int silence = 7;
-	private final int unsilence = 8;
-	private final int unl33t = 9;
-	private final int see = 10;
-	private final char separator = ' ';
+	private final static int access = 1;
+	private final static int login = 2;
+	private final static int register = 3;
+	private final static int multiplex = 4;
+	private final static int l33t = 5;
+	private final static int bytes = 6;
+	private final static int silence = 7;
+	private final static int unsilence = 8;
+	private final static int unl33t = 9;
+	private final static int see = 10;
+	private final static char separator = ' ';
 	
 	
 	public void Read(CharBuffer cb){
@@ -41,42 +41,42 @@ public class Reader {
 		}else{
 			//mandar mensaje de unknown error
 		}
-		
+
 	}
 
 
-	private void checkParameters(CharBuffer cb, int value) {
+	private static void checkParameters(CharBuffer cb, int value) {
 		switch(value){
-			case login:
-				login(cb);
-				break;
-			case register:
-				register(cb);
-				break;
-			case see:
-				see(cb);
-				break;
-			case silence:
-				silence(cb);
-				break;
-			case unsilence:
-				unsilence(cb);
-				break;
-			case multiplex:
-				multiplex(cb);
-				break;
-			case l33t:
-				l33t(cb);
-				break;
-			case unl33t:
-				unl33t(cb);
-				break;
+		case login:
+			login(cb);
+			break;
+		case register:
+			register(cb);
+			break;
+		case see:
+			see(cb);
+			break;
+		case silence:
+			silence(cb);
+			break;
+		case unsilence:
+			unsilence(cb);
+			break;
+		case multiplex:
+			multiplex(cb);
+			break;
+		case l33t:
+			l33t(cb);
+			break;
+		case unl33t:
+			unl33t(cb);
+			break;
 		}
-		
+
 	}
 
 
-	private void unl33t(CharBuffer cb) {
+	private  static void unl33t(CharBuffer cb) {
 		int aux = 0;
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
@@ -96,11 +96,11 @@ public class Reader {
 				//tirar error de que estan mal los parametros
 			}
 		}
-		
+
 	}
 
 
-	private void l33t(CharBuffer cb) {
+	private  static void l33t(CharBuffer cb) {
 		int aux = 0;
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
@@ -120,11 +120,11 @@ public class Reader {
 				//tirar error de que estan mal los parametros
 			}
 		}
-		
+
 	}
 
 
-	private void multiplex(CharBuffer cb) {
+	private  static void multiplex(CharBuffer cb) {
 		StringBuilder name = new StringBuilder("");
 		StringBuilder sb = new StringBuilder("");
 		int aux = 0;
@@ -150,11 +150,11 @@ public class Reader {
 				//tirar error de que estan mal los parametros
 			}
 		}
-		
+
 	}
 
 
-	private void unsilence(CharBuffer cb) {
+	private  static void unsilence(CharBuffer cb) {
 		int aux = 0;
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
@@ -174,11 +174,11 @@ public class Reader {
 				//tirar error de que estan mal los parametros
 			}
 		}
-		
+
 	}
 
 
-	private void silence(CharBuffer cb) {
+	private  static void silence(CharBuffer cb) {
 		int aux = 0;
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
@@ -201,7 +201,7 @@ public class Reader {
 	}
 
 
-	private void see(CharBuffer cb) {
+	private static void see(CharBuffer cb) {
 		int aux = 0;
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
@@ -221,11 +221,11 @@ public class Reader {
 				//tirar error de que estan mal los parametros
 			}
 		}
-		
+
 	}
 
 
-	private void register(CharBuffer cb) {
+	private static void register(CharBuffer cb) {
 		StringBuilder name = new StringBuilder("");
 		StringBuilder pass = new StringBuilder("");
 		int aux = 0;
@@ -251,11 +251,11 @@ public class Reader {
 				//tirar error de que estan mal los parametros
 			}
 		}
-		
+
 	}
 
 
-	private void login(CharBuffer cb) {
+	private static void login(CharBuffer cb) {
 		StringBuilder name = new StringBuilder("");
 		StringBuilder pass = new StringBuilder("");
 		int aux = 0;
@@ -281,54 +281,45 @@ public class Reader {
 				//tirar error de que estan mal los parametros
 			}
 		}
-		
+
 	}
 
 
-	private int validate(StringBuilder sb) {
+	private static int validate(StringBuilder sb) {
 		String string = sb.toString();
 		if(string.equals("LOGIN")){
 			return login;
-			
+
 		}else if(string.equals("REGISTER")){
 			return register;
-			
+
 		}else if(string.equals("MULTIPLEX")){
 			return multiplex;
-			
+
 		}else if(string.equals("SEE")){
 			return see;
-			
+
 		}else if(string.equals("SILENCE")){
 			return silence;
-			
+
 		}else if(string.equals("UNSILENCE")){
 			return unsilence;
-			
+
 		}else if(string.equals("L33T")){
 			return l33t;
-			
+
 		}else if(string.equals("UNL33T")){
 			return unl33t;
-			
+
 		}else if(string.equals("ACCESS")){
 			return access;
-			
+
 		}else if(string.equals("BYTES")){
 			return bytes;
-			
+
 		}
 		return 0;
 	}
-	
-	public static void main(String[] args) {
-		Reader r = new Reader();
-		String a  = "MULTIPLEX A B\n.\n";
-		CharBuffer cb = CharBuffer.allocate(100);
-		cb.put(a);
-		r.Read(cb);
-		
-	}
-	
+
 
 }

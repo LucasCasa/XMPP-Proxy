@@ -1,5 +1,7 @@
 package ar.itba.edu.ar.pdc.admin;
 
+import java.util.List;
+
 public interface Converter {
 	public String login(String user, String pass);
 	public String register(String user, String pass);
@@ -12,5 +14,9 @@ public interface Converter {
 	public String access();
 	public String bytes();
 	public String see(String command);
+	
+	public String resultOk(String message);
+	public String resultError(String message);
+	public String resultSee(List<String> result);
 	
 }
