@@ -176,11 +176,12 @@ public class XMLParser {
 
     public static String getTo(ByteBuffer buffer){
         Charset utf18 = Charset.forName("UTF-8");
+        buffer.flip();
         CharBuffer buff = utf18.decode(buffer);
         //StringBuilder build = new StringBuilder();
 
         /*Charset utf18 = Charset.forName("UTF-8");
-        buffer.flip();
+
         CharBuffer buff = utf18.decode(buffer);*/
         StringBuilder sb = new StringBuilder();
         int length = buff.length();
@@ -346,7 +347,7 @@ public class XMLParser {
                                 j++;
                             }
                             answer.append('\'');
-                            answer.append('>');
+                            answer.append(' ');
                             i++;
                             isTo = true;
                         }

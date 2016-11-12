@@ -19,7 +19,7 @@ public class ConnectionHandler{
     private static Set<String> silence = new HashSet<>();
     private static Map<String,String> multiplex = new HashMap<>();
     private static ConnectionHandler ch = new ConnectionHandler();
-    
+
     private static Map<String,String> users = new HashMap<>();
     private static boolean loggedIn = false;
 
@@ -38,6 +38,7 @@ public class ConnectionHandler{
             leet = new HashSet<>();
             leet.add("lucas@muffin.com");
             leet.add("nicolas@muffin.com");
+            multiplex.put("test@muffin2.com","test@muffin.com");
             users.put("MUFFIN", "MUFFIN");
         }catch (Exception e){
             e.printStackTrace();
@@ -99,7 +100,7 @@ public class ConnectionHandler{
 
 	public static void setRegister(String user, String password) {
 		users.put(user, password);
-		
+
 	}
 
 	public static boolean exists(String user, String password) {
@@ -108,13 +109,13 @@ public class ConnectionHandler{
 
 	public static void setLogin(String user, String password) {
 		loggedIn = true;
-	
+
 	}
-	
+
 	public static Set<String> getMultiplex(){
 		return multiplex.keySet();
 	}
-	
+
 	public static Set<String> getL33t(){
 		return leet;
 	}
@@ -122,7 +123,7 @@ public class ConnectionHandler{
 	public static void exit() {
 		loggedIn = false;
 	}
-	
+
 	public static boolean isLogged(){
 		return loggedIn;
 	}
@@ -130,5 +131,5 @@ public class ConnectionHandler{
 	public static Set<String> getSilenced() {
 		return silence;
 	}
-	
+
 }

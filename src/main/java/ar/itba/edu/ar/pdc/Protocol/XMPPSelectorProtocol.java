@@ -38,10 +38,6 @@ public class XMPPSelectorProtocol implements TCPProtocol {
             // Register the selector with new channel for read and attach byte buffer
             ProxyConnection pc = new ProxyConnection(null, null);
             pc.setClientKey(ConnectionHandler.getInstance().addConnection(clntChan, pc));
-            SocketChannel serverChannel = SocketChannel.open();
-            serverChannel.connect(new InetSocketAddress("localhost", 5222));
-            serverChannel.configureBlocking(false);
-            pc.setServerKey(ConnectionHandler.getInstance().addConnection(serverChannel, pc));
         }
     }
 

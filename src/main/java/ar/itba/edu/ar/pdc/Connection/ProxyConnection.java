@@ -4,6 +4,7 @@ import ar.itba.edu.ar.pdc.Metrics;
 import ar.itba.edu.ar.pdc.xmlparser.MessageConverter;
 import ar.itba.edu.ar.pdc.xmlparser.XMLParser;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -71,7 +72,11 @@ public class ProxyConnection implements Connection{
             int byteWrite = 0;
             if (status == Status.WAITING_SERVER) {
                 serverBuffer.clear();
-                serverBuffer.put((ConnectionHandler.INITIAL_STREAM[0] + serverName + ConnectionHandler.INITIAL_STREAM[1]).getBytes("UTF-8"));
+                if(ConnectionHandler.isMultiplex(JID)) {
+                    serverBuffer.put((ConnectionHandler.INITIAL_STREAM[0] + ConnectionHandler.multiplex(JID).split("@")[1] + ConnectionHandler.INITIAL_STREAM[1]).getBytes("UTF-8"));
+                }else{
+                    serverBuffer.put((ConnectionHandler.INITIAL_STREAM[0] + serverName + ConnectionHandler.INITIAL_STREAM[1]).getBytes("UTF-8"));
+                }
                 out.println(new String(serverBuffer.array()));
                 serverBuffer.flip();
                 byteWrite = ((SocketChannel)key.channel()).write(serverBuffer);
@@ -128,6 +133,10 @@ public class ProxyConnection implements Connection{
                     String stringData = new String(d);
                     setJID(stringData.substring(1, stringData.indexOf(0, 1)));
                     out.println(new String(clientBuffer.array()));
+                    SocketChannel serverChannel = SocketChannel.open();
+                    serverChannel.connect(new InetSocketAddress("localhost", 5222));
+                    serverChannel.configureBlocking(false);
+                    setServerKey(ConnectionHandler.getInstance().addConnection(serverChannel, this));
                     serverKey.interestOps(SelectionKey.OP_WRITE);
                     status = Status.WAITING_SERVER;
                 }
@@ -159,8 +168,13 @@ public class ProxyConnection implements Connection{
                     clientKey.interestOps(SelectionKey.OP_READ);
                     serverKey.interestOps(SelectionKey.OP_WRITE);
                     bytesRead = ((SocketChannel)clientKey.channel()).read(clientBuffer);
-                    out.println(new String(clientBuffer.array()));
-                    if(XMLParser.startWith("<message",clientBuffer)){
+                    out.println("<---" + new String(clientBuffer.array()));
+                    if(XMLParser.contains("<stream:stream",clientBuffer)){
+                        if(ConnectionHandler.isMultiplex(JID)){
+                            clientBuffer = XMLParser.setTo(clientBuffer,ConnectionHandler.multiplex(JID).split("@")[1]);
+                            out.println("-->" + new String(clientBuffer.array()));
+                        }
+                    }else if(XMLParser.startWith("<message",clientBuffer)){
                             if(XMLParser.contains("<body",clientBuffer)){
                                 if(ConnectionHandler.isSilenced(JID)){
                                     clientBuffer.clear();
@@ -173,7 +187,8 @@ public class ProxyConnection implements Connection{
                                         Metrics.incrementL33ted();
                                     }
                                     if(ConnectionHandler.isMultiplex(JID)){
-                                        //MULTIPLEXO
+                                        clientBuffer = XMLParser.setFrom(clientBuffer,ConnectionHandler.multiplex(JID).split("@")[1]);
+                                        out.println(new String(clientBuffer.array()));
                                     }
                                 }
 
