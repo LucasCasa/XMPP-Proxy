@@ -1,13 +1,9 @@
 package ar.itba.edu.ar.pdc.xmlparser;
 
 
-import com.sun.xml.internal.fastinfoset.util.CharArray;
-
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-
-import static java.lang.System.out;
 
 public class XMLParser {
 	
@@ -207,6 +203,76 @@ public class XMLParser {
         return sb.toString();
     }
 
+    public static void main(String[] args) {
+            String str = "<xml><body> hello world! </body></xml> ";
+            CharBuffer aux = CharBuffer.wrap(str.toCharArray());
+
+            Charset utf8 = Charset.forName("UTF-8");
+            ByteBuffer buff = utf8.encode(aux);
+
+            if(tagFinished(ByteBuffer.wrap(str.getBytes()))){
+                System.out.println("EL TAG ESTA BIEN FORMADO");
+            }else{
+                System.out.println("EL TAG NO ESTA BIEN FORMADO");
+            }
+
+    }
+
+        public static boolean tagFinished(ByteBuffer buffer){
+
+            Charset utf18 = Charset.forName("UTF-8");
+            CharBuffer buff = utf18.decode(buffer);
+            StringBuilder build = new StringBuilder();
+
+            int length = buff.length();
+            int i=0;
+            int j=0;
+            int k=0;
+            char c;
+            boolean tagOpen = false;
+            boolean contain = true;
+
+            for(;i < length;){
+
+                if((c= buff.charAt(i)) == '<'){
+                    i=i+1;
+                    if(!tagOpen){
+                        while((c= buff.charAt(i)) != '>'){
+                            build.append(c);
+                            i++;
+                            j++;
+
+                        }
+
+                        j=0;
+                        tagOpen = true;
+                    }else{
+                        c= buff.charAt(i);
+                        if(c=='/'){
+                            contain = true;
+                            k=i+1;
+                            while((c=buff.charAt(k)) != '>' && contain){
+                                if(j == build.length() || build.charAt(j) != c ){
+                                    contain = false;
+                                }
+                                j++;
+                                k++;
+                            }
+
+                            if(j != build.length()){
+                                contain = false;
+                            }
+
+                            j=0;
+
+                        }
+                    }
+                }
+                i++;
+
+            }
+            return contain && i==length;
+    }
 
 
     /*
