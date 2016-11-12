@@ -1,5 +1,7 @@
 package ar.itba.edu.ar.pdc.admin;
 
+import ar.itba.edu.ar.pdc.Connection.ConnectionHandler;
+
 import java.nio.CharBuffer;
 
 public class Reader {
@@ -14,20 +16,20 @@ public class Reader {
 	private final static int unl33t = 9;
 	private final static int see = 10;
 	private final static char separator = ' ';
-	
-	public void Read(CharBuffer cb){
+
+	private static final String ok = "RESULT OK\n";
+	private static final String error = "RESULT ERROR";
+	public String Read(CharBuffer cb){
 		StringBuilder sb = new StringBuilder("");
-		cb.flip();
+		//cb.flip();
 		while(cb.hasRemaining()){
 			char c = cb.get();
 			if(c == separator){
 				int value = validate(sb);
 				if(value != 0 ){
-					checkParameters(cb,value);
-					return;
+					return checkParameters(cb,value);
 				}else{
-					//mandar mensaje que no existe el comando
-					return;
+					return error;
 				}
 			}else{
 				sb = sb.append(c);
@@ -40,42 +42,34 @@ public class Reader {
 		}else{
 			//mandar mensaje de unknown error
 		}
-
+		return error;
 	}
 
 
-	private static void checkParameters(CharBuffer cb, int value) {
+	private static String checkParameters(CharBuffer cb, int value) {
 		switch(value){
 		case login:
-			login(cb);
-			break;
+			return login(cb);
 		case register:
-			register(cb);
-			break;
+			return register(cb);
 		case see:
-			see(cb);
-			break;
+			return see(cb);
 		case silence:
-			silence(cb);
-			break;
+			return silence(cb);
 		case unsilence:
-			unsilence(cb);
-			break;
+			return unsilence(cb);
 		case multiplex:
-			multiplex(cb);
-			break;
+			return multiplex(cb);
 		case l33t:
-			l33t(cb);
-			break;
+			return l33t(cb);
 		case unl33t:
-			unl33t(cb);
-			break;
+			return unl33t(cb);
 		}
-
+		return error;
 	}
 
 
-	private  static void unl33t(CharBuffer cb) {
+	private  static String unl33t(CharBuffer cb) {
 		int aux = 0;
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
@@ -88,18 +82,19 @@ public class Reader {
 			}else if( c == '.' && aux == 1){
 				aux ++;
 			}else if( c == '\n' && aux == 2){
-				System.out.println("llamo a la funcion de unl33t");
-				//llamo a la funcion de unl33t
+				System.out.println("llamo a la funcion de unl33t con " + sb.toString());
+				ConnectionHandler.unSetL33t(sb.toString());
+				return ok;
 			}else{
 				System.out.println("tirar error de que estan mal los parametros");
-				//tirar error de que estan mal los parametros
+				return error;
 			}
 		}
-
+		return error;
 	}
 
 
-	private  static void l33t(CharBuffer cb) {
+	private  static String l33t(CharBuffer cb) {
 		int aux = 0;
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
@@ -112,18 +107,19 @@ public class Reader {
 			}else if( c == '.' && aux == 1){
 				aux ++;
 			}else if( c == '\n' && aux == 2){
-				System.out.println("llamo a la funcion de l33t");
-				//llamo a la funcion de l33t
+				System.out.println("llamo a la funcion de l33t con " + sb.toString());
+				ConnectionHandler.setL33t(sb.toString());
+				return ok;
 			}else{
 				System.out.println("tirar error de que estan mal los parametros");
-				//tirar error de que estan mal los parametros
+				return error;
 			}
 		}
-
+		return error;
 	}
 
 
-	private  static void multiplex(CharBuffer cb) {
+	private  static String multiplex(CharBuffer cb) {
 		StringBuilder name = new StringBuilder("");
 		StringBuilder sb = new StringBuilder("");
 		int aux = 0;
@@ -143,17 +139,17 @@ public class Reader {
 				aux ++;
 			}else if( c == '\n' && aux == 2){
 				System.out.println("llamo a la funcion de multiplex");
-				//llamo a la funcion de multiplex
+				return ok;
 			}else{
 				System.out.println("tirar error de que estan mal los parametros");
-				//tirar error de que estan mal los parametros
+				return error;
 			}
 		}
-
+		return error;
 	}
 
 
-	private  static void unsilence(CharBuffer cb) {
+	private  static String unsilence(CharBuffer cb) {
 		int aux = 0;
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
@@ -167,17 +163,17 @@ public class Reader {
 				aux ++;
 			}else if( c == '\n' && aux == 2){
 				System.out.println("llamo a la funcion de unsilence");
-				//llamo a la funcion de unsilence
+				return ok;
 			}else{
 				System.out.println("tirar error de que estan mal los parametros");
-				//tirar error de que estan mal los parametros
+				return error;
 			}
 		}
-
+		return error;
 	}
 
 
-	private  static void silence(CharBuffer cb) {
+	private  static String silence(CharBuffer cb) {
 		int aux = 0;
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
@@ -191,16 +187,17 @@ public class Reader {
 				aux ++;
 			}else if( c == '\n' && aux == 2){
 				System.out.println("llamo a la funcion de silence");
-				//llamo a la funcion de silence
+				return ok;
 			}else{
 				System.out.println("tirar error de que estan mal los parametros");
-				//tirar error de que estan mal los parametros
+				return error;
 			}
-		}		
+		}
+		return error;
 	}
 
 
-	private static void see(CharBuffer cb) {
+	private static String see(CharBuffer cb) {
 		int aux = 0;
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
@@ -214,17 +211,17 @@ public class Reader {
 				aux ++;
 			}else if( c == '\n' && aux == 2){
 				System.out.println("llamo a la funcion de see");
-				//llamo a la funcion de see
+				return ok; // + Mensaje
 			}else{
 				System.out.println("tirar error de que estan mal los parametros");
-				//tirar error de que estan mal los parametros
+				return error;
 			}
 		}
-
+		return error;
 	}
 
 
-	private static void register(CharBuffer cb) {
+	private static String register(CharBuffer cb) {
 		StringBuilder name = new StringBuilder("");
 		StringBuilder pass = new StringBuilder("");
 		int aux = 0;
@@ -244,17 +241,17 @@ public class Reader {
 				aux ++;
 			}else if( c == '\n' && aux == 2){
 				System.out.println("llamo a la funcion de register");
-				//llamo a la funcion de l33t
+				return ok;
 			}else{
 				System.out.println("tirar error de que estan mal los parametros");
-				//tirar error de que estan mal los parametros
+				return error;
 			}
 		}
-
+		return error;
 	}
 
 
-	private static void login(CharBuffer cb) {
+	private static String login(CharBuffer cb) {
 		StringBuilder name = new StringBuilder("");
 		StringBuilder pass = new StringBuilder("");
 		int aux = 0;
@@ -274,13 +271,13 @@ public class Reader {
 				aux ++;
 			}else if( c == '\n' && aux == 2){
 				System.out.println("llamo a la funcion de login");
-				//llamo a la funcion de l33t
+				return ok;
 			}else{
 				System.out.println("tirar error de que estan mal los parametros");
-				//tirar error de que estan mal los parametros
+				return error;
 			}
 		}
-
+		return error;
 	}
 
 
