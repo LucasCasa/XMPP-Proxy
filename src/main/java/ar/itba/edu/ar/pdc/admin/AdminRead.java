@@ -24,7 +24,9 @@ public class AdminRead {
 	private final static int unl33t = 8;
 	private final static int see = 9;
 	private final static int exit = 10;
-	private final static int [] params = {0,2,2,2,1,0,1,1,1,1,0}; 
+	private final static int unmultiplex = 11;
+
+	private final static int [] params = {0,2,2,2,1,0,1,1,1,1,0,1}; 
 	
 	private final static String error = "Parametros invalidos";
 
@@ -47,8 +49,6 @@ public class AdminRead {
 		}catch(Exception e){
 			
 		}
-
-
 	}
 	
 	private static ByteBuffer readInput(){
@@ -154,6 +154,9 @@ public class AdminRead {
 		case see:
 			rta = conv.see(s1.toString());
 			break;
+		case unmultiplex:
+			rta = conv.unmultiplex(s1.toString());
+			break;
 		}
 		return rta;
 
@@ -210,6 +213,8 @@ public class AdminRead {
 
 		}else if (string.equals("EXIT")){
 			return exit;
+		}else if(string.equals("UNMULTIPLEX")){
+			return unmultiplex;
 		}
 		return -1;
 	}

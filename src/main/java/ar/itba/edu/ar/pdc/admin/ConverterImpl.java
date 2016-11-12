@@ -1,6 +1,6 @@
 package ar.itba.edu.ar.pdc.admin;
 
-import java.util.List;
+import java.util.Set;
 
 public class ConverterImpl implements Converter {
 	private final String access = "ACCESS";
@@ -14,6 +14,7 @@ public class ConverterImpl implements Converter {
 	private final String unl33t = "UNL33T";
 	private final String see = "SEE";
 	private final String exit = "EXIT";
+	private final String unmultiplex = "UNMULTIPLEX";
 	
 	private final String result = "RESULT";
 	private final String ok = "OK";
@@ -126,7 +127,7 @@ public class ConverterImpl implements Converter {
 	}
 
 	@Override
-	public String resultSee(List<String> result) {
+	public String resultSee(Set<String> result) {
 		if(result == null){
 			
 		}else if(result.isEmpty()){
@@ -143,6 +144,19 @@ public class ConverterImpl implements Converter {
 	@Override
 	public String exit() {
 		return exit + endOfMessage;
+	}
+
+	@Override
+	public String unmultiplex(String message) {
+		if (message == null){
+			return result + separator + error + endOfMessage;
+		}
+		return unmultiplex + separator + message.toUpperCase() + endOfMessage;
+	}
+
+	@Override
+	public String resultOk(long value) {
+		return result + separator  +  ok + separator + value + endOfMessage;
 	}
 	
 	

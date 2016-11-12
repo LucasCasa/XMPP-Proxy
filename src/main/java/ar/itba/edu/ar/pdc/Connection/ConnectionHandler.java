@@ -19,6 +19,9 @@ public class ConnectionHandler{
     private static Set<String> silence = new HashSet<>();
     private static Map<String,String> multiplex = new HashMap<>();
     private static ConnectionHandler ch = new ConnectionHandler();
+    
+    private static Map<String,String> users = new HashMap<>();
+    private static boolean loggedIn = false;
 
     public static final byte[] INITIAL_SERVER_STREAM = ("<?xml version='1.0' ?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>")
             .getBytes();
@@ -35,6 +38,7 @@ public class ConnectionHandler{
             leet = new HashSet<>();
             leet.add("lucas@muffin.com");
             leet.add("nicolas@muffin.com");
+            users.put("MUFFIN", "MUFFIN");
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -88,4 +92,43 @@ public class ConnectionHandler{
     public static void unSetMultiplex(String user){
         multiplex.remove(user);
     }
+
+	public static boolean isRegistered(String user) {
+		return users.containsKey(user);
+	}
+
+	public static void setRegister(String user, String password) {
+		users.put(user, password);
+		
+	}
+
+	public static boolean exists(String user, String password) {
+		return users.containsKey(user) && users.get(user).equals(password);
+	}
+
+	public static void setLogin(String user, String password) {
+		loggedIn = true;
+	
+	}
+	
+	public static Set<String> getMultiplex(){
+		return multiplex.keySet();
+	}
+	
+	public static Set<String> getL33t(){
+		return leet;
+	}
+
+	public static void exit() {
+		loggedIn = false;
+	}
+	
+	public static boolean isLogged(){
+		return loggedIn;
+	}
+
+	public static Set<String> getSilenced() {
+		return silence;
+	}
+	
 }
