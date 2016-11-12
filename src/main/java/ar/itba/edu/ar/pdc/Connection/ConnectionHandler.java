@@ -18,10 +18,10 @@ public class ConnectionHandler{
     private static Set<String> leet;
     private static Set<String> silence = new HashSet<>();
     private static Map<String,String> multiplex = new HashMap<>();
-    private static ConnectionHandler ch = new ConnectionHandler();
-
     private static Map<String,String> users = new HashMap<>();
     private static boolean loggedIn = false;
+
+    private static ConnectionHandler ch = new ConnectionHandler();
 
     public static final byte[] INITIAL_SERVER_STREAM = ("<?xml version='1.0' ?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>")
             .getBytes();
@@ -38,6 +38,7 @@ public class ConnectionHandler{
             leet = new HashSet<>();
             leet.add("lucas@muffin.com");
             leet.add("nicolas@muffin.com");
+            silence.add("áñá@muffin.com");
             multiplex.put("test@muffin2.com","test@muffin.com");
             users.put("MUFFIN", "MUFFIN");
         }catch (Exception e){

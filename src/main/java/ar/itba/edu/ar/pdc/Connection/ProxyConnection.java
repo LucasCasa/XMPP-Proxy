@@ -175,24 +175,23 @@ public class ProxyConnection implements Connection{
                             out.println("-->" + new String(clientBuffer.array()));
                         }
                     }else if(XMLParser.startWith("<message",clientBuffer)){
+                        if(ConnectionHandler.isSilenced(JID)) {
+                            clientBuffer.clear();
+                            Metrics.incrementBlocked();
+                            serverKey.interestOps(SelectionKey.OP_READ);
+                        }else{
                             if(XMLParser.contains("<body",clientBuffer)){
-                                if(ConnectionHandler.isSilenced(JID)){
-                                    clientBuffer.clear();
-                                    Metrics.incrementBlocked();
-                                    serverKey.interestOps(SelectionKey.OP_READ);
-                                }else{
-                                    if(ConnectionHandler.isL33t(JID)) {
-                                        clientBuffer = MessageConverter.convertToL33t(clientBuffer);
-                                        out.println(new String(clientBuffer.array()));
-                                        Metrics.incrementL33ted();
-                                    }
-                                    if(ConnectionHandler.isMultiplex(JID)){
-                                        clientBuffer = XMLParser.setFrom(clientBuffer,ConnectionHandler.multiplex(JID).split("@")[1]);
-                                        out.println(new String(clientBuffer.array()));
-                                    }
+                                if(ConnectionHandler.isL33t(JID)) {
+                                    clientBuffer = MessageConverter.convertToL33t(clientBuffer);
+                                    out.println(new String(clientBuffer.array()));
+                                    Metrics.incrementL33ted();
                                 }
-
+                                if(ConnectionHandler.isMultiplex(JID)){
+                                    clientBuffer = XMLParser.setFrom(clientBuffer,ConnectionHandler.multiplex(JID).split("@")[1]);
+                                    out.println(new String(clientBuffer.array()));
+                                }
                             }
+                        }
                     }
 
                 }else{
