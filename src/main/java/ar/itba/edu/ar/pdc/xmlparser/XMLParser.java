@@ -176,8 +176,12 @@ public class XMLParser {
 
     public static String getTo(ByteBuffer buffer){
         Charset utf18 = Charset.forName("UTF-8");
-        buffer.flip();
         CharBuffer buff = utf18.decode(buffer);
+        //StringBuilder build = new StringBuilder();
+
+        /*Charset utf18 = Charset.forName("UTF-8");
+        buffer.flip();
+        CharBuffer buff = utf18.decode(buffer);*/
         StringBuilder sb = new StringBuilder();
         int length = buff.length();
         for(int i=0,j=0; i< length;i++){
@@ -188,6 +192,7 @@ public class XMLParser {
                     if(buff.charAt(i+2) == '='){
 
                         if (buff.charAt(i + 3) == '\'') {
+
                             j=i+4;
                             while(buff.charAt(j)!= '\''){
                                 sb.append(buff.charAt(j));
@@ -203,8 +208,164 @@ public class XMLParser {
         return sb.toString();
     }
 
+    public static String getFrom(ByteBuffer buffer){
+
+        Charset utf18 = Charset.forName("UTF-8");
+        CharBuffer buff = utf18.decode(buffer);
+        StringBuilder sb = new StringBuilder();
+        int length = buff.length();
+
+        for(int i=0,j=0; i< length;i++){
+            if(buff.charAt(i) == 'f'){
+
+                if(buff.charAt(i+1) == 'r'){
+
+                    if(buff.charAt(i+2) == 'o'){
+
+                        if (buff.charAt(i + 3) == 'm') {
+
+                            if(buff.charAt(i+4) == '='){
+
+                                if(buff.charAt(i+5) == '\''){
+                                    j=i+6;
+                                    while(buff.charAt(j)!= '\''){
+                                        sb.append(buff.charAt(j));
+                                        j++;
+                                    }
+                                    i = length;
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
+        System.out.println("Lo que devuelve FROM ES: " + sb.toString());
+        return sb.toString();
+    }
+
+    public static ByteBuffer setFrom(ByteBuffer buffer, String from){
+        Charset utf18 = Charset.forName("UTF-8");
+        buffer.flip();
+        CharBuffer buff = utf18.decode(buffer);
+        CharBuffer answer = CharBuffer.allocate(buff.capacity()*4);
+        answer.clear();
+
+        int length = buff.length();
+        char c;
+        for(int i=0,j=0; i< length;i++){
+            c = buff.charAt(i);
+            answer.append(c);
+            if(buff.charAt(i) == 'f'){
+                if(buff.charAt(i+1) == 'r'){
+
+                    if(buff.charAt(i+2) == 'o'){
+
+                        if (buff.charAt(i + 3) == 'm') {
+
+                            if(buff.charAt(i + 4) == '='){
+
+                                if(buff.charAt(i+5) == '\''){
+                                    c =buff.charAt(i+1);
+                                    answer.append(c);
+                                    c =buff.charAt(i+2);
+                                    answer.append(c);
+                                    c =buff.charAt(i+3);
+                                    answer.append(c);
+                                    c =buff.charAt(i+4);
+                                    answer.append(c);
+                                    c= buff.charAt(i+5);
+                                    answer.append(c);
+                                    i=i+6;
+
+                                    while(buff.charAt(i)!='\''){
+                                        i++;
+                                    }
+                                    while(j < from.length()){
+                                        answer.append(from.charAt(j));
+                                        j++;
+                                    }
+
+                                    answer.append('\'');
+                                    answer.append('>');
+                                    i++;
+                                }
+                            }
+
+
+                        }
+                    }
+                }
+            }
+
+
+        }
+
+        answer.flip();
+        buffer.clear();
+        buffer.put(Charset.forName("UTF-8").encode(answer));
+
+        return buffer;
+    }
+
+    public static ByteBuffer setTo(ByteBuffer buffer, String to){
+        buffer.flip();
+        Charset utf18 = Charset.forName("UTF-8");
+        CharBuffer buff = utf18.decode(buffer);
+        CharBuffer answer = CharBuffer.allocate(buff.capacity()*4);
+        answer.clear();
+
+        boolean isTo = false;
+        int length = buff.length();
+        char c;
+        int i=0;
+        for(int j=0; i< length;i++){
+            c = buff.charAt(i);
+            answer.append(c);
+            if(buff.charAt(i) == 't' && !isTo){
+
+                if(buff.charAt(i+1) == 'o'){
+
+                    if(buff.charAt(i+2) == '='){
+
+                        if (buff.charAt(i + 3) == '\'') {
+                            answer.append(buff.charAt(i+1));
+                            answer.append(buff.charAt(i+2));
+                            c= buff.charAt(i+3);
+                            answer.append(c);
+                            i=i+4;
+
+                            while(buff.charAt(i)!='\''){
+                                i++;
+                            }
+
+                            while(j < to.length()){
+                                answer.append(to.charAt(j));
+                                j++;
+                            }
+                            answer.append('\'');
+                            answer.append('>');
+                            i++;
+                            isTo = true;
+                        }
+                    }
+                }
+            }
+
+
+        }
+
+        answer.flip();
+        buffer.clear();
+        buffer.put(Charset.forName("UTF-8").encode(answer));
+
+        return buffer;
+    }
+
     public static void main(String[] args) {
-            String str = "<xml><body> hello world! </body></xml> ";
+            String str = "<xml><to='pepito frambuesa'> <from='roberto carlos'><body> hello world! </body></xml> ";
             CharBuffer aux = CharBuffer.wrap(str.toCharArray());
 
             Charset utf8 = Charset.forName("UTF-8");
@@ -215,6 +376,15 @@ public class XMLParser {
             }else{
                 System.out.println("EL TAG NO ESTA BIEN FORMADO");
             }
+
+           // System.out.println("LO QUE TIENE EL TAG TO ES: " + getTo(ByteBuffer.wrap(str.getBytes())).toString());
+            // System.out.println("LO QUE TIENE EL TAG FROM ES: " + getFrom(ByteBuffer.wrap(str.getBytes())).toString());
+        ByteBuffer bufercito = ByteBuffer.allocate(1024);
+        System.out.println("LO QUE ME DEVUELVE SET tO ES: " + new String(setTo(bufercito.put(str.getBytes()), "nico@example.com").array()));
+        bufercito.clear();
+        System.out.println("LO QUE ME DEVUELVE SET from ES: " + new String(setFrom(bufercito.put(str.getBytes()), "ncastano@example.com").array()));
+
+
 
     }
 
