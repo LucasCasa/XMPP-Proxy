@@ -38,6 +38,8 @@ public class ConnectionHandler{
             leet = new HashSet<>();
             leet.add("lucas@muffin.com");
             leet.add("nicolas@muffin.com");
+            leet.add("nico@example.com");
+            leet.add("ncastano@example.com");
             silence.add("áñá@muffin.com");
             multiplex.put("test@muffin2.com","test@muffin.com");
             users.put("MUFFIN", "MUFFIN");

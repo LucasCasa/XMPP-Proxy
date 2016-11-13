@@ -3,17 +3,18 @@ package ar.itba.edu.ar.pdc.Connection;
 import ar.itba.edu.ar.pdc.Metrics;
 import ar.itba.edu.ar.pdc.xmlparser.MessageConverter;
 import ar.itba.edu.ar.pdc.xmlparser.XMLParser;
+import org.apache.commons.codec.binary.Base64;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import org.apache.commons.codec.binary.Base64;
+import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
 
 import static java.lang.System.out;
-import static java.lang.System.setOut;
 
 /**
  * Created by Team Muffin on 25/10/16.
@@ -105,16 +106,21 @@ public class ProxyConnection implements Connection{
 
     public void handleRead(SelectionKey key){
         Metrics.incrementAccess();
+        Charset utf8 = Charset.forName("UTF-8");
+        CharBuffer buff;
         try{
             int bytesRead = 0;
             if(status == Status.STARTING){
                 bytesRead = ((SocketChannel) key.channel()).read(clientBuffer);
                 //if lo que leo tiene stream y esta bien formado -> mando los 2 cosos, sino me quedo esperando el stream
+                clientBuffer.flip();
+
+                buff = utf8.decode(clientBuffer);
                 out.println(new String(clientBuffer.array()));
-                if(XMLParser.startWith("<?xml",clientBuffer)){
+                if(XMLParser.startWith("<?xml",buff)){
 
                 }
-                if(XMLParser.contains("<stream:stream",clientBuffer)){
+                if(XMLParser.contains("<stream:stream",buff)){
                     serverName = XMLParser.getTo(clientBuffer);
                     clientBuffer.clear();
                     clientBuffer.put(ConnectionHandler.INITIAL_SERVER_STREAM);
@@ -128,7 +134,9 @@ public class ProxyConnection implements Connection{
             }else if( status == Status.NEGOTIATING){
                 //if lo que leo tiene auth -> leo el usuario y me guardo el stream, sino me quedo esperando / envio auth al server
                 bytesRead = ((SocketChannel) key.channel()).read(clientBuffer);
-                if(XMLParser.startWith("<auth",clientBuffer)) {
+                clientBuffer.flip();
+                buff = utf8.decode(clientBuffer);
+                if(XMLParser.startWith("<auth",buff)) {
                     byte[] d = Base64.decodeBase64(XMLParser.getAuth(clientBuffer).getBytes("UTF-8"));
                     String stringData = new String(d);
                     setJID(stringData.substring(1, stringData.indexOf(0, 1)));
@@ -144,15 +152,17 @@ public class ProxyConnection implements Connection{
                 //if server respondio -> reenvio lo que recibi al usuario. si es success ya esta, sino vuelvo al estado anterior.
                 serverBuffer.clear();
                 bytesRead = ((SocketChannel) key.channel()).read(serverBuffer);
+                serverBuffer.flip();
+                buff = utf8.decode(serverBuffer);
                 out.print(new String(serverBuffer.array()));
-                if(XMLParser.contains("mechanism",serverBuffer)) {
+                if(XMLParser.contains("mechanism",buff)) {
                     clientBuffer.flip();
                     ((SocketChannel) key.channel()).write(clientBuffer);
                     serverKey.interestOps(SelectionKey.OP_READ);
-                }else if(XMLParser.startWith("<success",serverBuffer)){
+                }else if(XMLParser.startWith("<success",buff)){
                         status = Status.CONNECTED;
                         clientKey.interestOps(SelectionKey.OP_READ|SelectionKey.OP_WRITE);
-                }else if(XMLParser.startWith("<failure",serverBuffer)){
+                }else if(XMLParser.startWith("<failure",buff)){
                     clientKey.channel().close();
                     serverKey.channel().close();
                     clientKey.cancel();
@@ -168,19 +178,21 @@ public class ProxyConnection implements Connection{
                     clientKey.interestOps(SelectionKey.OP_READ);
                     serverKey.interestOps(SelectionKey.OP_WRITE);
                     bytesRead = ((SocketChannel)clientKey.channel()).read(clientBuffer);
+                    clientBuffer.flip();
+                    buff = utf8.decode(clientBuffer);
                     out.println("<---" + new String(clientBuffer.array()));
-                    if(XMLParser.contains("<stream:stream",clientBuffer)){
+                    if(XMLParser.contains("<stream:stream",buff)){
                         if(ConnectionHandler.isMultiplex(JID)){
                             clientBuffer = XMLParser.setTo(clientBuffer,ConnectionHandler.multiplex(JID).split("@")[1]);
                             out.println("-->" + new String(clientBuffer.array()));
                         }
-                    }else if(XMLParser.startWith("<message",clientBuffer)){
+                    }else if(XMLParser.startWith("<message",buff)){
                         if(ConnectionHandler.isSilenced(JID)) {
                             clientBuffer.clear();
                             Metrics.incrementBlocked();
                             serverKey.interestOps(SelectionKey.OP_READ);
                         }else{
-                            if(XMLParser.contains("<body",clientBuffer)){
+                            if(XMLParser.contains("<body",buff)){
                                 if(ConnectionHandler.isL33t(JID)) {
                                     clientBuffer = MessageConverter.convertToL33t(clientBuffer);
                                     out.println(new String(clientBuffer.array()));
@@ -197,7 +209,10 @@ public class ProxyConnection implements Connection{
                 }else{
                     serverBuffer.clear();
                     bytesRead = ((SocketChannel)serverKey.channel()).read(serverBuffer);
-                    if(XMLParser.startWith("<message",serverBuffer)){
+                    serverBuffer.flip();
+                    buff = utf8.decode(serverBuffer);
+
+                    if(XMLParser.startWith("<message",buff)){
                         if(ConnectionHandler.isSilenced(XMLParser.getTo(serverBuffer))){
                             serverBuffer.clear();
                             Metrics.incrementBlocked();

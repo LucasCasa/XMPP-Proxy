@@ -12,19 +12,11 @@ public class XMLParser {
 
 	}
 
-    public static boolean startWith(String s, ByteBuffer bf){
-        Charset utf18 = Charset.forName("UTF-8");
-        bf.flip();
-        CharBuffer buff = utf18.decode(bf); //Tengo el buffer en chars
-       // out.println("ESTOY POR ENTRAR EN STARTWITH PRIVATE STATIC");
-        return startWith(s,buff);
+    public static boolean startWith(String s, CharBuffer bf){
+        return startWithInner(s,bf);
     }
 
-    private static boolean startWith(String s, CharBuffer cb){
-        /*out.println("ENTRE EN STARTWITH PRIVATE STATIC Y ESTOY POR ENTRAR AL FOR");
-        out.println("EL STRING VALE: " + s);
-        out.println("EL CHARBUFFER VALE: " + cb);*/
-
+    private static boolean startWithInner(String s, CharBuffer cb){
         for(int i = 0; i< s.length() && i < cb.length() ;i++){
             if(cb.get(i) != s.charAt(i)){
                 return false;
@@ -33,14 +25,11 @@ public class XMLParser {
         return true;
     }
 
-    public static boolean contains(String s, ByteBuffer bf){
-        Charset utf18 = Charset.forName("UTF-8");
-        bf.flip();
-        CharBuffer buff = utf18.decode(bf); //Tengo el buffer en chars
-        return contains(buff,s);
+    public static boolean contains(String s, CharBuffer bf){
+        return containsInner(bf,s);
     }
 
-    private static boolean contains(CharBuffer aux, String str){
+    private static boolean containsInner(CharBuffer aux, String str){
 
         int buffLength = aux.length();
         int strLenth = str.length();
@@ -48,12 +37,6 @@ public class XMLParser {
         int j=0;
 
         while(i < buffLength){
-            /*if((aux.charAt(i) != str.charAt(j)) && j< strLenth){
-                i++;
-            }else{
-                i++;
-                j++;
-            }*/
             while( i < buffLength && aux.charAt(i) != str.charAt(j)){
                 i++;
             }
@@ -98,7 +81,7 @@ public class XMLParser {
                     aux.append(buff.charAt(i + j));
                 }
 
-                isBeginTagBody = contains(aux, beginTagBody);
+                isBeginTagBody = contains(beginTagBody, aux);
                 //isEndTagBody = compare(aux, endTagBody);
                 i=j;
                 j=1;
@@ -138,22 +121,15 @@ public class XMLParser {
         String authEnd = "/auth";
         /**/
 
-        //aux.append('J');
-        //aux.append('A');
-        //out.println("ANTES DE ENTRAR AL WHILE, aux vale " + aux.flip());
-        /*
 
-        out.println("ESTOY AFUERA DEL WHILEEEEEEEE");
-        out.println("CURRENT POSITION VALE: " + currentPosition);
-        out.println("LENGTH  VALE: " + length);*/
         for(int i=0, j=0; i < length ;){
             if(buff.charAt(i) == '<'){
-                //out.println("ENTRE ACCAAAAAA");
+                ;
                 while(buff.charAt(i+j) != '>'){
-                    //out.print(buff.charAt(i+j));
+
                     j++;
                 }
-                isBeginAuthTag = contains(buff, authBegin);
+                isBeginAuthTag = contains(authBegin, buff);
                 i=j;
                 j=1;
                 if(isBeginAuthTag){
@@ -167,7 +143,6 @@ public class XMLParser {
                 i=length;
             }
 
-            //out.println("ANSWER VALE: " + answer);
 
         }
         return answer.toString();
@@ -178,13 +153,9 @@ public class XMLParser {
         Charset utf18 = Charset.forName("UTF-8");
         buffer.flip();
         CharBuffer buff = utf18.decode(buffer);
-        //StringBuilder build = new StringBuilder();
-
-        /*Charset utf18 = Charset.forName("UTF-8");
-
-        CharBuffer buff = utf18.decode(buffer);*/
         StringBuilder sb = new StringBuilder();
         int length = buff.length();
+
         for(int i=0,j=0; i< length;i++){
             if(buff.charAt(i) == 't'){
 
@@ -205,7 +176,6 @@ public class XMLParser {
                 }
             }
         }
-        //out.println("AUX AHORA VALE: " + aux.flip());
         return sb.toString();
     }
 
@@ -242,8 +212,7 @@ public class XMLParser {
                 }
             }
         }
-
-        System.out.println("Lo que devuelve FROM ES: " + sb.toString());
+        
         return sb.toString();
     }
 
