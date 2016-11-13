@@ -212,7 +212,7 @@ public class XMLParser {
                 }
             }
         }
-        
+
         return sb.toString();
     }
 
@@ -334,29 +334,115 @@ public class XMLParser {
         return buffer;
     }
 
+
+
     public static void main(String[] args) {
-            String str = "<xml><to='pepito frambuesa'> <from='roberto carlos'><body> hello world! </body></xml> ";
+            String str = "<hola ><chau ></chau>";
             CharBuffer aux = CharBuffer.wrap(str.toCharArray());
+        System.out.println("EN EL MAIN EL CHARBUFFER TIENE: " + aux.toString());
 
-            Charset utf8 = Charset.forName("UTF-8");
-            ByteBuffer buff = utf8.encode(aux);
+            //Charset utf8 = Charset.forName("UTF-8");
+            //ByteBuffer buff = utf8.encode(aux);
 
-            if(tagFinished(ByteBuffer.wrap(str.getBytes()))){
+           /* if(tagFinished(ByteBuffer.wrap(str.getBytes()))){
                 System.out.println("EL TAG ESTA BIEN FORMADO");
             }else{
                 System.out.println("EL TAG NO ESTA BIEN FORMADO");
+            }*/
+
+            if(checkMessage(aux)){
+                System.out.println("LEI TODO EL TAG Y ESTA BIEN FORMADO");
+            }else{
+                System.out.println("NO ESTA BIEN FORMADO, PERO TENGO QUE ESPERAR AL OTRO PEDAZO DE XML PARA DETERMINARLO");
             }
 
            // System.out.println("LO QUE TIENE EL TAG TO ES: " + getTo(ByteBuffer.wrap(str.getBytes())).toString());
             // System.out.println("LO QUE TIENE EL TAG FROM ES: " + getFrom(ByteBuffer.wrap(str.getBytes())).toString());
-        ByteBuffer bufercito = ByteBuffer.allocate(1024);
-        System.out.println("LO QUE ME DEVUELVE SET tO ES: " + new String(setTo(bufercito.put(str.getBytes()), "nico@example.com").array()));
-        bufercito.clear();
-        System.out.println("LO QUE ME DEVUELVE SET from ES: " + new String(setFrom(bufercito.put(str.getBytes()), "ncastano@example.com").array()));
+        //ByteBuffer bufercito = ByteBuffer.allocate(1024);
+        //System.out.println("LO QUE ME DEVUELVE SET tO ES: " + new String(setTo(bufercito.put(str.getBytes()), "nico@example.com").array()));
+        //bufercito.clear();
+        //System.out.println("LO QUE ME DEVUELVE SET from ES: " + new String(setFrom(bufercito.put(str.getBytes()), "ncastano@example.com").array()));
 
 
 
     }
+
+
+        public static boolean checkMessage(CharBuffer buffer){
+            int bufferLength = buffer.length();
+            char[] tagArray = new char[bufferLength/2];
+            char c;
+            int j;
+            int k=0;
+            int fullTags = 0;
+            boolean closedTag = false;
+
+            for(int h=0; h< tagArray.length ; h++){
+                tagArray[h] = '0';
+            }
+
+            for( int i=0; i < bufferLength; i++ ){
+                c = buffer.get(i);
+
+                if(c == '<'){
+                  c = buffer.get(i+1);
+                  if(c == '/'){
+                      j=i+2;
+                      k=0;
+                      closedTag = false;
+                      while( (k < tagArray.length) && ((c=buffer.get(j)) != '>') && !closedTag  ){
+
+                          if( tagArray[k] == c ){
+
+                              if( tagArray[k+1] == '0' ){
+                                  closedTag = true;
+                                  k=0;
+                                  fullTags--;
+                              }else{
+                                  k++;
+                                  j++;
+                              }
+
+                          }else{
+                              k++;
+                          }
+
+                      }
+
+                      if(k >= tagArray.length && !closedTag){
+                          return false;
+                      }
+
+                      i = j;
+
+                  }
+                  else{
+                      j=i+1;
+
+                      while((c = buffer.get(j)) != ' '){
+                          tagArray[k] = c;
+                          k++;
+                          j++;
+                      }
+                      tagArray[k]= '0';
+                      k++;
+                      i=j;
+
+                      for(int h=0; h<k;){
+                          System.out.print(tagArray[h]);
+                          h++;
+                      }
+                      fullTags ++;
+                  }
+
+                }
+
+
+            }
+
+            return fullTags == 0;
+
+        }
 
         public static boolean tagFinished(ByteBuffer buffer){
 
