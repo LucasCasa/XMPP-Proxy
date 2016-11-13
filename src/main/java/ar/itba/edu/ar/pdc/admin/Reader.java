@@ -40,14 +40,14 @@ public class Reader {
 			}
 		}
 		String aux = sb.toString();
-		if(ConnectionHandler.isLogged()){
+		if(!ConnectionHandler.isLogged()){
 			return conv.resultError("MUST LOGIN");
 		}
-		if(aux.equals("BYTES.\n.")){
+		if(aux.equals("BYTES\n.\n")){
 			return conv.resultOk(Metrics.getBytes());
-		}else if(aux.equals("ACCESS.\n.")){
+		}else if(aux.equals("ACCESS\n.\n")){
 			return conv.resultOk(Metrics.getAccess());
-		}else if(aux.equals("EXIT.\n.")){
+		}else if(aux.equals("EXIT\n.\n")){
 			ConnectionHandler.exit();
 		}else{
 			return conv.resultError(unknownError);

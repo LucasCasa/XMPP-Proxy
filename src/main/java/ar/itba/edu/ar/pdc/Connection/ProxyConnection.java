@@ -208,9 +208,6 @@ public class ProxyConnection implements Connection{
 
                 }
             }
-            if(bytesRead == 0){
-                System.out.println("0");
-            }
             if (bytesRead == -1) { // Did the other end close?
                 clientKey.channel().close();
                 serverKey.channel().close();
