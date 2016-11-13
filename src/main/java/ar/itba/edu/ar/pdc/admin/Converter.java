@@ -17,8 +17,8 @@ public interface Converter {
 	public String see(String command);
 	
 	public String resultOk(String message);
-	public String resultError(String message);
 	public String resultOk(long value);
+	public String resultError(String message);
 	public String resultSee(Set<String> set);
 	public String exit();
 	

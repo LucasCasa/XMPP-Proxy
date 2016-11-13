@@ -13,19 +13,6 @@ import ar.itba.edu.ar.pdc.Connection.ConnectionHandler;
 
 public class AdminRead {
 
-	private final static int access = 0;
-	private final static int login = 1;
-	private final static int register = 2;
-	private final static int multiplex = 3;
-	private final static int l33t = 4;
-	private final static int bytes = 5;
-	private final static int silence = 6;
-	private final static int unsilence = 7;
-	private final static int unl33t = 8;
-	private final static int see = 9;
-	private final static int exit = 10;
-	private final static int unmultiplex = 11;
-
 	private final static int [] params = {0,2,2,2,1,0,1,1,1,1,0,1}; 
 	
 	private final static String error = "Parametros invalidos";
@@ -111,17 +98,17 @@ public class AdminRead {
 				s2.append(c);
 			}
 		}
-		if(cant == 0 && value == multiplex){
+		if(cant == 0 && value == Info.multiplex){
 			rta = conv.multiplex(s1.toString());
 		}
 		switch(value){
-		case login:
+		case Info.login:
 			rta = conv.login(s1.toString(), s2.toString());
 			break;
-		case register:
+		case Info.register:
 			rta = conv.register(s1.toString(), s2.toString());
 			break;
-		case multiplex:
+		case Info.multiplex:
 			rta = conv.multiplex(s1.toString(), s2.toString());
 			break;
 		}
@@ -139,22 +126,22 @@ public class AdminRead {
 			s1.append(c);
 		}
 		switch(value){
-		case l33t:
+		case Info.l33t:
 			rta = conv.l33t(s1.toString());
 			break;
-		case silence:
+		case Info.silence:
 			rta = conv.silence(s1.toString());
 			break;
-		case unsilence:
+		case Info.unsilence:
 			rta = conv.unSilence(s1.toString());
 			break;
-		case unl33t:
+		case Info.unl33t:
 			rta = conv.unL33t(s1.toString());
 			break;
-		case see:
+		case Info.see:
 			rta = conv.see(s1.toString());
 			break;
-		case unmultiplex:
+		case Info.unmultiplex:
 			rta = conv.unmultiplex(s1.toString());
 			break;
 		}
@@ -167,13 +154,13 @@ public class AdminRead {
 		Converter conv = new ConverterImpl();
 		String rta = conv.resultError(error);
 		switch(value){
-		case bytes:
+		case Info.bytes:
 			rta = conv.bytes();
 			break;
-		case access:
+		case Info.access:
 			rta = conv.access();
 			break;
-		case exit:
+		case Info.exit:
 			rta = conv.exit();
 			break;
 		}
@@ -183,38 +170,38 @@ public class AdminRead {
 	private static int isCorrect(StringBuilder sb) {
 		String string = sb.toString().toUpperCase();
 		if(string.equals("LOGIN")){
-			return login;
+			return Info.login;
 		}else if(string.equals("REGISTER")){
-			return register;
+			return Info.register;
 
 		}else if(string.equals("MULTIPLEX")){
-			return multiplex;
+			return Info.multiplex;
 
 		}else if(string.equals("SEE")){
-			return see;
+			return Info.see;
 
 		}else if(string.equals("SILENCE")){
-			return silence;
+			return Info.silence;
 
 		}else if(string.equals("UNSILENCE")){
-			return unsilence;
+			return Info.unsilence;
 
 		}else if(string.equals("L33T")){
-			return l33t;
+			return Info.l33t;
 
 		}else if(string.equals("UNL33T")){
-			return unl33t;
+			return Info.unl33t;
 
 		}else if(string.equals("ACCESS")){
-			return access;
+			return Info.access;
 
 		}else if(string.equals("BYTES")){
-			return bytes;
+			return Info.bytes;
 
 		}else if (string.equals("EXIT")){
-			return exit;
+			return Info.exit;
 		}else if(string.equals("UNMULTIPLEX")){
-			return unmultiplex;
+			return Info.unmultiplex;
 		}
 		return -1;
 	}

@@ -3,31 +3,11 @@ package ar.itba.edu.ar.pdc.admin;
 import java.util.Set;
 
 public class ConverterImpl implements Converter {
-	private final String access = "ACCESS";
-	private final String login = "LOGIN";
-	private final String register = "REGISTER";
-	private final String multiplex = "MULTIPLEX";
-	private final String l33t = "L33T";
-	private final String bytes = "BYES";
-	private final String silence = "SILENCE";
-	private final String unsilence = "UNSILENCE";
-	private final String unl33t = "UNL33T";
-	private final String see = "SEE";
-	private final String exit = "EXIT";
-	private final String unmultiplex = "UNMULTIPLEX";
-	
-	private final String result = "RESULT";
-	private final String ok = "OK";
-	private final String error = "ERROR";
-	
-	private final String separator = " ";
-	private final String endOfMessage = "\n.\n";
-	private final String enter = "\n";
 
 	@Override
 	public String login(final String user, final String pass) {
 		if(user != null && pass != null){
-			return login + separator + user.toUpperCase() + separator + pass.toUpperCase() + endOfMessage;
+			return Info.StrLogin + Info.separator + user + Info.separator + pass + Info.endOfMessage;
 		}
 		return null;
 	}
@@ -35,7 +15,7 @@ public class ConverterImpl implements Converter {
 	@Override
 	public String register(final String user, final String pass) {
 		if(user != null && pass != null){
-			return register + separator + user.toUpperCase() + separator + pass.toUpperCase() + endOfMessage;
+			return Info.StrRegister + Info.separator + user + Info.separator + pass + Info.endOfMessage;
 		}
 		return null;
 	}
@@ -43,7 +23,7 @@ public class ConverterImpl implements Converter {
 	@Override
 	public String multiplex(final String jid, final String server) {
 		if(jid != null && server !=null){
-			return multiplex + separator + jid.toUpperCase() + separator + server.toUpperCase() + endOfMessage;
+			return Info.StrMultiplex + Info.separator + jid + Info.separator + server + Info.endOfMessage;
 		}
 		return null;
 	}
@@ -59,7 +39,7 @@ public class ConverterImpl implements Converter {
 	@Override
 	public String silence(final String jid) {
 		if(jid != null){
-			return silence + separator + jid.toUpperCase() + endOfMessage;
+			return Info.StrSilence + Info.separator + jid + Info.endOfMessage;
 		}
 		return null;
 	}
@@ -67,7 +47,7 @@ public class ConverterImpl implements Converter {
 	@Override
 	public String unSilence(final String jid) {
 		if(jid != null){
-			return unsilence + separator + jid.toUpperCase() + endOfMessage;
+			return Info.StrUnsilence + Info.separator + jid + Info.endOfMessage;
 		}
 		return null;
 	}
@@ -75,7 +55,7 @@ public class ConverterImpl implements Converter {
 	@Override
 	public String l33t(final String jid) {
 		if(jid != null){
-			return l33t + separator + jid.toUpperCase() + endOfMessage;
+			return Info.StrL33t + Info.separator + jid + Info.endOfMessage;
 		}
 		return null;
 	}
@@ -83,19 +63,19 @@ public class ConverterImpl implements Converter {
 	@Override
 	public String unL33t(final String jid) {
 		if(jid != null){
-			return unl33t + separator + jid.toUpperCase() + endOfMessage;
+			return Info.StrUnl33t + Info.separator + jid + Info.endOfMessage;
 		}
 		return null;
 	}
 
 	@Override
 	public String access() {
-		return access + endOfMessage;
+		return Info.StrAccess + Info.endOfMessage;
 	}
 
 	@Override
 	public String bytes() {
-		return bytes + endOfMessage;
+		return Info.StrBytes + Info.endOfMessage;
 	}
 
 	@Override
@@ -105,7 +85,7 @@ public class ConverterImpl implements Converter {
 		}
 		String com = command.toUpperCase();
 		if(com.equals("L33T") || com.equals("SILENCE") || com.equals("MULTIPLEX")){
-			return see + separator + com + endOfMessage;
+			return Info.StrSee + Info.separator + com + Info.endOfMessage;
 		}
 		return null;
 	}
@@ -113,50 +93,50 @@ public class ConverterImpl implements Converter {
 	@Override
 	public String resultOk(String message) {
 		if(message == null){
-			return result + separator + ok + endOfMessage;
+			return Info.result + Info.separator + Info.ok + Info.endOfMessage;
 		}
-		return result + separator + ok + separator + message.toUpperCase() + endOfMessage;
+		return Info.result  + Info.separator + Info.ok + Info.separator + message + Info.endOfMessage;
 	}
 
 	@Override
 	public String resultError(String message) {
 		if(message == null){
-			return result + separator + error + endOfMessage;
+			return Info.result  + Info.separator + Info.error + Info.endOfMessage;
 		}
-		return result + separator + error + separator + message.toUpperCase() + endOfMessage;
+		return Info.result  + Info.separator + Info.error + Info.separator + message + Info.endOfMessage;
 	}
 
 	@Override
-	public String resultSee(Set<String> result) {
-		if(result == null){
+	public String resultSee(Set<String> set) {
+		if(set == null){
 			
-		}else if(result.isEmpty()){
-			return result + separator + "EMPTY" + endOfMessage;
+		}else if(set.isEmpty()){
+			return Info.result  + Info.separator + "EMPTY" + Info.endOfMessage;
 		}
-		StringBuilder s = new StringBuilder(result + ok + enter);
-		for(String r:result ){
-			s.append(r + enter);
+		StringBuilder s = new StringBuilder(Info.result  + Info.ok + Info.enter);
+		for(String r:set ){
+			s.append(r + Info.enter);
 		}
-		s.append(endOfMessage);
+		s.append(Info.endOfMessage);
 		return s.toString();
 	}
 
 	@Override
 	public String exit() {
-		return exit + endOfMessage;
+		return Info.StrExit + Info.endOfMessage;
 	}
 
 	@Override
 	public String unmultiplex(String message) {
 		if (message == null){
-			return result + separator + error + endOfMessage;
+			return Info.result  + Info.separator + Info.error + Info.endOfMessage;
 		}
-		return unmultiplex + separator + message.toUpperCase() + endOfMessage;
+		return Info.StrUnmultiplex + Info.separator + message + Info.endOfMessage;
 	}
 
 	@Override
 	public String resultOk(long value) {
-		return result + separator  +  ok + separator + value + endOfMessage;
+		return Info.result  + Info.separator  +  Info.ok + Info.separator + value + Info.endOfMessage;
 	}
 	
 	

@@ -7,28 +7,17 @@ import java.nio.CharBuffer;
 
 public class Reader {
 	private final static Converter conv = new ConverterImpl();
-	private final static String wrongParams = "INVALID PARAMETERS";
-	private final static String unknownError = "UNKNOWN ERROR";
-	private final static int access = 1;
-	private final static int login = 2;
-	private final static int register = 3;
-	private final static int multiplex = 4;
-	private final static int l33t = 5;
-	private final static int bytes = 6;
-	private final static int silence = 7;
-	private final static int unsilence = 8;
-	private final static int unl33t = 9;
-	private final static int see = 10;
-	private final static int unmultiplex = 11;
-	private final static int exit = 12;
-	private final static char separator = ' ';
+	private final static String wrongParams = "Invalid Parameters";
+	private final static String unknownError = "Unkown Error";
+	private final static String mustLogin = "Must Login";
+	
 
 	public String Read(CharBuffer cb){
 		StringBuilder sb = new StringBuilder("");
 		//cb.flip();
 		while(cb.hasRemaining()){
 			char c = cb.get();
-			if(c == separator){
+			if(c == Info.separator){
 				int value = validate(sb);
 				if(value != 0 ){
 					return checkParameters(cb,value);
@@ -41,13 +30,13 @@ public class Reader {
 		}
 		String aux = sb.toString();
 		if(!ConnectionHandler.isLogged()){
-			return conv.resultError("MUST LOGIN");
+			return conv.resultError(mustLogin);
 		}
-		if(aux.equals("BYTES\n.\n")){
+		if(aux.equals(Info.StrBytes + Info.endOfMessage)){
 			return conv.resultOk(Metrics.getBytes());
-		}else if(aux.equals("ACCESS\n.\n")){
+		}else if(aux.equals(Info.StrAccess + Info.endOfMessage)){
 			return conv.resultOk(Metrics.getAccess());
-		}else if(aux.equals("EXIT\n.\n")){
+		}else if(aux.equals(Info.StrExit + Info.endOfMessage)){
 			ConnectionHandler.exit();
 		}else{
 			return conv.resultError(unknownError);
@@ -58,23 +47,23 @@ public class Reader {
 
 	private static String checkParameters(CharBuffer cb, int value) {
 		switch(value){
-		case login:
+		case Info.login:
 			return login(cb);
-		case register:
+		case Info.register:
 			return register(cb);
-		case see:
+		case Info.see:
 			return see(cb);
-		case silence:
+		case Info.silence:
 			return silence(cb);
-		case unsilence:
+		case Info.unsilence:
 			return unsilence(cb);
-		case multiplex:
+		case Info.multiplex:
 			return multiplex(cb);
-		case unmultiplex:
+		case Info.unmultiplex:
 			return unmultiplex(cb);
-		case l33t:
+		case Info.l33t:
 			return l33t(cb);
-		case unl33t:
+		case Info.unl33t:
 			return unl33t(cb);
 		}
 		return conv.resultError(wrongParams);
@@ -95,7 +84,7 @@ public class Reader {
 			}else if( c == '\n' && aux == 2){
 				String user = sb.toString();
 				if(!ConnectionHandler.isLogged()){
-					return conv.resultError("MUST LOGIN");
+					return conv.resultError(mustLogin);
 				}
 				if(ConnectionHandler.isMultiplex(sb.toString())){
 					ConnectionHandler.unSetMultiplex(user);
@@ -126,7 +115,7 @@ public class Reader {
 			}else if( c == '\n' && aux == 2){
 				String user = sb.toString();
 				if(!ConnectionHandler.isLogged()){
-					return conv.resultError("MUST LOGIN");
+					return conv.resultError(mustLogin);
 				}
 				if(ConnectionHandler.isL33t(user)){
 					ConnectionHandler.unSetL33t(sb.toString());
@@ -135,7 +124,6 @@ public class Reader {
 					return conv.resultError("Cannot unl33t someone who is not l33t");
 				}
 			}else{
-				System.out.println("tirar error de que estan mal los parametros");
 				return conv.resultError(wrongParams);
 			}
 		}
@@ -157,7 +145,7 @@ public class Reader {
 			}else if( c == '\n' && aux == 2){
 				String user = sb.toString();
 				if(!ConnectionHandler.isLogged()){
-					return conv.resultError("MUST LOGIN");
+					return conv.resultError(mustLogin);
 				}
 				if(!ConnectionHandler.isL33t(user)){
 					ConnectionHandler.setL33t(user);
@@ -180,7 +168,7 @@ public class Reader {
 		int param = 0;
 		while(cb.hasRemaining()){
 			char c = cb.get();
-			if(c == separator && param == 0){
+			if(c == Info.separator && param == 0){
 				param ++;
 			}else if(c == '\n' && aux == 0){
 				aux ++;
@@ -193,7 +181,7 @@ public class Reader {
 			}else if( c == '\n' && aux == 2){
 				String user = sb.toString();
 				if(!ConnectionHandler.isLogged()){
-					return conv.resultError("MUST LOGIN");
+					return conv.resultError(mustLogin);
 				}
 				if(!ConnectionHandler.isMultiplex(user)){
 					ConnectionHandler.setMultiplex(name.toString(),sb.toString());
@@ -225,13 +213,13 @@ public class Reader {
 			}else if( c == '\n' && aux == 2){
 				String user = sb.toString();
 				if(!ConnectionHandler.isLogged()){
-					return conv.resultError("MUST LOGIN");
+					return conv.resultError(mustLogin);
 				}
 				if(ConnectionHandler.isSilenced(user)){
 					ConnectionHandler.unSetSilence(user);
-					return conv.resultOk(user + " silenced");
+					return conv.resultOk(user + " unsilenced");
 				}else{
-					return conv.resultError(user + " already silenced");
+					return conv.resultError(user + " is not silenced");
 				}
 			}else{
 				System.out.println("tirar error de que estan mal los parametros");
@@ -256,7 +244,7 @@ public class Reader {
 			}else if( c == '\n' && aux == 2){
 				String user = sb.toString();
 				if(!ConnectionHandler.isLogged()){
-					return conv.resultError("MUST LOGIN");
+					return conv.resultError(mustLogin);
 				}
 				if(!ConnectionHandler.isSilenced(user)){
 					ConnectionHandler.setSilence(user);
@@ -286,13 +274,13 @@ public class Reader {
 			}else if( c == '\n' && aux == 2){
 				String param = sb.toString();
 				if(!ConnectionHandler.isLogged()){
-					return conv.resultError("MUST LOGIN");
+					return conv.resultError(mustLogin);
 				}
-				if(param.equals("L33T")){
+				if(param.equals(Info.StrL33t)){
 					return conv.resultSee(ConnectionHandler.getL33t());
-				}else if(param.equals("MULTIPLEX")){
+				}else if(param.equals(Info.StrMultiplex)){
 					return conv.resultSee(ConnectionHandler.getMultiplex());
-				}else if(param.equals("SILENCE")){
+				}else if(param.equals(Info.StrSilence)){
 					return conv.resultSee(ConnectionHandler.getSilenced());
 				}else{
 					return conv.resultError(wrongParams);
@@ -312,7 +300,7 @@ public class Reader {
 		int param = 0;
 		while(cb.hasRemaining()){
 			char c = cb.get();
-			if(c == separator && param == 0){
+			if(c == Info.separator && param == 0){
 				param ++;
 			}else if(c == '\n' && aux == 0){
 				aux ++;
@@ -326,7 +314,7 @@ public class Reader {
 				String user = name.toString();
 				String password = pass.toString();
 				if(!ConnectionHandler.isLogged()){
-					return conv.resultError("MUST LOGIN");
+					return conv.resultError(mustLogin);
 				}
 				if(!ConnectionHandler.isRegistered(user)){
 					ConnectionHandler.setRegister(user,password);
@@ -349,7 +337,7 @@ public class Reader {
 		int param = 0;
 		while(cb.hasRemaining()){
 			char c = cb.get();
-			if(c == separator && param == 0){
+			if(c == Info.separator && param == 0){
 				param ++;
 			}else if(c == '\n' && aux == 0){
 				aux ++;
@@ -378,30 +366,30 @@ public class Reader {
 
 	private static int validate(StringBuilder sb) {
 		String string = sb.toString();
-		if(string.equals("LOGIN")){
-			return login;
-		}else if(string.equals("REGISTER")){
-			return register;
-		}else if(string.equals("MULTIPLEX")){
-			return multiplex;
-		}else if(string.equals("UNMULTIPLEX")){
-			return unmultiplex;
-		}else if(string.equals("SEE")){
-			return see;
-		}else if(string.equals("SILENCE")){
-			return silence;
-		}else if(string.equals("UNSILENCE")){
-			return unsilence;
-		}else if(string.equals("L33T")){
-			return l33t;
-		}else if(string.equals("UNL33T")){
-			return unl33t;
-		}else if(string.equals("ACCESS")){
-			return access;
-		}else if(string.equals("BYTES")){
-			return bytes;
-		}else if(string.equals("EXIT")){
-			return exit;
+		if(string.equals(Info.StrLogin)){
+			return Info.login;
+		}else if(string.equals(Info.StrRegister)){
+			return Info.register;
+		}else if(string.equals(Info.StrMultiplex)){
+			return Info.multiplex;
+		}else if(string.equals(Info.StrUnmultiplex)){
+			return Info.unmultiplex;
+		}else if(string.equals(Info.StrSee)){
+			return Info.see;
+		}else if(string.equals(Info.StrSilence)){
+			return Info.silence;
+		}else if(string.equals(Info.StrUnsilence)){
+			return Info.unsilence;
+		}else if(string.equals(Info.StrL33t)){
+			return Info.l33t;
+		}else if(string.equals(Info.StrUnl33t)){
+			return Info.unl33t;
+		}else if(string.equals(Info.StrAccess)){
+			return Info.access;
+		}else if(string.equals(Info.StrBytes)){
+			return Info.bytes;
+		}else if(string.equals(Info.StrBytes)){
+			return Info.exit;
 		}
 		return 0;
 	}
