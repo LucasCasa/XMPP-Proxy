@@ -2,6 +2,7 @@ package ar.itba.edu.ar.pdc.Connection;
 
 import ar.itba.edu.ar.pdc.Metrics;
 import ar.itba.edu.ar.pdc.xmlparser.MessageConverter;
+import ar.itba.edu.ar.pdc.xmlparser.State;
 import ar.itba.edu.ar.pdc.xmlparser.XMLParser;
 import org.apache.commons.codec.binary.Base64;
 
@@ -78,7 +79,7 @@ public class ProxyConnection implements Connection{
                 }else{
                     serverBuffer.put((ConnectionHandler.INITIAL_STREAM[0] + serverName + ConnectionHandler.INITIAL_STREAM[1]).getBytes("UTF-8"));
                 }
-                out.println(new String(serverBuffer.array()));
+                //out.println(new String(serverBuffer.array()));
                 serverBuffer.flip();
                 byteWrite = ((SocketChannel)key.channel()).write(serverBuffer);
                 key.interestOps(SelectionKey.OP_READ);
@@ -86,6 +87,7 @@ public class ProxyConnection implements Connection{
                 if(key.equals(clientKey)){
                     serverBuffer.flip();
                     System.out.println(JID + " Esta recibiendo");
+
                     byteWrite = ((SocketChannel)clientKey.channel()).write(serverBuffer);
                     clientKey.interestOps(SelectionKey.OP_READ);
                     serverBuffer.clear();
@@ -179,33 +181,38 @@ public class ProxyConnection implements Connection{
                     serverKey.interestOps(SelectionKey.OP_WRITE);
                     bytesRead = ((SocketChannel)clientKey.channel()).read(clientBuffer);
                     clientBuffer.flip();
+                    //clientBuffer.position(0);
                     buff = utf8.decode(clientBuffer);
-                    out.println("<---" + new String(clientBuffer.array()));
-                    if(XMLParser.contains("<stream:stream",buff)){
-                        if(ConnectionHandler.isMultiplex(JID)){
-                            clientBuffer = XMLParser.setTo(clientBuffer,ConnectionHandler.multiplex(JID).split("@")[1]);
-                            out.println("-->" + new String(clientBuffer.array()));
-                        }
-                    }else if(XMLParser.startWith("<message",buff)){
-                        if(ConnectionHandler.isSilenced(JID)) {
-                            clientBuffer.clear();
-                            Metrics.incrementBlocked();
-                            serverKey.interestOps(SelectionKey.OP_READ);
-                        }else{
-                            if(XMLParser.contains("<body",buff)){
-                                if(ConnectionHandler.isL33t(JID)) {
-                                    clientBuffer = MessageConverter.convertToL33t(clientBuffer);
-                                    out.println(new String(clientBuffer.array()));
-                                    Metrics.incrementL33ted();
-                                }
-                                if(ConnectionHandler.isMultiplex(JID)){
-                                    clientBuffer = XMLParser.setFrom(clientBuffer,ConnectionHandler.multiplex(JID).split("@")[1]);
-                                    out.println(new String(clientBuffer.array()));
+                    State s =XMLParser.checkMessage(buff);
+                    if(!XMLParser.contains("<stream:stream",buff) && s == State.INCOMPLETE){
+                        clientBuffer.limit(4096);
+                    }else{
+                        out.println("<---" + new String(clientBuffer.array()));
+                        if (XMLParser.contains("<stream:stream", buff)) {
+                            if (ConnectionHandler.isMultiplex(JID)) {
+                                clientBuffer = XMLParser.setTo(clientBuffer, ConnectionHandler.multiplex(JID).split("@")[1]);
+                                out.println("-->" + new String(clientBuffer.array()));
+                            }
+                        } else if (XMLParser.startWith("<message", buff)) {
+                            if (ConnectionHandler.isSilenced(JID)) {
+                                clientBuffer.clear();
+                                Metrics.incrementBlocked();
+                                serverKey.interestOps(SelectionKey.OP_READ);
+                            } else {
+                                if (XMLParser.contains("<body", buff)) {
+                                    if (ConnectionHandler.isL33t(JID)) {
+                                        clientBuffer = MessageConverter.convertToL33t(clientBuffer);
+                                        out.println(new String(clientBuffer.array()));
+                                        Metrics.incrementL33ted();
+                                    }
+                                    if (ConnectionHandler.isMultiplex(JID)) {
+                                        clientBuffer = XMLParser.setFrom(clientBuffer, ConnectionHandler.multiplex(JID).split("@")[1]);
+                                        out.println(new String(clientBuffer.array()));
+                                    }
                                 }
                             }
                         }
                     }
-
                 }else{
                     serverBuffer.clear();
                     bytesRead = ((SocketChannel)serverKey.channel()).read(serverBuffer);

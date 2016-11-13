@@ -4,9 +4,12 @@ package ar.itba.edu.ar.pdc.xmlparser;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class XMLParser {
 
+    private static Deque<StringBuilder> stack = new ArrayDeque<>();
 
     private XMLParser(){
 
@@ -335,23 +338,16 @@ public class XMLParser {
     }
 
     public static void main(String[] args) {
-        String str = "<hola ><chau ></chau>";
+        String str = "<hola><chau><error></chau></error></hola>";
         CharBuffer aux = CharBuffer.wrap(str.toCharArray());
         System.out.println("EN EL MAIN EL CHARBUFFER TIENE: " + aux.toString());
-
-        //Charset utf8 = Charset.forName("UTF-8");
-        //ByteBuffer buff = utf8.encode(aux);
-
-           /* if(tagFinished(ByteBuffer.wrap(str.getBytes()))){
-                System.out.println("EL TAG ESTA BIEN FORMADO");
-            }else{
-                System.out.println("EL TAG NO ESTA BIEN FORMADO");
-            }*/
-
-        if(checkMessage(aux)){
+        State s = checkMessage(aux);
+        if(s== State.COMPLETE){
             System.out.println("LEI TODO EL TAG Y ESTA BIEN FORMADO");
+        }else if(s == State.INCOMPLETE){
+            System.out.println("INCOMPLETO");
         }else{
-            System.out.println("NO ESTA BIEN FORMADO, PERO TENGO QUE ESPERAR AL OTRO PEDAZO DE XML PARA DETERMINARLO");
+            System.out.println("ERROR");
         }
 
         // System.out.println("LO QUE TIENE EL TAG TO ES: " + getTo(ByteBuffer.wrap(str.getBytes())).toString());
@@ -365,73 +361,78 @@ public class XMLParser {
 
     }
 
-    public static boolean checkMessage(CharBuffer buffer){
+    public static State checkMessage(CharBuffer buffer){
         int bufferLength = buffer.length();
-        char[] tagArray = new char[bufferLength/2];
         char c;
-        int j;
-        int k=0;
-        int fullTags = 0;
-        boolean closedTag;
 
-        for(int h=0; h< tagArray.length ; h++){
+        /*for(int h=0; h< tagArray.length ; h++){
             tagArray[h] = '0';
-        }
+        }*/
         for( int i=0; i < bufferLength; i++ ){
             c = buffer.get(i);
             if(c == '<'){
                 c = buffer.get(i+1);
                 if(c == '/'){
-                    j=i+2;
-                    k=0;
-                    closedTag = false;
-                    while( (k < tagArray.length) && ((c=buffer.get(j)) != '>') && !closedTag  ){
-
-                        if( tagArray[k] == c ){
-
-                            if( tagArray[k+1] == '0' ){
-                                closedTag = true;
-                                k=0;
-                                fullTags--;
-                            }else{
-                                k++;
-                                j++;
-                            }
-
-                        }else{
-                            k++;
-                        }
-
+                    int l = checkTag(buffer,i+2);
+                    if(l == -1){
+                        return State.INCOMPLETE;
+                    }else if(l == -2){
+                        return State.ERROR;
                     }
+                    i += l + 2;
+                }else{
+                    int l = loadTag(buffer,i+1);
 
-                    if(k >= tagArray.length && !closedTag){
-                        return false;
+                    if(l == -1){
+                        return State.INCOMPLETE;
                     }
-
-                    i = j;
-
-                }
-                else{
-                    j=i+1;
-
-                    while((c = buffer.get(j)) != ' '){
-                        tagArray[k] = c;
-                        k++;
-                        j++;
-                    }
-                    tagArray[k]= '0';
-                    k++;
-                    i=j;
-
-                    for(int h=0; h<k;){
-                        System.out.print(tagArray[h]);
-                        h++;
-                    }
-                    fullTags ++;
+                    i+=l+1;
                 }
             }
         }
-        return fullTags == 0;
+
+        if(stack.isEmpty()){
+            return State.COMPLETE;
+        }else{
+            stack.clear();
+            return State.INCOMPLETE;
+        }
+    }
+    private static int checkTag(CharBuffer cb, int cbi){
+        char c;
+        StringBuilder tag = stack.pop();
+        int i = 0;
+        while(((c=cb.get(cbi)) != '>') && cbi < cb.length()){
+            if( tag.charAt(i) != c ) {
+                return -2;
+            }
+            i++;
+            cbi++;
+        }
+        if(cbi >= cb.length()){
+            return -1;
+        }
+        if(tag.charAt(i) == '0'){
+            return i;
+        }else{
+            return -2;
+        }
+    }
+    private static int loadTag(CharBuffer cb,int cbi){
+        char c;
+        int length = 0;
+        StringBuilder sb = new StringBuilder();
+        while((c = cb.get(cbi)) != ' ' && c != '>' && cbi < cb.length()){
+            sb.append(c);
+            cbi++;
+            length++;
+        }
+        if(cbi >= cb.length()){
+            return -1;
+        }
+        sb.append('0');
+        stack.push(sb);
+        return length;
     }
 
     public static boolean tagFinished(ByteBuffer buffer){
@@ -489,222 +490,5 @@ public class XMLParser {
         }
         return contain && i==length;
     }
-
-
-    /*
-	public static boolean isMessage(ByteBuffer buffer){
-
-
-        buffer.position();
-        Charset utf18 = Charset.forName("UTF-8");
-		CharBuffer buff =  utf18.decode(buffer);  //buffer.asCharBuffer();
-		int largo = buff.length();
-        boolean message;
-        boolean to = false;
-        boolean from = false;
-        boolean jid = false;
-        boolean body = false;
-
-
-        message = isBeginTagMessage(buff) && isEndTagMessage(buff,largo);
-
-        if(!message){
-            return false;
-        }
-
-        for(int i=9; i< largo;i++){
-            if(buff.charAt(i) == 't' && !to){
-                if(buff.charAt(i+1)!='o'){
-                    return false;
-                }else if(buff.charAt(i+2)!= '='){
-                    return false;
-                }else{
-                    to = true;
-                    i+=2;
-                }
-            }
-
-            if(buff.charAt(i) == 'f' && !from){
-                if(buff.charAt(i+1)!='r'){
-                    return false;
-                }else if(buff.charAt(i+2) != 'o'){
-                    return false;
-                }else if(buff.charAt(i+3)!= 'm'){
-                    return false;
-                }else if(buff.charAt(i+4)!='='){
-                    return false;
-                }else{
-                    from = true;
-                    i+=4;
-                }
-            }
-
-
-
-            if(buff.charAt(i) == '<' &&  !body){
-                if(buff.charAt(i+1) == 'b'){
-                    if(buff.charAt(i+2)!='o'){
-                        return false;
-                    }else if(buff.charAt(i+3) != 'd'){
-                        return false;
-                    }else if(buff.charAt(i + 4)!='y'){
-                        return false;
-                    }else if(buff.charAt(i+5)!='>'){
-                        return false;
-                    }else{
-                        body= true;
-                        i+=6;
-                    }
-                }
-            }
-
-            i++;
-
-
-        }
-
-        if((from == true && to == false) || (from == false && to == false) || !jid || !body){
-            return false;
-        }
-
-        return true;
-	}
-
-	private static boolean isBeginTagMessage(CharBuffer buff){
-	    if(buff.charAt(0) != '<' || buff.charAt(8) !='>'){
-	        return false;
-        }else if(buff.charAt(1) != 'm'){
-            return false;
-        }else if(buff.charAt(2) != 'e' || buff.charAt(7)!= 'e'){
-            return false;
-        }else if(buff.charAt(3) != 's' || buff.charAt(4) != 's'){
-            return false;
-        }else if(buff.charAt(5)!= 'a'){
-            return false;
-        }else if(buff.charAt(6)!='g'){
-            return false;
-        }
-
-        return true;
-
-    }
-
-    private static boolean isEndTagMessage(CharBuffer buff, int largo){
-        if(buff.charAt(largo) != '>' || buff.charAt(largo-9) != '>'){
-            return false;
-        }else if(buff.charAt(largo-8) != '/'){
-            return false;
-        }else if(buff.charAt(largo -1 ) != 'e' || buff.charAt(largo - 6) != 'e'){
-            return false;
-        }else if(buff.charAt(largo - 2) != 'g'){
-            return false;
-        }else if(buff.charAt(largo - 3) != 'a'){
-            return false;
-        }else if(buff.charAt(largo -4) != 's' || buff.charAt(largo -5 )!='s'){
-            return false;
-        }
-
-        return true;
-    }
-
-    public static boolean isJID(ByteBuffer buffer){
-
-        CharBuffer buff = buffer.asCharBuffer();
-
-        boolean beginJID = false;
-        boolean endJID = false;
-
-        for(int i=0; i< buff.length();i++){
-            if(buff.charAt(i) == '<' && !beginJID){
-                if(buff.charAt(i+1)!= 'j' ){
-                    return false;
-                }else if(buff.charAt(i+2)!='i'){
-                    return false;
-                }else if(buff.charAt(i+3)!='d'){
-                    return false;
-                }else if(buff.charAt(i+4)!='>'){
-                    return false;
-                }else{
-                    beginJID = true;
-                    i+=4;
-                }
-            }
-
-            if(buff.charAt(i) == '<' && !endJID){
-                if(buff.charAt(i+1)!='/'){
-                    return false;
-                }else if(buff.charAt(i+1)!= 'j' ){
-                    return false;
-                }else if(buff.charAt(i+2)!='i'){
-                    return false;
-                }else if(buff.charAt(i+3)!='d'){
-                    return false;
-                }else if(buff.charAt(i+4)!='>'){
-                    return false;
-                }else{
-                    endJID = true;
-                    i+=5;
-                }
-            }
-
-        }
-
-
-        return beginJID && endJID;
-    }
-*/
-
-    /*
-	public static boolean isMessage(String str){
-		StringBuilder sb = new StringBuilder(str);
-		//int j = sb.indexOf("from='");
-		int i = sb.indexOf("to='");
-		int k = sb.indexOf("body");
-		return sb.indexOf("message") != -1 && i != -1 && k != -1;
-	}
-	public static boolean isJID(String message){
-		return message.contains("<jid>") && message.contains("</jid>");
-	}
-
-	public static String getJID(String message){
-		return message.substring(message.indexOf("<jid>") + 5,message.indexOf("</jid>"));
-	}*/
-	/*
-	private static StringBuilder parseTo(StringBuilder sb) {
-		int k = sb.indexOf("'>");
-		int length = sb.length();
-		if(k == -1){
-			return sb.replace(0,length,"-1");
-		}
-
-
-		return sb;
-	}
-	private static StringBuilder parseFrom(StringBuilder s) {
-		int k = s.indexOf("'xmlns");
-		int length = s.length();
-
-		if(k == -1){
-			return s.replace(0,length,"-1");
-		}
-
-		//String from = s.substring(j+6,k );
-
-		return s;
-	}
-
-	private static StringBuilder parseBody(StringBuilder sb){
-		int length = sb.length();
-
-		int start = sb.indexOf("<body>");
-		int end = sb.indexOf("</body>");
-		if(start == -1 || end == -1){
-			return sb.replace(0,length,"-1");
-		}
-
-		return sb;
-	}
-
-	*/
 
 }
