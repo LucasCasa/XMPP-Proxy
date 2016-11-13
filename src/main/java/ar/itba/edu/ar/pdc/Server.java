@@ -3,6 +3,7 @@ package ar.itba.edu.ar.pdc;
 import ar.itba.edu.ar.pdc.Connection.ConnectionHandler;
 import ar.itba.edu.ar.pdc.Protocol.TCPProtocol;
 import ar.itba.edu.ar.pdc.Protocol.XMPPSelectorProtocol;
+import ar.itba.edu.ar.pdc.logger.XMPPLogger;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -69,6 +70,7 @@ public class Server {
             }
 
         }catch (IOException e ) {
+        	XMPPLogger.getInstance().error("Exception",e);
             System.out.println(e.toString());
         }
 

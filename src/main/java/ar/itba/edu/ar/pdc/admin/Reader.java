@@ -14,7 +14,6 @@ public class Reader {
 
 	public String Read(CharBuffer cb){
 		StringBuilder sb = new StringBuilder("");
-		//cb.flip();
 		while(cb.hasRemaining()){
 			char c = cb.get();
 			if(c == Info.separator){
@@ -38,10 +37,10 @@ public class Reader {
 			return conv.resultOk(Metrics.getAccess());
 		}else if(aux.equals(Info.StrExit + Info.endOfMessage)){
 			ConnectionHandler.exit();
+			return conv.resultOk("Logged out");
 		}else{
 			return conv.resultError(unknownError);
 		}
-		return conv.resultError(unknownError);
 	}
 
 
@@ -222,7 +221,6 @@ public class Reader {
 					return conv.resultError(user + " is not silenced");
 				}
 			}else{
-				System.out.println("tirar error de que estan mal los parametros");
 				return conv.resultError(wrongParams);
 			}
 		}
