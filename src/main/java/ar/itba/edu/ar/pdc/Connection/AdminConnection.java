@@ -2,7 +2,6 @@ package ar.itba.edu.ar.pdc.Connection;
 
 import ar.itba.edu.ar.pdc.admin.Reader;
 
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.SelectionKey;
@@ -10,7 +9,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 
 /**
- * Created by lucas on 10/11/16.
+ * Created by Team Muffin on 10/11/16.
  */
 public class AdminConnection implements Connection{
 

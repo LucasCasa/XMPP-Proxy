@@ -15,7 +15,8 @@ public class AdminRead {
 
 	private final static int [] params = {0,2,2,2,1,0,1,1,1,1,0,1}; 
 	
-	private final static String error = "Parametros invalidos";
+	private final static String error = "Invalid Parameters";
+	private static Converter conv = new ConverterImpl();
 
 	private static int value = -1;
 
@@ -40,7 +41,6 @@ public class AdminRead {
 	
 	private static ByteBuffer readInput(){
 		Charset utf8 = Charset.forName("UTF-8");
-		Converter c = new ConverterImpl();
 		String rta = null;
 		Scanner s = new Scanner(System.in);
 		while(s.hasNext()){
@@ -48,7 +48,7 @@ public class AdminRead {
 			 rta = Validate(aux);
 			if(rta == null){
 				System.out.println("HUBO ERROR");
-				rta = c.resultError(error);
+				rta = conv.resultError(error);
 			}
 			else{
 				System.out.println(rta);
@@ -66,7 +66,7 @@ public class AdminRead {
 			if(c == ' '){
 				value = isCorrect(sb);
 				if(value == -1){
-					//no se hace nada es un error
+					return conv.resultError("Command does not exist");
 				}
 				int param = params[value];
 				switch(param){
@@ -85,7 +85,6 @@ public class AdminRead {
 	private static String readTwoParam(String s, int i) {
 		StringBuilder s1 = new StringBuilder("");
 		StringBuilder s2 = new StringBuilder("");
-		Converter conv = new ConverterImpl();
 		String rta = conv.resultError(error);
 		int cant = 0;
 		for(int j=i;j<s.length();j++){
@@ -117,9 +116,7 @@ public class AdminRead {
 	}
 
 	private static String readOneParam(String s,int i) {
-		
 		StringBuilder s1 = new StringBuilder("");
-		Converter conv = new ConverterImpl();
 		String rta = conv.resultError(error);
 		for(int j=i;j<s.length();j++){
 			char c = s.charAt(j);
@@ -151,7 +148,6 @@ public class AdminRead {
 
 	private static String readNoParam(StringBuilder s) {
 		value = isCorrect(s);
-		Converter conv = new ConverterImpl();
 		String rta = conv.resultError(error);
 		switch(value){
 		case Info.bytes:
