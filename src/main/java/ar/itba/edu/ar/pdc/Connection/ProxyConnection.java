@@ -197,11 +197,11 @@ public class ProxyConnection implements Connection{
                 }else{
                     serverBuffer.clear();
                     bytesRead = ((SocketChannel)serverKey.channel()).read(serverBuffer);
-                    if(XMLParser.startWith("<message",serverBuffer) && XMLParser.contains("<body",serverBuffer)){
-                        /*if(ConnectionHandler.isSilenced(XMLParser.getFrom())){
+                    if(XMLParser.startWith("<message",serverBuffer)){
+                        if(ConnectionHandler.isSilenced(XMLParser.getTo(serverBuffer))){
                             serverBuffer.clear();
                             Metrics.incrementBlocked();
-                        }*/
+                        }
                     }
                     serverKey.interestOps(SelectionKey.OP_READ);
                     clientKey.interestOps(SelectionKey.OP_WRITE);
