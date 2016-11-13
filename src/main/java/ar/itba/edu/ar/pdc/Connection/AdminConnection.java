@@ -31,7 +31,7 @@ public class AdminConnection implements Connection{
             CharBuffer c = Charset.forName("UTF-8").decode(buffer);
             System.out.println(c.toString());
 
-            if(c.toString().contains("\n.\n")) {
+            if(c.toString().contains("\n.\n")){
                 buffer.clear();
                 response = r.Read(c);
                 handleWrite(key);

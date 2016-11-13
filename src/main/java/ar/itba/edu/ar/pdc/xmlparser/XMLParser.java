@@ -6,11 +6,11 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
 public class XMLParser {
-	
-	
-	public XMLParser(){
 
-	}
+
+    private XMLParser(){
+
+    }
 
     public static boolean startWith(String s, CharBuffer bf){
         return startWithInner(s,bf);
@@ -133,10 +133,10 @@ public class XMLParser {
                 i=j;
                 j=1;
                 if(isBeginAuthTag){
-                   while(buff.charAt(i + j)!= '<'){
-                       answer.append(buff.charAt(i + j));
-                       j++;
-                   }
+                    while(buff.charAt(i + j)!= '<'){
+                        answer.append(buff.charAt(i + j));
+                        j++;
+                    }
 
 
                 }
@@ -334,15 +334,13 @@ public class XMLParser {
         return buffer;
     }
 
-
-
     public static void main(String[] args) {
-            String str = "<hola ><chau ></chau>";
-            CharBuffer aux = CharBuffer.wrap(str.toCharArray());
+        String str = "<hola ><chau ></chau>";
+        CharBuffer aux = CharBuffer.wrap(str.toCharArray());
         System.out.println("EN EL MAIN EL CHARBUFFER TIENE: " + aux.toString());
 
-            //Charset utf8 = Charset.forName("UTF-8");
-            //ByteBuffer buff = utf8.encode(aux);
+        //Charset utf8 = Charset.forName("UTF-8");
+        //ByteBuffer buff = utf8.encode(aux);
 
            /* if(tagFinished(ByteBuffer.wrap(str.getBytes()))){
                 System.out.println("EL TAG ESTA BIEN FORMADO");
@@ -350,14 +348,14 @@ public class XMLParser {
                 System.out.println("EL TAG NO ESTA BIEN FORMADO");
             }*/
 
-            if(checkMessage(aux)){
-                System.out.println("LEI TODO EL TAG Y ESTA BIEN FORMADO");
-            }else{
-                System.out.println("NO ESTA BIEN FORMADO, PERO TENGO QUE ESPERAR AL OTRO PEDAZO DE XML PARA DETERMINARLO");
-            }
+        if(checkMessage(aux)){
+            System.out.println("LEI TODO EL TAG Y ESTA BIEN FORMADO");
+        }else{
+            System.out.println("NO ESTA BIEN FORMADO, PERO TENGO QUE ESPERAR AL OTRO PEDAZO DE XML PARA DETERMINARLO");
+        }
 
-           // System.out.println("LO QUE TIENE EL TAG TO ES: " + getTo(ByteBuffer.wrap(str.getBytes())).toString());
-            // System.out.println("LO QUE TIENE EL TAG FROM ES: " + getFrom(ByteBuffer.wrap(str.getBytes())).toString());
+        // System.out.println("LO QUE TIENE EL TAG TO ES: " + getTo(ByteBuffer.wrap(str.getBytes())).toString());
+        // System.out.println("LO QUE TIENE EL TAG FROM ES: " + getFrom(ByteBuffer.wrap(str.getBytes())).toString());
         //ByteBuffer bufercito = ByteBuffer.allocate(1024);
         //System.out.println("LO QUE ME DEVUELVE SET tO ES: " + new String(setTo(bufercito.put(str.getBytes()), "nico@example.com").array()));
         //bufercito.clear();
@@ -367,137 +365,129 @@ public class XMLParser {
 
     }
 
+    public static boolean checkMessage(CharBuffer buffer){
+        int bufferLength = buffer.length();
+        char[] tagArray = new char[bufferLength/2];
+        char c;
+        int j;
+        int k=0;
+        int fullTags = 0;
+        boolean closedTag;
 
-        public static boolean checkMessage(CharBuffer buffer){
-            int bufferLength = buffer.length();
-            char[] tagArray = new char[bufferLength/2];
-            char c;
-            int j;
-            int k=0;
-            int fullTags = 0;
-            boolean closedTag = false;
+        for(int h=0; h< tagArray.length ; h++){
+            tagArray[h] = '0';
+        }
+        for( int i=0; i < bufferLength; i++ ){
+            c = buffer.get(i);
+            if(c == '<'){
+                c = buffer.get(i+1);
+                if(c == '/'){
+                    j=i+2;
+                    k=0;
+                    closedTag = false;
+                    while( (k < tagArray.length) && ((c=buffer.get(j)) != '>') && !closedTag  ){
 
-            for(int h=0; h< tagArray.length ; h++){
-                tagArray[h] = '0';
-            }
+                        if( tagArray[k] == c ){
 
-            for( int i=0; i < bufferLength; i++ ){
-                c = buffer.get(i);
+                            if( tagArray[k+1] == '0' ){
+                                closedTag = true;
+                                k=0;
+                                fullTags--;
+                            }else{
+                                k++;
+                                j++;
+                            }
 
-                if(c == '<'){
-                  c = buffer.get(i+1);
-                  if(c == '/'){
-                      j=i+2;
-                      k=0;
-                      closedTag = false;
-                      while( (k < tagArray.length) && ((c=buffer.get(j)) != '>') && !closedTag  ){
+                        }else{
+                            k++;
+                        }
 
-                          if( tagArray[k] == c ){
+                    }
 
-                              if( tagArray[k+1] == '0' ){
-                                  closedTag = true;
-                                  k=0;
-                                  fullTags--;
-                              }else{
-                                  k++;
-                                  j++;
-                              }
+                    if(k >= tagArray.length && !closedTag){
+                        return false;
+                    }
 
-                          }else{
-                              k++;
-                          }
-
-                      }
-
-                      if(k >= tagArray.length && !closedTag){
-                          return false;
-                      }
-
-                      i = j;
-
-                  }
-                  else{
-                      j=i+1;
-
-                      while((c = buffer.get(j)) != ' '){
-                          tagArray[k] = c;
-                          k++;
-                          j++;
-                      }
-                      tagArray[k]= '0';
-                      k++;
-                      i=j;
-
-                      for(int h=0; h<k;){
-                          System.out.print(tagArray[h]);
-                          h++;
-                      }
-                      fullTags ++;
-                  }
+                    i = j;
 
                 }
+                else{
+                    j=i+1;
 
+                    while((c = buffer.get(j)) != ' '){
+                        tagArray[k] = c;
+                        k++;
+                        j++;
+                    }
+                    tagArray[k]= '0';
+                    k++;
+                    i=j;
 
+                    for(int h=0; h<k;){
+                        System.out.print(tagArray[h]);
+                        h++;
+                    }
+                    fullTags ++;
+                }
             }
-
-            return fullTags == 0;
-
         }
+        return fullTags == 0;
+    }
 
-        public static boolean tagFinished(ByteBuffer buffer){
+    public static boolean tagFinished(ByteBuffer buffer){
 
-            Charset utf18 = Charset.forName("UTF-8");
-            CharBuffer buff = utf18.decode(buffer);
-            StringBuilder build = new StringBuilder();
+        Charset utf18 = Charset.forName("UTF-8");
+        CharBuffer buff = utf18.decode(buffer);
+        StringBuilder build = new StringBuilder();
 
-            int length = buff.length();
-            int i=0;
-            int j=0;
-            int k=0;
-            char c;
-            boolean tagOpen = false;
-            boolean contain = true;
+        int length = buff.length();
+        int i=0;
+        int j=0;
+        int k=0;
+        char c;
+        boolean tagOpen = false;
+        boolean contain = true;
 
-            for(;i < length;){
+        for(;i < length;){
 
-                if((c= buff.charAt(i)) == '<'){
-                    i=i+1;
-                    if(!tagOpen){
-                        while((c= buff.charAt(i)) != '>'){
-                            build.append(c);
-                            i++;
+            if((c= buff.charAt(i)) == '<'){
+                i=i+1;
+                if(!tagOpen){
+                    while((c= buff.charAt(i)) != '>'){
+                        build.append(c);
+                        i++;
+                        j++;
+
+                    }
+
+                    j=0;
+                    tagOpen = true;
+                }else{
+                    c= buff.charAt(i);
+                    if(c=='/'){
+                        contain = true;
+                        k=i+1;
+                        while((c=buff.charAt(k)) != '>' && contain){
+                            if(j == build.length() || build.charAt(j) != c ){
+                                contain = false;
+                            }
                             j++;
+                            k++;
+                        }
 
+                        if(j != build.length()){
+                            contain = false;
                         }
 
                         j=0;
-                        tagOpen = true;
-                    }else{
-                        c= buff.charAt(i);
-                        if(c=='/'){
-                            contain = true;
-                            k=i+1;
-                            while((c=buff.charAt(k)) != '>' && contain){
-                                if(j == build.length() || build.charAt(j) != c ){
-                                    contain = false;
-                                }
-                                j++;
-                                k++;
-                            }
 
-                            if(j != build.length()){
-                                contain = false;
-                            }
-
-                            j=0;
-
-                        }
                     }
                 }
-                i++;
-
             }
-            return contain && i==length;
+            i++;
+
+        }
+        return contain && i==length;
     }
 
 
