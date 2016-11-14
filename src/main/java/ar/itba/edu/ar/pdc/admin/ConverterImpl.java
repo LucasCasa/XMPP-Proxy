@@ -84,7 +84,7 @@ public class ConverterImpl implements Converter {
 			return null;
 		}
 		String com = command.toUpperCase();
-		if(com.equals("L33T") || com.equals("SILENCE") || com.equals("MULTIPLEX")){
+		if(com.equals(Info.StrL33t) || com.equals(Info.StrSilence) || com.equals(Info.StrMultiplex)){
 			return Info.StrSee + Info.separator + com + Info.endOfMessage;
 		}
 		return null;
@@ -111,11 +111,11 @@ public class ConverterImpl implements Converter {
 		if(set == null){
 			
 		}else if(set.isEmpty()){
-			return Info.result  + Info.separator + "EMPTY" + Info.endOfMessage;
+			return Info.result  + Info.separator + Info.ok +  Info.separator + "NO VALUES" + Info.endOfMessage;
 		}
-		StringBuilder s = new StringBuilder(Info.result  + Info.ok + Info.enter);
-		for(String r:set ){
-			s.append(r + Info.enter);
+		StringBuilder s = new StringBuilder(Info.result  + Info.separator + Info.ok);
+		for(String r: set){
+			s.append(Info.enter + r);
 		}
 		s.append(Info.endOfMessage);
 		return s.toString();

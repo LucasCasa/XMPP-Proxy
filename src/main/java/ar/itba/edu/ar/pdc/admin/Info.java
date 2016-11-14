@@ -23,7 +23,7 @@ public class Info {
 	public final static String StrRegister = "REGISTER";
 	public final static String StrMultiplex = "MULTIPLEX";
 	public final static String StrL33t = "L33T";
-	public final static String StrBytes = "BYES";
+	public final static String StrBytes = "BYTES";
 	public final static String StrSilence = "SILENCE";
 	public final static String StrUnsilence = "UNSILENCE";
 	public final static String StrUnl33t = "UNL33T";

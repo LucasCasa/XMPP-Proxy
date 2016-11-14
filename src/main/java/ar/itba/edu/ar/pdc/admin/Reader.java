@@ -363,7 +363,7 @@ public class Reader {
 
 
 	private static int validate(StringBuilder sb) {
-		String string = sb.toString();
+		String string = sb.toString().toUpperCase();
 		if(string.equals(Info.StrLogin)){
 			return Info.login;
 		}else if(string.equals(Info.StrRegister)){

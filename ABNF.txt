@@ -1,16 +1,24 @@
-S 			= (Query / Response) CL RF
+S 		= (Query / Response) ENTER . ENTER
 
-Query 		= C SP Param SP Param / D SP Param / E
+Query 		= C SP Param SP Param / D SP Param / E / “SEE” SP F 
 
-C 			= "LOGIN" / "REGISTER" / "MULTIPLEX"
+C 		= "LOGIN" / "REGISTER" / "MULTIPLEX"
 
-D 			= "UNMULTIPLEX" / "SILENCE" / "UNSILENCE" / "L33T" / "UNL33T"
+D 		= "UNMULTIPLEX" / "SILENCE" / "UNSILENCE" / "L33T" / "UNL33T"
 
-E 			= "ACCESS" / "BYTES"
+E 		= "ACCESS" / "BYTES" / “EXIT”
+
+F		= “MULTIPLEX” / “L33T” / “SILENCE”
 
 Param 		= *VCHAR
 
-Response 	= "RESULT" SP Message
+Response 	= "RESULT" SP Status SP Message 
 
-Message 	= "OK" / "ERROR" / 1*DIGIT
+Message		= String / List
+
+List		= ENTER String / LAMBDA
+
+Status 		= "OK" / "ERROR"
+
+String		= 
 
