@@ -1,6 +1,8 @@
 package ar.itba.edu.ar.pdc.xmlparser;
 
 
+import com.sun.xml.internal.fastinfoset.util.CharArray;
+
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -124,7 +126,14 @@ public class XMLParser {
         String authEnd = "/auth";
         /**/
 
+        //aux.append('J');
+        //aux.append('A');
+        //out.println("ANTES DE ENTRAR AL WHILE, aux vale " + aux.flip());
+        /*
 
+        out.println("ESTOY AFUERA DEL WHILEEEEEEEE");
+        out.println("CURRENT POSITION VALE: " + currentPosition);
+        out.println("LENGTH  VALE: " + length);*/
         for(int i=0, j=0; i < length ;){
             if(buff.charAt(i) == '<'){
                 ;
@@ -146,6 +155,7 @@ public class XMLParser {
                 i=length;
             }
 
+            //out.println("ANSWER VALE: " + answer);
 
         }
         return answer.toString();
@@ -166,10 +176,9 @@ public class XMLParser {
 
                     if(buff.charAt(i+2) == '='){
 
-                        if (buff.charAt(i + 3) == '\'') {
-
+                        if (buff.charAt(i + 3) == '\'' || buff.charAt(i + 3) == '"') {
                             j=i+4;
-                            while(buff.charAt(j)!= '\''){
+                            while(buff.charAt(j)!= '\'' && buff.charAt(j) != '"'){
                                 sb.append(buff.charAt(j));
                                 j++;
                             }
@@ -179,6 +188,7 @@ public class XMLParser {
                 }
             }
         }
+        //out.println("AUX AHORA VALE: " + aux.flip());
         return sb.toString();
     }
 
@@ -200,9 +210,9 @@ public class XMLParser {
 
                             if(buff.charAt(i+4) == '='){
 
-                                if(buff.charAt(i+5) == '\''){
+                                if(buff.charAt(i+5) == '\'' || buff.charAt(i+5) == '"'){
                                     j=i+6;
-                                    while(buff.charAt(j)!= '\''){
+                                    while(buff.charAt(j)!= '\'' && buff.charAt(j) != '"'){
                                         sb.append(buff.charAt(j));
                                         j++;
                                     }
@@ -224,6 +234,7 @@ public class XMLParser {
         buffer.flip();
         CharBuffer buff = utf18.decode(buffer);
         CharBuffer answer = CharBuffer.allocate(buff.capacity()*4);
+        char comilla = 0;
         answer.clear();
 
         int length = buff.length();
@@ -240,7 +251,8 @@ public class XMLParser {
 
                             if(buff.charAt(i + 4) == '='){
 
-                                if(buff.charAt(i+5) == '\''){
+                                if(buff.charAt(i+5) == '\'' || buff.charAt(i+5) == '"'){
+                                    comilla = buff.charAt(i+5);
                                     c =buff.charAt(i+1);
                                     answer.append(c);
                                     c =buff.charAt(i+2);
@@ -253,7 +265,7 @@ public class XMLParser {
                                     answer.append(c);
                                     i=i+6;
 
-                                    while(buff.charAt(i)!='\''){
+                                    while(buff.charAt(i)!='\'' && buff.charAt(i) != '"'){
                                         i++;
                                     }
                                     while(j < from.length()){
@@ -261,7 +273,7 @@ public class XMLParser {
                                         j++;
                                     }
 
-                                    answer.append('\'');
+                                    answer.append(comilla);
                                     answer.append('>');
                                     i++;
                                 }
@@ -289,6 +301,7 @@ public class XMLParser {
         CharBuffer buff = utf18.decode(buffer);
         CharBuffer answer = CharBuffer.allocate(buff.capacity()*4);
         answer.clear();
+        char comilla = 0;
 
         boolean isTo = false;
         int length = buff.length();
@@ -303,14 +316,15 @@ public class XMLParser {
 
                     if(buff.charAt(i+2) == '='){
 
-                        if (buff.charAt(i + 3) == '\'') {
+                        if (buff.charAt(i + 3) == '\'' || buff.charAt(i + 3) == '"') {
+                            comilla = buff.charAt(i + 3);
                             answer.append(buff.charAt(i+1));
                             answer.append(buff.charAt(i+2));
                             c= buff.charAt(i+3);
                             answer.append(c);
                             i=i+4;
 
-                            while(buff.charAt(i)!='\''){
+                            while(buff.charAt(i)!='\'' && buff.charAt(i)!= '\"'){
                                 i++;
                             }
 
@@ -318,7 +332,7 @@ public class XMLParser {
                                 answer.append(to.charAt(j));
                                 j++;
                             }
-                            answer.append('\'');
+                            answer.append(comilla);
                             answer.append(' ');
                             i++;
                             isTo = true;
@@ -338,9 +352,21 @@ public class XMLParser {
     }
 
     public static void main(String[] args) {
-        String str = "<hola><chau><error></chau></error></hola>";
+        String str = "<iq xmlns=\"jabber:client\" type=\"result\" to=\"test@muffin.com/Muffin\" id=\"a162fa\">\n" +
+                "<si xmlns=\"http://jabber.org/protocol/si\">\n" +
+                "<file xmlns=\"http://jabber.org/protocol/si/profile/file-transfer\">\n" +
+                "<range offset=\"10018816\"/>\n" +
+                "</file>\n" +
+                "<feature xmlns=\"http://jabber.org/protocol/feature-neg\">\n" +
+                "<x xmlns=\"jabber:x:data\" type=\"submit\">\n" +
+                "<field var=\"stream-method\">\n" +
+                "<value>http://jabber.org/protocol/ibb</value>\n" +
+                "</field>\n" +
+                "</x>\n" +
+                "</feature>\n" +
+                "</si>\n" +
+                "</iq>";
         CharBuffer aux = CharBuffer.wrap(str.toCharArray());
-        System.out.println("EN EL MAIN EL CHARBUFFER TIENE: " + aux.toString());
         State s = checkMessage(aux);
         if(s== State.COMPLETE){
             System.out.println("LEI TODO EL TAG Y ESTA BIEN FORMADO");
@@ -350,14 +376,6 @@ public class XMLParser {
             System.out.println("ERROR");
         }
 
-        // System.out.println("LO QUE TIENE EL TAG TO ES: " + getTo(ByteBuffer.wrap(str.getBytes())).toString());
-        // System.out.println("LO QUE TIENE EL TAG FROM ES: " + getFrom(ByteBuffer.wrap(str.getBytes())).toString());
-        //ByteBuffer bufercito = ByteBuffer.allocate(1024);
-        //System.out.println("LO QUE ME DEVUELVE SET tO ES: " + new String(setTo(bufercito.put(str.getBytes()), "nico@example.com").array()));
-        //bufercito.clear();
-        //System.out.println("LO QUE ME DEVUELVE SET from ES: " + new String(setFrom(bufercito.put(str.getBytes()), "ncastano@example.com").array()));
-
-
 
     }
 
@@ -365,9 +383,6 @@ public class XMLParser {
         int bufferLength = buffer.length();
         char c;
 
-        /*for(int h=0; h< tagArray.length ; h++){
-            tagArray[h] = '0';
-        }*/
         for( int i=0; i < bufferLength; i++ ){
             c = buffer.get(i);
             if(c == '<'){
@@ -388,6 +403,9 @@ public class XMLParser {
                     }
                     i+=l+1;
                 }
+            }else if(c == '/' && buffer.get(i+1) == '>'){
+                stack.pop();
+                i++;
             }
         }
 
@@ -400,6 +418,9 @@ public class XMLParser {
     }
     private static int checkTag(CharBuffer cb, int cbi){
         char c;
+        if(stack.isEmpty()){
+            return -1;
+        }
         StringBuilder tag = stack.pop();
         int i = 0;
         while(((c=cb.get(cbi)) != '>') && cbi < cb.length()){

@@ -43,8 +43,8 @@ public class ProxyConnection implements Connection{
     public ProxyConnection(SelectionKey ck, SelectionKey sk){
         clientKey = ck;
         serverKey = sk;
-        clientBuffer = ByteBuffer.allocate(4096);
-        serverBuffer = ByteBuffer.allocate(4096);
+        clientBuffer = ByteBuffer.allocate(65536);
+        serverBuffer = ByteBuffer.allocate(65536);
         waiting = false;
     }
     public ByteBuffer getClientBuffer(){
@@ -86,14 +86,14 @@ public class ProxyConnection implements Connection{
             }else if(status == Status.CONNECTED){
                 if(key.equals(clientKey)){
                     serverBuffer.flip();
-                    System.out.println(JID + " Esta recibiendo");
+                    //System.out.println(JID + " Esta recibiendo: " + new String(serverBuffer.array()));
 
                     byteWrite = ((SocketChannel)clientKey.channel()).write(serverBuffer);
                     clientKey.interestOps(SelectionKey.OP_READ);
                     serverBuffer.clear();
                 }else{
                     clientBuffer.flip();
-                    System.out.println(JID + " Esta enviando");
+                    //System.out.println(JID + " Esta enviando: " + new String(clientBuffer.array()));
                     byteWrite = ((SocketChannel)serverKey.channel()).write(clientBuffer);
                     serverKey.interestOps(SelectionKey.OP_READ);
                     clientBuffer.clear();
@@ -142,7 +142,7 @@ public class ProxyConnection implements Connection{
                     byte[] d = Base64.decodeBase64(XMLParser.getAuth(clientBuffer).getBytes("UTF-8"));
                     String stringData = new String(d);
                     setJID(stringData.substring(1, stringData.indexOf(0, 1)));
-                    out.println(new String(clientBuffer.array()));
+                    //out.println(new String(clientBuffer.array()));
                     SocketChannel serverChannel = SocketChannel.open();
                     serverChannel.connect(new InetSocketAddress("localhost", 5222));
                     serverChannel.configureBlocking(false);
@@ -156,7 +156,7 @@ public class ProxyConnection implements Connection{
                 bytesRead = ((SocketChannel) key.channel()).read(serverBuffer);
                 serverBuffer.flip();
                 buff = utf8.decode(serverBuffer);
-                out.print(new String(serverBuffer.array()));
+                //out.print(new String(serverBuffer.array()));
                 if(XMLParser.contains("mechanism",buff)) {
                     clientBuffer.flip();
                     ((SocketChannel) key.channel()).write(clientBuffer);
@@ -184,14 +184,19 @@ public class ProxyConnection implements Connection{
                     //clientBuffer.position(0);
                     buff = utf8.decode(clientBuffer);
                     State s =XMLParser.checkMessage(buff);
+                    if(s == State.INCOMPLETE){
+                        System.out.println("INCOMPLETO ------------------------------");
+                        System.out.println(new String(buff.array()));
+                        System.out.println("INCOMPLETO ------------------------------");
+                    }
                     if(!XMLParser.contains("<stream:stream",buff) && s == State.INCOMPLETE){
-                        clientBuffer.limit(4096);
+                        clientBuffer.limit(65536);
                     }else{
-                        out.println("<---" + new String(clientBuffer.array()));
+                        //out.println("<---" + new String(clientBuffer.array()));
                         if (XMLParser.contains("<stream:stream", buff)) {
                             if (ConnectionHandler.isMultiplex(JID)) {
                                 clientBuffer = XMLParser.setTo(clientBuffer, ConnectionHandler.multiplex(JID).split("@")[1]);
-                                out.println("-->" + new String(clientBuffer.array()));
+                                //out.println("-->" + new String(clientBuffer.array()));
                             }
                         } else if (XMLParser.startWith("<message", buff)) {
                             if (ConnectionHandler.isSilenced(JID)) {
@@ -202,12 +207,12 @@ public class ProxyConnection implements Connection{
                                 if (XMLParser.contains("<body", buff)) {
                                     if (ConnectionHandler.isL33t(JID)) {
                                         clientBuffer = MessageConverter.convertToL33t(clientBuffer);
-                                        out.println(new String(clientBuffer.array()));
+                                        //out.println(new String(clientBuffer.array()));
                                         Metrics.incrementL33ted();
                                     }
                                     if (ConnectionHandler.isMultiplex(JID)) {
                                         clientBuffer = XMLParser.setFrom(clientBuffer, ConnectionHandler.multiplex(JID).split("@")[1]);
-                                        out.println(new String(clientBuffer.array()));
+                                        //out.println(new String(clientBuffer.array()));
                                     }
                                 }
                             }

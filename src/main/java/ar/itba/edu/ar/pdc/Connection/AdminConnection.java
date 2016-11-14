@@ -23,14 +23,12 @@ public class AdminConnection implements Connection{
     }
 
     public void handleRead(SelectionKey key){
-        System.out.println("L");
+        int bytesRead = 0;
         try {
-            ((SocketChannel) key.channel()).read(buffer);
+            bytesRead = ((SocketChannel) key.channel()).read(buffer);
             buffer.flip();
             buffer.position(0);
             CharBuffer c = Charset.forName("UTF-8").decode(buffer);
-            System.out.println(c.toString());
-
             if(c.toString().contains("\n.\n")){
                 buffer.clear();
                 response = r.Read(c);
@@ -39,6 +37,10 @@ public class AdminConnection implements Connection{
                 buffer.clear();
             }else{
                 buffer.limit(4096);
+            }
+            if(bytesRead == -1){
+                key.channel().close();
+                key.cancel();
             }
         }catch (Exception e){
             e.printStackTrace();
