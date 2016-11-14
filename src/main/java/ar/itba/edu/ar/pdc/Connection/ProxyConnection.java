@@ -86,14 +86,14 @@ public class ProxyConnection implements Connection{
             }else if(status == Status.CONNECTED){
                 if(key.equals(clientKey)){
                     serverBuffer.flip();
-                    //System.out.println(JID + " Esta recibiendo: " + new String(serverBuffer.array()));
+                    System.out.println(JID + " Esta recibiendo: " + new String(serverBuffer.array()));
 
                     byteWrite = ((SocketChannel)clientKey.channel()).write(serverBuffer);
                     clientKey.interestOps(SelectionKey.OP_READ);
                     serverBuffer.clear();
                 }else{
                     clientBuffer.flip();
-                    //System.out.println(JID + " Esta enviando: " + new String(clientBuffer.array()));
+                    System.out.println(JID + " Esta enviando: " + new String(clientBuffer.array()));
                     byteWrite = ((SocketChannel)serverKey.channel()).write(clientBuffer);
                     serverKey.interestOps(SelectionKey.OP_READ);
                     clientBuffer.clear();
@@ -123,7 +123,7 @@ public class ProxyConnection implements Connection{
 
                 }
                 if(XMLParser.contains("<stream:stream",buff)){
-                    serverName = XMLParser.getTo(clientBuffer);
+                    serverName = XMLParser.getTo(buff);
                     clientBuffer.clear();
                     clientBuffer.put(ConnectionHandler.INITIAL_SERVER_STREAM);
                     clientBuffer.put(ConnectionHandler.NEGOTIATION);
@@ -142,7 +142,7 @@ public class ProxyConnection implements Connection{
                     byte[] d = Base64.decodeBase64(XMLParser.getAuth(clientBuffer).getBytes("UTF-8"));
                     String stringData = new String(d);
                     setJID(stringData.substring(1, stringData.indexOf(0, 1)));
-                    //out.println(new String(clientBuffer.array()));
+                    out.println(new String(clientBuffer.array()));
                     SocketChannel serverChannel = SocketChannel.open();
                     serverChannel.connect(new InetSocketAddress("localhost", 5222));
                     serverChannel.configureBlocking(false);
@@ -202,6 +202,10 @@ public class ProxyConnection implements Connection{
                             if (ConnectionHandler.isSilenced(JID)) {
                                 clientBuffer.clear();
                                 Metrics.incrementBlocked();
+                                if(XMLParser.contains("<body>",buff)){
+                                    serverBuffer.put(ConnectionHandler.silenced(JID, XMLParser.getTo(buff)));
+                                }
+                                clientKey.interestOps(SelectionKey.OP_WRITE);
                                 serverKey.interestOps(SelectionKey.OP_READ);
                             } else {
                                 if (XMLParser.contains("<body", buff)) {
@@ -225,14 +229,18 @@ public class ProxyConnection implements Connection{
                     buff = utf8.decode(serverBuffer);
 
                     if(XMLParser.startWith("<message",buff)){
-                        if(ConnectionHandler.isSilenced(XMLParser.getTo(serverBuffer))){
+                        if(ConnectionHandler.isSilenced(XMLParser.getTo(buff))){
                             serverBuffer.clear();
                             Metrics.incrementBlocked();
+                            if(XMLParser.contains("<body>",buff)) {
+                                clientBuffer.put(ConnectionHandler.silenced2(XMLParser.getFrom(buff)));
+                                serverKey.interestOps(SelectionKey.OP_WRITE);
+                            }
+                            return;
                         }
                     }
                     serverKey.interestOps(SelectionKey.OP_READ);
                     clientKey.interestOps(SelectionKey.OP_WRITE);
-
                 }
             }
             if (bytesRead == -1) { // Did the other end close?
@@ -242,7 +250,15 @@ public class ProxyConnection implements Connection{
                 serverKey.cancel();
             }
         }catch(Exception e){
-            e.printStackTrace();
+            try {
+                e.printStackTrace();
+                clientKey.channel().close();
+                serverKey.channel().close();
+                clientKey.cancel();
+                serverKey.cancel();
+            }catch (Exception e2){
+                e2.printStackTrace();
+            }
         }
     }
     public void addClientMessage(String s){

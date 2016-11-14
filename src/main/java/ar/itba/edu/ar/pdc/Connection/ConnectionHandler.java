@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -30,6 +31,10 @@ public class ConnectionHandler{
     public static final byte[] NEGOTIATION = ("<stream:features><mechanisms xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"><mechanism>PLAIN</mechanism></mechanisms><auth xmlns=\"http://jabber.org/features/iq-auth\"/></stream:features>")
             .getBytes();
 
+    public static final String[] MESSAGE = {"<message type='chat' to='","' from='","'><active xmlns='http://jabber.org/protocol/chatstates'/><body>No estoy disponible</body></message>"};
+
+    public static final String[] MESSAGE2 = {"<message type='chat' to='","' ><active xmlns='http://jabber.org/protocol/chatstates'/><body>No estoy disponible</body></message>"};
+
     protected static final String[] INITIAL_STREAM = {"<?xml version='1.0' ?><stream:stream to='","' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>"};
 
 
@@ -42,7 +47,7 @@ public class ConnectionHandler{
             leet.add("nicolas@muffin.com");
             leet.add("nico@example.com");
             leet.add("ncastano@example.com");
-            silence.add("áñá@muffin.com");
+            silence.add("test@muffin.com");
             multiplex.put("test@muffin2.com","test@muffin.com");
             users.put("muffin", "muffin");
             users.put("MUFFIN", "MUFFIN");
@@ -146,5 +151,23 @@ public class ConnectionHandler{
 	public static Set<String> getSilenced() {
 		return silence;
 	}
+
+    public static byte[] silenced(String jid, String from) {
+        try {
+            return (MESSAGE[0]+jid+MESSAGE[1]+from+MESSAGE[2]).getBytes("UTF-8");
+        }catch (Exception e){
+            return new byte[0];
+        }
+
+    }
+
+    public static byte[] silenced2(String jid) {
+        try {
+            return (MESSAGE2[0]+jid+MESSAGE2[1]).getBytes("UTF-8");
+        }catch (Exception e){
+            return new byte[0];
+        }
+
+    }
 
 }

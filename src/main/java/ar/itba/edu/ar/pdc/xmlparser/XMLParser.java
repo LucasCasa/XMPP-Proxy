@@ -136,7 +136,6 @@ public class XMLParser {
         out.println("LENGTH  VALE: " + length);*/
         for(int i=0, j=0; i < length ;){
             if(buff.charAt(i) == '<'){
-                ;
                 while(buff.charAt(i+j) != '>'){
 
                     j++;
@@ -162,10 +161,7 @@ public class XMLParser {
 
     }
 
-    public static String getTo(ByteBuffer buffer){
-        Charset utf18 = Charset.forName("UTF-8");
-        buffer.flip();
-        CharBuffer buff = utf18.decode(buffer);
+    public static String getTo(CharBuffer buff){
         StringBuilder sb = new StringBuilder();
         int length = buff.length();
 
@@ -178,7 +174,7 @@ public class XMLParser {
 
                         if (buff.charAt(i + 3) == '\'' || buff.charAt(i + 3) == '"') {
                             j=i+4;
-                            while(buff.charAt(j)!= '\'' && buff.charAt(j) != '"'){
+                            while(buff.charAt(j)!= '\'' && buff.charAt(j) != '"' && buff.charAt(j) != '/'){
                                 sb.append(buff.charAt(j));
                                 j++;
                             }
@@ -192,40 +188,31 @@ public class XMLParser {
         return sb.toString();
     }
 
-    public static String getFrom(ByteBuffer buffer){
-
-        Charset utf18 = Charset.forName("UTF-8");
-        CharBuffer buff = utf18.decode(buffer);
+    public static String getFrom(CharBuffer buff){
         StringBuilder sb = new StringBuilder();
         int length = buff.length();
 
-        for(int i=0,j=0; i< length;i++){
-            if(buff.charAt(i) == 'f'){
-
-                if(buff.charAt(i+1) == 'r'){
-
-                    if(buff.charAt(i+2) == 'o'){
-
+        for(int i=0,j=0; i< length;i++) {
+            if (buff.charAt(i) == 'f') {
+                if (buff.charAt(i + 1) == 'r') {
+                    if (buff.charAt(i + 2) == 'o') {
                         if (buff.charAt(i + 3) == 'm') {
-
-                            if(buff.charAt(i+4) == '='){
-
-                                if(buff.charAt(i+5) == '\'' || buff.charAt(i+5) == '"'){
-                                    j=i+6;
-                                    while(buff.charAt(j)!= '\'' && buff.charAt(j) != '"'){
+                            if (buff.charAt(i + 4) == '=') {
+                                if (buff.charAt(i + 5) == '\'' || buff.charAt(i + 5) == '"') {
+                                    j = i + 6;
+                                    while (buff.charAt(j) != '\'' && buff.charAt(j) != '"') {
                                         sb.append(buff.charAt(j));
                                         j++;
                                     }
                                     i = length;
                                 }
                             }
-
                         }
                     }
                 }
             }
         }
-
+        //out.println("AUX AHORA VALE: " + aux.flip());
         return sb.toString();
     }
 
