@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import ar.itba.edu.ar.pdc.logger.XMPPLogger;
+
 /**
  * Created by Team Muffin on 25/10/16.
  * Manage the Selector
@@ -42,6 +44,7 @@ public class ConnectionHandler{
             leet.add("ncastano@example.com");
             silence.add("áñá@muffin.com");
             multiplex.put("test@muffin2.com","test@muffin.com");
+            users.put("muffin", "muffin");
             users.put("MUFFIN", "MUFFIN");
         }catch (Exception e){
             e.printStackTrace();
@@ -64,9 +67,11 @@ public class ConnectionHandler{
             return leet.contains(user);
     }
     public static void setL33t(String user){
+    	XMPPLogger.getInstance().info(user + " l33t");
         leet.add(user);
     }
     public static void unSetL33t(String user){
+    	XMPPLogger.getInstance().info(user + " unl33t");
         leet.remove(user);
     }
 
@@ -74,9 +79,11 @@ public class ConnectionHandler{
         return silence.contains(user);
     }
     public static void setSilence(String user){
+    	XMPPLogger.getInstance().info(user + " silenced");
         silence.add(user);
     }
     public static void unSetSilence(String user){
+    	XMPPLogger.getInstance().info(user + " unsilenced");
         silence.remove(user);
     }
 
@@ -91,9 +98,11 @@ public class ConnectionHandler{
         }
     }
     public static void setMultiplex(String user,String newServer){
+    	XMPPLogger.getInstance().info(user + " multiplexed");
         multiplex.put(user,newServer);
     }
     public static void unSetMultiplex(String user){
+    	XMPPLogger.getInstance().info(user + " unmultiplexed");
         multiplex.remove(user);
     }
 
@@ -102,6 +111,7 @@ public class ConnectionHandler{
 	}
 
 	public static void setRegister(String user, String password) {
+		XMPPLogger.getInstance().info(user + " registered");
 		users.put(user, password);
 
 	}
@@ -111,6 +121,7 @@ public class ConnectionHandler{
 	}
 
 	public static void setLogin(String user, String password) {
+		XMPPLogger.getInstance().info(user + " logged in");
 		loggedIn = true;
 
 	}
@@ -124,6 +135,7 @@ public class ConnectionHandler{
 	}
 
 	public static void exit() {
+		XMPPLogger.getInstance().info("logged out");
 		loggedIn = false;
 	}
 

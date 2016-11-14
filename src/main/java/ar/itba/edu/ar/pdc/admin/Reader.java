@@ -21,13 +21,13 @@ public class Reader {
 				if(value != 0 ){
 					return checkParameters(cb,value);
 				}else{
-					return conv.resultError(wrongParams);
+					return conv.resultError("Command does not exist");
 				}
 			}else{
 				sb = sb.append(c);
 			}
 		}
-		String aux = sb.toString();
+		String aux = sb.toString().toUpperCase();
 		if(!ConnectionHandler.isLogged()){
 			return conv.resultError(mustLogin);
 		}
@@ -350,6 +350,8 @@ public class Reader {
 				String password = pass.toString();
 				if(!ConnectionHandler.exists(user,password)){
 					return conv.resultError("Username or password is not correct");
+				}else if(ConnectionHandler.isLogged()){
+					return conv.resultError("Already logged in");
 				}else{
 					ConnectionHandler.setLogin(user,password);
 					return conv.resultOk("Logged in");
