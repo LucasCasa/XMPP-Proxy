@@ -1,6 +1,6 @@
 S 		= (Query / Response) ENTER . ENTER
 
-Query 		= C SP Param SP Param / D SP Param / E / “SEE” SP F 
+Query 		= C SP String SP String / D SP String / E / “SEE” SP F 
 
 C 		= "LOGIN" / "REGISTER" / "MULTIPLEX"
 
@@ -10,15 +10,12 @@ E 		= "ACCESS" / "BYTES" / “EXIT”
 
 F		= “MULTIPLEX” / “L33T” / “SILENCE”
 
-Param 		= *VCHAR
+String 		= *VCHAR
 
 Response 	= "RESULT" SP Status SP Message 
 
 Message		= String / List
 
-List		= ENTER String / LAMBDA
+List		= ENTER String / 
 
 Status 		= "OK" / "ERROR"
-
-String		= 
-

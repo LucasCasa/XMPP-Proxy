@@ -270,7 +270,7 @@ public class Reader {
 			}else if( c == '.' && aux == 1){
 				aux ++;
 			}else if( c == '\n' && aux == 2){
-				String param = sb.toString();
+				String param = sb.toString().toUpperCase();
 				if(!ConnectionHandler.isLogged()){
 					return conv.resultError(mustLogin);
 				}
