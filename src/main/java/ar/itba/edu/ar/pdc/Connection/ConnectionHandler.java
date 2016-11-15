@@ -141,8 +141,8 @@ public class ConnectionHandler{
 
 	}
 
-	public static Set<String> getMultiplex(){
-		return multiplex.keySet();
+	public static Map<String,String> getMultiplex(){
+		return multiplex;
 	}
 
 	public static Set<String> getL33t(){
@@ -195,5 +195,9 @@ public class ConnectionHandler{
 
 	public static boolean hasHost(String user) {
 		return hosts.containsKey(user);
+	}
+
+	public static Map<String,String> getHosts() {
+		return hosts;
 	}
 }
