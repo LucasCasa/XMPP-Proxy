@@ -12,14 +12,14 @@ public class Reader {
 	private final static String mustLogin = "Must Login";
 	
 
-	public String Read(CharBuffer cb){
+	public String Read(CharBuffer cb,boolean logged){
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
 			char c = cb.get();
 			if(c == Info.separator){
 				int value = validate(sb);
 				if(value != 0 ){
-					return checkParameters(cb,value);
+					return checkParameters(cb,value,logged);
 				}else{
 					return conv.resultError("Command does not exist");
 				}
@@ -28,7 +28,7 @@ public class Reader {
 			}
 		}
 		String aux = sb.toString().toUpperCase();
-		if(!ConnectionHandler.isLogged()){
+		if(!logged){
 			return conv.resultError(mustLogin);
 		}
 		if(aux.equals(Info.StrBytes + Info.endOfMessage)){
@@ -41,7 +41,7 @@ public class Reader {
 			return conv.resultOk(Metrics.getL33ted());
 		}else if(aux.equals(Info.StrExit + Info.endOfMessage)){
 			ConnectionHandler.exit();
-			if(ConnectionHandler.isLogged()){
+			if(logged){
 				return conv.resultOk("Logged out");
 			}else{
 				return conv.resultError("Not logged in");
@@ -53,34 +53,34 @@ public class Reader {
 	}
 
 
-	private static String checkParameters(CharBuffer cb, int value) {
+	private static String checkParameters(CharBuffer cb, int value,boolean logged) {
 		switch(value){
 		case Info.login:
-			return login(cb);
+			return login(cb,logged);
 		case Info.register:
-			return register(cb);
+			return register(cb,logged);
 		case Info.see:
-			return see(cb);
+			return see(cb,logged);
 		case Info.silence:
-			return silence(cb);
+			return silence(cb,logged);
 		case Info.unsilence:
-			return unsilence(cb);
+			return unsilence(cb,logged);
 		case Info.multiplex:
-			return multiplex(cb);
+			return multiplex(cb,logged);
 		case Info.unmultiplex:
-			return unmultiplex(cb);
+			return unmultiplex(cb,logged);
 		case Info.l33t:
-			return l33t(cb);
+			return l33t(cb,logged);
 		case Info.unl33t:
-			return unl33t(cb);
+			return unl33t(cb,logged);
 		case Info.host:
-			return host(cb);
+			return host(cb,logged);
 		}
 		return conv.resultError(wrongParams);
 	}
 
 
-	private static String host(CharBuffer cb) {
+	private static String host(CharBuffer cb,boolean logged) {
 		StringBuilder name = new StringBuilder("");
 		StringBuilder source = new StringBuilder("");
 		int aux = 0;
@@ -100,7 +100,7 @@ public class Reader {
 			}else if( c == '\n' && aux == 2){
 				String user = name.toString();
 				String ip = source.toString();
-				if(!ConnectionHandler.isLogged()){
+				if(!logged){
 					return conv.resultError(mustLogin);
 				}
 				if(!ConnectionHandler.hasHost(user)){
@@ -118,7 +118,7 @@ public class Reader {
 	}
 
 
-	private static String unmultiplex(CharBuffer cb) {
+	private static String unmultiplex(CharBuffer cb,boolean logged) {
 		int aux = 0;
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
@@ -131,7 +131,7 @@ public class Reader {
 				aux ++;
 			}else if( c == '\n' && aux == 2){
 				String user = sb.toString();
-				if(!ConnectionHandler.isLogged()){
+				if(!logged){
 					return conv.resultError(mustLogin);
 				}
 				if(ConnectionHandler.isMultiplex(sb.toString())){
@@ -149,7 +149,7 @@ public class Reader {
 	}
 
 
-	private  static String unl33t(CharBuffer cb) {
+	private  static String unl33t(CharBuffer cb,boolean logged) {
 		int aux = 0;
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
@@ -162,7 +162,7 @@ public class Reader {
 				aux ++;
 			}else if( c == '\n' && aux == 2){
 				String user = sb.toString();
-				if(!ConnectionHandler.isLogged()){
+				if(!logged){
 					return conv.resultError(mustLogin);
 				}
 				if(ConnectionHandler.isL33t(user)){
@@ -179,7 +179,7 @@ public class Reader {
 	}
 
 
-	private  static String l33t(CharBuffer cb) {
+	private  static String l33t(CharBuffer cb,boolean logged) {
 		int aux = 0;
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
@@ -192,7 +192,7 @@ public class Reader {
 				aux ++;
 			}else if( c == '\n' && aux == 2){
 				String user = sb.toString();
-				if(!ConnectionHandler.isLogged()){
+				if(!logged){
 					return conv.resultError(mustLogin);
 				}
 				if(!ConnectionHandler.isL33t(user)){
@@ -209,7 +209,7 @@ public class Reader {
 	}
 
 
-	private  static String multiplex(CharBuffer cb) {
+	private  static String multiplex(CharBuffer cb,boolean logged) {
 		StringBuilder name = new StringBuilder("");
 		StringBuilder sb = new StringBuilder("");
 		int aux = 0;
@@ -229,7 +229,7 @@ public class Reader {
 			}else if( c == '\n' && aux == 2){
 				String user = name.toString();
 				String server = sb.toString();
-				if(!ConnectionHandler.isLogged()){
+				if(!logged){
 					return conv.resultError(mustLogin);
 				}
 				if(!ConnectionHandler.isMultiplex(user)){
@@ -249,7 +249,7 @@ public class Reader {
 	}
 
 
-	private  static String unsilence(CharBuffer cb) {
+	private  static String unsilence(CharBuffer cb,boolean logged) {
 		int aux = 0;
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
@@ -262,7 +262,7 @@ public class Reader {
 				aux ++;
 			}else if( c == '\n' && aux == 2){
 				String user = sb.toString();
-				if(!ConnectionHandler.isLogged()){
+				if(!logged){
 					return conv.resultError(mustLogin);
 				}
 				if(ConnectionHandler.isSilenced(user)){
@@ -279,7 +279,7 @@ public class Reader {
 	}
 
 
-	private  static String silence(CharBuffer cb) {
+	private  static String silence(CharBuffer cb,boolean logged) {
 		int aux = 0;
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
@@ -292,7 +292,7 @@ public class Reader {
 				aux ++;
 			}else if( c == '\n' && aux == 2){
 				String user = sb.toString();
-				if(!ConnectionHandler.isLogged()){
+				if(!logged){
 					return conv.resultError(mustLogin);
 				}
 				if(!ConnectionHandler.isSilenced(user)){
@@ -309,7 +309,7 @@ public class Reader {
 	}
 
 
-	private static String see(CharBuffer cb) {
+	private static String see(CharBuffer cb,boolean logged) {
 		int aux = 0;
 		StringBuilder sb = new StringBuilder("");
 		while(cb.hasRemaining()){
@@ -322,7 +322,7 @@ public class Reader {
 				aux ++;
 			}else if( c == '\n' && aux == 2){
 				String param = sb.toString().toUpperCase();
-				if(!ConnectionHandler.isLogged()){
+				if(!logged){
 					return conv.resultError(mustLogin);
 				}
 				if(param.equals(Info.StrL33t)){
@@ -344,7 +344,7 @@ public class Reader {
 	}
 
 
-	private static String register(CharBuffer cb) {
+	private static String register(CharBuffer cb,boolean logged) {
 		StringBuilder name = new StringBuilder("");
 		StringBuilder pass = new StringBuilder("");
 		int aux = 0;
@@ -364,7 +364,7 @@ public class Reader {
 			}else if( c == '\n' && aux == 2){
 				String user = name.toString();
 				String password = pass.toString();
-				if(!ConnectionHandler.isLogged()){
+				if(!logged){
 					return conv.resultError(mustLogin);
 				}
 				if(!ConnectionHandler.isRegistered(user)){
@@ -381,7 +381,7 @@ public class Reader {
 	}
 
 
-	private static String login(CharBuffer cb) {
+	private static String login(CharBuffer cb,boolean logged) {
 		StringBuilder name = new StringBuilder("");
 		StringBuilder pass = new StringBuilder("");
 		int aux = 0;
@@ -403,7 +403,7 @@ public class Reader {
 				String password = pass.toString();
 				if(!ConnectionHandler.exists(user,password)){
 					return conv.resultError("Username or password is not correct");
-				}else if(ConnectionHandler.isLogged()){
+				}else if(logged){
 					return conv.resultError("Already logged in");
 				}else{
 					ConnectionHandler.setLogin(user,password);

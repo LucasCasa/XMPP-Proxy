@@ -156,10 +156,6 @@ public class ConnectionHandler{
 		loggedIn = false;
 	}
 
-	public static boolean isLogged(){
-		return loggedIn;
-	}
-
 	public static Set<String> getSilenced() {
 		return silence;
 	}

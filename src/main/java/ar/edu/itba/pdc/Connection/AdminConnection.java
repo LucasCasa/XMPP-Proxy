@@ -16,6 +16,7 @@ public class AdminConnection implements Connection{
     ByteBuffer buffer;
     Reader r;
     String response;
+    boolean logged;
     public AdminConnection(){
         buffer = ByteBuffer.allocate(4096);
         r = new Reader();
@@ -31,7 +32,12 @@ public class AdminConnection implements Connection{
             CharBuffer c = Charset.forName("UTF-8").decode(buffer);
             if(c.toString().contains("\n.\n")){
                 buffer.clear();
-                response = r.Read(c);
+                response = r.Read(c,logged);
+                if(response.contains("Logged in")){
+                    logged = true;
+                }else if(response.contains("Logged out")){
+                    logged = false;
+                }
                 handleWrite(key);
             }else if(c.toString().equals("\n")){
                 buffer.clear();
