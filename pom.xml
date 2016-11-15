@@ -66,10 +66,11 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>3.0.2</version>
         <configuration>
-          <!--<excludes>
-            <exclude>**/log4j.properties</exclude>
-          </excludes>-->
+          <excludes>
+            <excludes>**/logback-test.xml</excludes>
+          </excludes>
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
@@ -79,48 +80,6 @@
           </archive>
         </configuration>
       </plugin>
-
-      <!-- Copy project dependency -->
-      <!-- Make this jar executable -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <!-- DO NOT include log4j.properties file in your Jar -->
-          <excludes>
-              <excludes>**/logback-test.xml</excludes>
-          </excludes>
-          <archive>
-            <manifest>
-              <!-- Jar file entry point -->
-              <mainClass>ar.edu.itba.pdc.Server</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-
-    <!--  <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-            <archive>
-              <manifest>
-                <mainClass>ar.edu.itba.pdc.Server</mainClass>
-              </manifest>
-            </archive>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-        </configuration>
-      </plugin> -->
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>

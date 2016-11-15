@@ -174,6 +174,7 @@ public class ProxyConnection implements Connection{
                     serverKey.interestOps(SelectionKey.OP_READ);
                 }else if(XMLParser.startWith("<success",buff)){
                     //  XMPPLogger.getInstance().debug("CONTAINS <success>");
+                    XMPPLogger.getInstance().info("USER " + JID + " CONECTED TO SERVER");
                     status = Status.CONNECTED;
                     clientKey.interestOps(SelectionKey.OP_READ|SelectionKey.OP_WRITE);
                 }else if(XMLParser.startWith("<failure",buff)){
@@ -183,6 +184,7 @@ public class ProxyConnection implements Connection{
                     serverKey.channel().close();
                     clientKey.cancel();
                     serverKey.cancel();
+                    XMPPLogger.getInstance().warn("USER " + JID + " DISCONECTED");
                 }
 
                 //System.out.println(new String(clientBuffer.array()));
@@ -199,6 +201,7 @@ public class ProxyConnection implements Connection{
                         serverKey.channel().close();
                         clientKey.cancel();
                         serverKey.cancel();
+                        XMPPLogger.getInstance().warn("USER " + JID + " DISCONECTED");
                         return;
                     }
                     clientBuffer.flip();
@@ -259,6 +262,7 @@ public class ProxyConnection implements Connection{
                         serverKey.channel().close();
                         clientKey.cancel();
                         serverKey.cancel();
+                        XMPPLogger.getInstance().warn("USER " + JID + " DISCONECTED");
                         return;
                     }
                     serverBuffer.flip();
@@ -298,6 +302,7 @@ public class ProxyConnection implements Connection{
                 serverKey.channel().close();
                 clientKey.cancel();
                 serverKey.cancel();
+                XMPPLogger.getInstance().warn("USER " + JID + " DISCONECTED");
             }catch (Exception e2){
                 XMPPLogger.getInstance().error("HANDLE READ FATAL ERROR");
                 e2.printStackTrace();

@@ -4,6 +4,7 @@ import ar.edu.itba.pdc.Connection.AdminConnection;
 import ar.edu.itba.pdc.Connection.Connection;
 import ar.edu.itba.pdc.Connection.ConnectionHandler;
 import ar.edu.itba.pdc.Connection.ProxyConnection;
+import ar.edu.itba.pdc.logger.XMPPLogger;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
@@ -27,13 +28,14 @@ public class XMPPSelectorProtocol implements TCPProtocol {
             channel.configureBlocking(false);
             AdminConnection ac = new AdminConnection();
             ConnectionHandler.getInstance().addConnection(channel, ac);
-
+            XMPPLogger.getInstance().info("ADMIN CONNECTED");
         }else {
             SocketChannel clntChan = ((ServerSocketChannel) key.channel()).accept();
             clntChan.configureBlocking(false); // Must be nonblocking to register
             // Register the selector with new channel for read and attach byte buffer
             ProxyConnection pc = new ProxyConnection(null, null);
             pc.setClientKey(ConnectionHandler.getInstance().addConnection(clntChan, pc));
+            XMPPLogger.getInstance().info("NEW USER CONNECTING");
         }
     }
 
