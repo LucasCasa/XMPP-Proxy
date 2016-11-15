@@ -2,13 +2,13 @@ S 		= (Query / Response) ENTER . ENTER
 
 Query 		= C SP String SP String / D SP String / E / “SEE” SP F 
 
-C 		= "LOGIN" / "REGISTER" / "MULTIPLEX"
+C 		= "LOGIN" / "REGISTER" / "MULTIPLEX" / “HOST”
 
 D 		= "UNMULTIPLEX" / "SILENCE" / "UNSILENCE" / "L33T" / "UNL33T"
 
-E 		= "ACCESS" / "BYTES" / “EXIT”
+E 		= "ACCESS" / "BYTES" / “EXIT” / “CONVERTED” / “BLOCKED”
 
-F		= “MULTIPLEX” / “L33T” / “SILENCE”
+F		= “MULTIPLEX” / “L33T” / “SILENCE” / “HOST”
 
 String 		= *VCHAR
 

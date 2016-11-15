@@ -35,6 +35,10 @@ public class Reader {
 			return conv.resultOk(Metrics.getBytes());
 		}else if(aux.equals(Info.StrAccess + Info.endOfMessage)){
 			return conv.resultOk(Metrics.getAccess());
+		}else if(aux.equals(Info.StrSilenced + Info.endOfMessage)){
+			return conv.resultOk(Metrics.getBlocked());
+		}else if(aux.equals(Info.StrL33ted + Info.endOfMessage)){
+			return conv.resultOk(Metrics.getL33ted());
 		}else if(aux.equals(Info.StrExit + Info.endOfMessage)){
 			ConnectionHandler.exit();
 			return conv.resultOk("Logged out");
@@ -436,6 +440,10 @@ public class Reader {
 			return Info.exit;
 		}else if(string.equals(Info.StrHost)){
 			return Info.host;
+		}else if(string.equals(Info.StrL33ted)){
+			return Info.l33ted;
+		}else if(string.equals(Info.StrSilenced)){
+			return Info.silenced;
 		}
 		return 0;
 	}
