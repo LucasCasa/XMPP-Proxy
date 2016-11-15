@@ -39,6 +39,7 @@ public class ProxyConnection implements Connection{
     private String JID = null;
 
     private boolean incomplete = false;
+    private boolean silencedIncomplete = false;
     private boolean waiting;
 
 
@@ -224,22 +225,36 @@ public class ProxyConnection implements Connection{
                         return;
                     }
                     if (s == State.INCOMPLETE && clientBuffer.position() >= 65536) {
+                        if(silencedIncomplete){
+                            clientBuffer.clear();
+                            serverKey.interestOps(SelectionKey.OP_READ);
+                        }
                         if(!incomplete){
-                            performOperations(buff);
+                            performOperations(buff,true);
                         }
                         incomplete = true;
-                        key.interestOps(0);
+                        if(silencedIncomplete){
+                            key.interestOps(SelectionKey.OP_WRITE);
+                        }else {
+                            key.interestOps(0);
+                        }
                         return;
                     }
                     if (incomplete && clientBuffer.position() < 65536) {
                         incomplete = false;
+                        if(silencedIncomplete){
+                            clientBuffer.clear();
+                            serverKey.interestOps(SelectionKey.OP_READ);
+                            silencedIncomplete = false;
+                        }
+
                         return;
                     }
-                    performOperations(buff);
+                    performOperations(buff,false);
                 }else {
                     serverBuffer.clear();
                     bytesRead = ((SocketChannel) serverKey.channel()).read(serverBuffer);
-                    if (bytesRead == -1) { // Did the other end close?
+                    if (bytesRead == -1) {
                         clientKey.channel().close();
                         serverKey.channel().close();
                         clientKey.cancel();
@@ -248,18 +263,28 @@ public class ProxyConnection implements Connection{
                     }
                     serverBuffer.flip();
                     buff = utf8.decode(serverBuffer);
-                    if (serverBuffer.position() < 65536) {
+                    if(silencedIncomplete && serverBuffer.position() >= 65536){
+                        serverBuffer.clear();
+                        return;
+                    }else if(silencedIncomplete){
+                        silencedIncomplete = false;
+                        serverBuffer.clear();
+                        return;
+                    }
                         if (XMLParser.startWith("<message", buff)) {
                             if (ConnectionHandler.isSilenced(XMLParser.getTo(buff))) {
+                                if(serverBuffer.position() >= 65536){
+                                    silencedIncomplete = true;
+                                }
                                 serverBuffer.clear();
                                 Metrics.incrementBlocked();
                                 if (XMLParser.contains("<body>", buff)) {
                                     clientBuffer.put(ConnectionHandler.silenced2(XMLParser.getFrom(buff)));
                                     serverKey.interestOps(SelectionKey.OP_WRITE);
                                 }
+
                                 return;
                             }
-                        }
                     }
                     serverKey.interestOps(SelectionKey.OP_READ);
                     clientKey.interestOps(SelectionKey.OP_WRITE);
@@ -290,7 +315,10 @@ public class ProxyConnection implements Connection{
         return clientKey;
     }
 
-    public void performOperations(CharBuffer buff){
+    public void performOperations(CharBuffer buff,boolean incomplete){
+        if(incomplete){
+            System.out.println("I");
+        }
         if (XMLParser.contains("<stream:stream", buff)) {
             //XMPPLogger.getInstance().debug("STATUS: COMPLETE AND CONTAINS <stream:stream>");
             if (ConnectionHandler.isMultiplex(JID)) {
@@ -305,6 +333,7 @@ public class ProxyConnection implements Connection{
             }
         }else if (XMLParser.startWith("<message", buff)) {
             if (ConnectionHandler.isSilenced(JID)) {
+                silencedIncomplete = incomplete;
                 clientBuffer.clear();
                 Metrics.incrementBlocked();
                 if (XMLParser.contains("<body>", buff)) {
