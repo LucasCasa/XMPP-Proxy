@@ -13,6 +13,7 @@ public class Info {
 	public final static int see = 9;
 	public final static int exit = 10;
 	public final static int unmultiplex = 11;
+	public final static int host = 12;
 	
 	public final static char separator = ' ';
 	public final static String endOfMessage = "\n.\n";
@@ -30,6 +31,7 @@ public class Info {
 	public final static String StrSee = "SEE";
 	public final static String StrExit = "EXIT";
 	public final static String StrUnmultiplex = "UNMULTIPLEX";
+	public final static String StrHost = "HOST";
 	
 	public final static String result = "RESULT";
 	public final static String ok = "OK";

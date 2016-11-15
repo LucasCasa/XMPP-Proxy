@@ -189,4 +189,9 @@ public class ConnectionHandler{
             return addr;
         }
     }
+    
+
+	public static boolean hasHost(String user) {
+		return hosts.containsKey(user);
+	}
 }

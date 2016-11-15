@@ -64,8 +64,60 @@ public class Reader {
 			return l33t(cb);
 		case Info.unl33t:
 			return unl33t(cb);
+		case Info.host:
+			return host(cb);
 		}
 		return conv.resultError(wrongParams);
+	}
+
+
+	private static String host(CharBuffer cb) {
+		StringBuilder name = new StringBuilder("");
+		StringBuilder source = new StringBuilder("");
+		int aux = 0;
+		int param = 0;
+		while(cb.hasRemaining()){
+			char c = cb.get();
+			if(c == Info.separator && param == 0){
+				param ++;
+			}else if(c == '\n' && aux == 0 && param == 0){
+				String user = name.toString();
+				if(!ConnectionHandler.isLogged()){
+					return conv.resultError(mustLogin);
+				}
+				if(!ConnectionHandler.hasHost(user)){
+					ConnectionHandler.addHost(user,null);
+					return conv.resultOk("Host " + user + " has been added");
+				}else{
+					ConnectionHandler.addHost(user,null);
+					return conv.resultError("Host " + user + "has been changed");
+				}
+			}else if(c == '\n' && aux == 0){
+				aux ++;
+			}else if (aux == 0 && param == 0){
+				name = name.append(c);
+			}else if(aux == 0 && param == 1){
+				source = source.append(c);
+			}else if( c == '.' && aux == 1){
+				aux ++;
+			}else if( c == '\n' && aux == 2){
+				String user = name.toString();
+				String ip = source.toString();
+				if(!ConnectionHandler.isLogged()){
+					return conv.resultError(mustLogin);
+				}
+				if(!ConnectionHandler.hasHost(user)){
+					ConnectionHandler.addHost(user,ip);
+					return conv.resultOk("Host " + user + " has been added");
+				}else{
+					ConnectionHandler.addHost(user,ip);
+					return conv.resultError("Host " + user + "has been changed");
+				}
+			}else{
+				return conv.resultError(wrongParams);
+			}
+		}
+		return conv.resultError(unknownError);
 	}
 
 
@@ -390,6 +442,8 @@ public class Reader {
 			return Info.bytes;
 		}else if(string.equals(Info.StrBytes)){
 			return Info.exit;
+		}else if(string.equals(Info.StrHost)){
+			return Info.host;
 		}
 		return 0;
 	}
