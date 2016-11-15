@@ -80,18 +80,6 @@ public class Reader {
 			char c = cb.get();
 			if(c == Info.separator && param == 0){
 				param ++;
-			}else if(c == '\n' && aux == 0 && param == 0){
-				String user = name.toString();
-				if(!ConnectionHandler.isLogged()){
-					return conv.resultError(mustLogin);
-				}
-				if(!ConnectionHandler.hasHost(user)){
-					ConnectionHandler.addHost(user,null);
-					return conv.resultOk("Host " + user + " has been added");
-				}else{
-					ConnectionHandler.addHost(user,null);
-					return conv.resultError("Host " + user + "has been changed");
-				}
 			}else if(c == '\n' && aux == 0){
 				aux ++;
 			}else if (aux == 0 && param == 0){
@@ -230,16 +218,18 @@ public class Reader {
 			}else if( c == '.' && aux == 1){
 				aux ++;
 			}else if( c == '\n' && aux == 2){
-				String user = sb.toString();
+				String user = name.toString();
+				String server = sb.toString();
 				if(!ConnectionHandler.isLogged()){
 					return conv.resultError(mustLogin);
 				}
 				if(!ConnectionHandler.isMultiplex(user)){
-					ConnectionHandler.setMultiplex(name.toString(),sb.toString());
-					return conv.resultOk(user + " multiplexed");
+					ConnectionHandler.setMultiplex(user,server);
+					return conv.resultOk(user + " multiplexed to " + server);
 				}
 				else{
-					return conv.resultError(user + " is already multiplexed");
+					ConnectionHandler.setMultiplex(user,server);
+					return conv.resultError(user + " has been changed to multiplex to " + server);
 					
 				}
 			}else{
@@ -332,6 +322,8 @@ public class Reader {
 					return conv.resultSee(ConnectionHandler.getMultiplex());
 				}else if(param.equals(Info.StrSilence)){
 					return conv.resultSee(ConnectionHandler.getSilenced());
+				}else if(param.equals(Info.StrHost)){
+					return conv.resultSee(ConnectionHandler.getHosts());
 				}else{
 					return conv.resultError(wrongParams);
 				}
