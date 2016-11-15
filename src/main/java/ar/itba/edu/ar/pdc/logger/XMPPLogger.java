@@ -8,16 +8,13 @@ import org.apache.log4j.Logger;
 public class XMPPLogger {
 	
 	private final static Logger logger = Logger.getLogger(XMPPLogger.class);
-	private static XMPPLogger self = null;
+	private static XMPPLogger self = new XMPPLogger();
 	
-	public XMPPLogger(){
+	private XMPPLogger(){
 		Logger.getLogger(XMPPLogger.class);
 	}
 
 	public static XMPPLogger getInstance() {
-		if(self == null){
-			self = new XMPPLogger();
-		}
 		return self;
 	}
 

@@ -16,6 +16,7 @@ import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
 
+import static java.lang.System.in;
 import static java.lang.System.out;
 
 /**
@@ -38,6 +39,7 @@ public class ProxyConnection implements Connection{
     private String serverName = null;
     private String JID = null;
 
+    private boolean incomplete = false;
     private boolean waiting;
 
 
@@ -81,21 +83,22 @@ public class ProxyConnection implements Connection{
                 }else{
                     serverBuffer.put((ConnectionHandler.INITIAL_STREAM[0] + serverName + ConnectionHandler.INITIAL_STREAM[1]).getBytes("UTF-8"));
                 }
-                out.println(new String(serverBuffer.array()));
+                //out.println(new String(serverBuffer.array()));
                 serverBuffer.flip();
                 byteWrite = ((SocketChannel)key.channel()).write(serverBuffer);
                 key.interestOps(SelectionKey.OP_READ);
             }else if(status == Status.CONNECTED){
-                XMPPLogger.getInstance().debug("STATUS: CONNECTED");
                 if(key.equals(clientKey)){
                     serverBuffer.flip();
-                    System.out.println(JID + " Esta recibiendo: " + new String(serverBuffer.array()));
+                    XMPPLogger.getInstance().debug(JID + " IS SENDING TO SERVER");
+                    //System.out.println(JID + " Esta recibiendo: " + new String(serverBuffer.array()));
                     byteWrite = ((SocketChannel)clientKey.channel()).write(serverBuffer);
                     clientKey.interestOps(SelectionKey.OP_READ);
                     serverBuffer.clear();
                 }else{
                     clientBuffer.flip();
-                    System.out.println(JID + " Esta enviando: " + new String(clientBuffer.array()));
+                    XMPPLogger.getInstance().debug("SERVER SENDING TO " + JID);
+                    //System.out.println(JID + " Esta enviando: " + new String(clientBuffer.array()));
                     byteWrite = ((SocketChannel)serverKey.channel()).write(clientBuffer);
                     serverKey.interestOps(SelectionKey.OP_READ);
                     clientBuffer.clear();
@@ -121,7 +124,7 @@ public class ProxyConnection implements Connection{
                 clientBuffer.flip();
 
                 buff = utf8.decode(clientBuffer);
-                out.println(new String(clientBuffer.array()));
+                //out.println(new String(clientBuffer.array()));
                 if(XMLParser.startWith("<?xml",buff)){
                    // XMPPLogger.getInstance().debug("CONTAINS <?xml>");
                 }
@@ -146,7 +149,7 @@ public class ProxyConnection implements Connection{
                     byte[] d = Base64.decodeBase64(XMLParser.getAuth(clientBuffer).getBytes("UTF-8"));
                     String stringData = new String(d);
                     setJID(stringData.substring(1, stringData.indexOf(0, 1)));
-                    out.println(new String(clientBuffer.array()));
+                    //out.println(new String(clientBuffer.array()));
                     String servMultiplexed = ConnectionHandler.multiplex(JID).split("@")[1];
                     SocketChannel serverChannel = SocketChannel.open();
                     serverChannel.connect(new InetSocketAddress(ConnectionHandler.getAddr(servMultiplexed), 5222));
@@ -161,7 +164,7 @@ public class ProxyConnection implements Connection{
                 bytesRead = ((SocketChannel) key.channel()).read(serverBuffer);
                 serverBuffer.flip();
                 buff = utf8.decode(serverBuffer);
-                out.print(new String(buff.array()));
+                //out.print(new String(buff.array()));
                 if(XMLParser.contains("mechanism",buff)) {
 
                     clientBuffer.flip();
@@ -173,7 +176,7 @@ public class ProxyConnection implements Connection{
                         clientKey.interestOps(SelectionKey.OP_READ|SelectionKey.OP_WRITE);
                 }else if(XMLParser.startWith("<failure",buff)){
                     //XMPPLogger.getInstance().debug("CONTAINS <failure>");
-                    //XMPPLogger.getInstance().error("FAILURE");
+                    XMPPLogger.getInstance().error("FAILURE, CLOSING CONNECTION WITH " + JID);
                     clientKey.channel().close();
                     serverKey.channel().close();
                     clientKey.cancel();
@@ -193,43 +196,51 @@ public class ProxyConnection implements Connection{
                     //clientBuffer.position(0);
                     buff = utf8.decode(clientBuffer);
                     State s =XMLParser.checkMessage(buff);
-                    if(s == State.INCOMPLETE && bytesRead < 65536){
-                        XMPPLogger.getInstance().debug("STATUS: STATE INCOMPLETE");
+                    if(s == State.INCOMPLETE && clientBuffer.position() == 65536){
+                        XMPPLogger.getInstance().debug("STATUS: INCOMPLETE BIG STANZA");
                         //System.out.println("INCOMPLETO ------------------------------");
-                        System.out.println(new String(buff.array()));
+                        //System.out.println(new String(buff.array()));
                         //System.out.println("INCOMPLETO ------------------------------");
                     }
-                    if(!XMLParser.contains("<stream:stream",buff) && s == State.INCOMPLETE){
+                    if(!XMLParser.contains("<stream:stream",buff) && s == State.INCOMPLETE && clientBuffer.position() < 65536){
                         clientBuffer.limit(65536);
                     }else{
-                        //out.println("<---" + new String(clientBuffer.array()));
-                        if (XMLParser.contains("<stream:stream", buff)) {
-                            XMPPLogger.getInstance().debug("STATUS: COMPLETE AND CONTAINS <stream:stream>");
-                            if (ConnectionHandler.isMultiplex(JID)) {
-                                XMPPLogger.getInstance().debug("STATUS: COMPLETE AND CONTAINS <stream:stream> AND IS MULTIPLEXED");
-                                clientBuffer = XMLParser.setTo(clientBuffer, ConnectionHandler.multiplex(JID).split("@")[1]);
-                                //out.println("-->" + new String(clientBuffer.array()));
-                            }
-                        } else if (XMLParser.startWith("<message", buff)) {
-                            if (ConnectionHandler.isSilenced(JID)) {
-                                clientBuffer.clear();
-                                Metrics.incrementBlocked();
-                                if(XMLParser.contains("<body>",buff)){
-                                    serverBuffer.put(ConnectionHandler.silenced(JID, XMLParser.getTo(buff)));
-                                }
-                                clientKey.interestOps(SelectionKey.OP_WRITE);
-                                serverKey.interestOps(SelectionKey.OP_READ);
-                            } else {
-                                if (XMLParser.contains("<body", buff)) {
-
-                                    if (ConnectionHandler.isL33t(JID)) {
-                                        clientBuffer = MessageConverter.convertToL33t(clientBuffer);
-                                        //out.println(new String(clientBuffer.array()));
-                                        Metrics.incrementL33ted();
-                                    }
+                        if(s == State.INCOMPLETE && clientBuffer.position() >= 65536){
+                            incomplete = true;
+                        }else {
+                            if(incomplete){
+                                incomplete = false;
+                            }else {
+                                //out.println("<---" + new String(clientBuffer.array()));
+                                if (XMLParser.contains("<stream:stream", buff)) {
+                                    //XMPPLogger.getInstance().debug("STATUS: COMPLETE AND CONTAINS <stream:stream>");
                                     if (ConnectionHandler.isMultiplex(JID)) {
-                                        clientBuffer = XMLParser.setFrom(clientBuffer, ConnectionHandler.multiplex(JID).split("@")[1]);
-                                        //out.println(new String(clientBuffer.array()));
+                                        //XMPPLogger.getInstance().debug("STATUS: COMPLETE AND CONTAINS <stream:stream> AND IS MULTIPLEXED");
+                                        clientBuffer = XMLParser.setTo(clientBuffer, ConnectionHandler.multiplex(JID).split("@")[1]);
+                                        //out.println("-->" + new String(clientBuffer.array()));
+                                    }
+                                } else if (XMLParser.startWith("<message", buff)) {
+                                    if (ConnectionHandler.isSilenced(JID)) {
+                                        clientBuffer.clear();
+                                        Metrics.incrementBlocked();
+                                        if (XMLParser.contains("<body>", buff)) {
+                                            serverBuffer.put(ConnectionHandler.silenced(JID, XMLParser.getTo(buff)));
+                                        }
+                                        clientKey.interestOps(SelectionKey.OP_WRITE);
+                                        serverKey.interestOps(SelectionKey.OP_READ);
+                                    } else {
+                                        if (XMLParser.contains("<body", buff)) {
+
+                                            if (ConnectionHandler.isL33t(JID)) {
+                                                clientBuffer = MessageConverter.convertToL33t(clientBuffer);
+                                                //out.println(new String(clientBuffer.array()));
+                                                Metrics.incrementL33ted();
+                                            }
+                                            if (ConnectionHandler.isMultiplex(JID)) {
+                                                clientBuffer = XMLParser.setFrom(clientBuffer, ConnectionHandler.multiplex(JID).split("@")[1]);
+                                                //out.println(new String(clientBuffer.array()));
+                                            }
+                                        }
                                     }
                                 }
                             }

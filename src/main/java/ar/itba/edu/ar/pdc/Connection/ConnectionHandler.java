@@ -55,7 +55,8 @@ public class ConnectionHandler{
             leet.add("nico8@example.com");
             leet.add("nico9@example.com");
             leet.add("ncastano@example.com");
-            silence.add("test@muffin.com");
+            //silence.add("test@muffin.com");
+            //hosts.put("muffin.com","localhost");
             multiplex.put("test@muffin2.com","test@muffin.com");
             users.put("muffin", "muffin");
             users.put("MUFFIN", "MUFFIN");
@@ -186,7 +187,7 @@ public class ConnectionHandler{
     public static String getAddr(String host){
         String addr = hosts.get(host);
         if(addr == null){
-            return "localhost";
+            return host;
         }else{
             return addr;
         }

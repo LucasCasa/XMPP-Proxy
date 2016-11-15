@@ -339,20 +339,7 @@ public class XMLParser {
     }
 
     public static void main(String[] args) {
-        String str = "<iq xmlns=\"jabber:client\" type=\"result\" to=\"test@muffin.com/Muffin\" id=\"a162fa\">\n" +
-                "<si xmlns=\"http://jabber.org/protocol/si\">\n" +
-                "<file xmlns=\"http://jabber.org/protocol/si/profile/file-transfer\">\n" +
-                "<range offset=\"10018816\"/>\n" +
-                "</file>\n" +
-                "<feature xmlns=\"http://jabber.org/protocol/feature-neg\">\n" +
-                "<x xmlns=\"jabber:x:data\" type=\"submit\">\n" +
-                "<field var=\"stream-method\">\n" +
-                "<value>http://jabber.org/protocol/ibb</value>\n" +
-                "</field>\n" +
-                "</x>\n" +
-                "</feature>\n" +
-                "</si>\n" +
-                "</iq>";
+        String str = "<iq type='set' id='purplead6649b3'><pubsub xmlns='http://jabber.org/protocol/pubsub'><publish node='http://jabber.org/protocol/tune'><item><tune xmlns='http://jabber.org/protocol/tune'/></item></publish></pubsub></iq>";
         CharBuffer aux = CharBuffer.wrap(str.toCharArray());
         State s = checkMessage(aux);
         if(s== State.COMPLETE){

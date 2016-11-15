@@ -37,7 +37,7 @@ public class Server {
             adminChannel.register(selector, SelectionKey.OP_ACCEPT,true);
             if (!originServer.connect(new InetSocketAddress("localhost", 5222))) {
                 while (!originServer.finishConnect()) {
-                    XMPPLogger.getInstance().info("ESTOY POR CONECTARME");
+                    XMPPLogger.getInstance().info("CONNECTED TO XMPP SERVER");
                     System.out.print(".a"); // Do something else
                 }
             }
@@ -46,8 +46,8 @@ public class Server {
             while (true) { // Run forever, processing available I/O operations
                 // Wait for some channel to be ready (or timeout)
                 if (selector.select(3000) == 0) { // returns # of ready chans
-                    XMPPLogger.getInstance().info("SERVER WAITING");
-                    System.out.print(".");
+                    //XMPPLogger.getInstance().info("SERVER WAITING");
+                    //System.out.print(".");
                     continue;
                 }
                 // Get iterator on set of keys with I/O to process
