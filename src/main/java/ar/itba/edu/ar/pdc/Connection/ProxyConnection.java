@@ -1,6 +1,7 @@
 package ar.itba.edu.ar.pdc.Connection;
 
 import ar.itba.edu.ar.pdc.Metrics;
+import ar.itba.edu.ar.pdc.logger.XMPPLogger;
 import ar.itba.edu.ar.pdc.xmlparser.MessageConverter;
 import ar.itba.edu.ar.pdc.xmlparser.State;
 import ar.itba.edu.ar.pdc.xmlparser.XMLParser;
@@ -73,6 +74,7 @@ public class ProxyConnection implements Connection{
         try {
             int byteWrite = 0;
             if (status == Status.WAITING_SERVER) {
+                XMPPLogger.getInstance().debug("STATUS: WAITING SERVER");
                 serverBuffer.clear();
                 if(ConnectionHandler.isMultiplex(JID)) {
                     serverBuffer.put((ConnectionHandler.INITIAL_STREAM[0] + ConnectionHandler.multiplex(JID).split("@")[1] + ConnectionHandler.INITIAL_STREAM[1]).getBytes("UTF-8"));
@@ -84,10 +86,10 @@ public class ProxyConnection implements Connection{
                 byteWrite = ((SocketChannel)key.channel()).write(serverBuffer);
                 key.interestOps(SelectionKey.OP_READ);
             }else if(status == Status.CONNECTED){
+                XMPPLogger.getInstance().debug("STATUS: CONNECTED");
                 if(key.equals(clientKey)){
                     serverBuffer.flip();
                     System.out.println(JID + " Esta recibiendo: " + new String(serverBuffer.array()));
-
                     byteWrite = ((SocketChannel)clientKey.channel()).write(serverBuffer);
                     clientKey.interestOps(SelectionKey.OP_READ);
                     serverBuffer.clear();
@@ -102,6 +104,7 @@ public class ProxyConnection implements Connection{
             }
             Metrics.addBytes(byteWrite);
         }catch (Exception e){
+            XMPPLogger.getInstance().error("HANDLE WRITE ERROR");
             e.printStackTrace();
         }
     }
@@ -120,9 +123,10 @@ public class ProxyConnection implements Connection{
                 buff = utf8.decode(clientBuffer);
                 out.println(new String(clientBuffer.array()));
                 if(XMLParser.startWith("<?xml",buff)){
-
+                   // XMPPLogger.getInstance().debug("CONTAINS <?xml>");
                 }
                 if(XMLParser.contains("<stream:stream",buff)){
+                    //XMPPLogger.getInstance().debug("CONTAINS <stream:stream>");
                     serverName = XMLParser.getTo(buff);
                     clientBuffer.clear();
                     clientBuffer.put(ConnectionHandler.INITIAL_SERVER_STREAM);
@@ -158,13 +162,17 @@ public class ProxyConnection implements Connection{
                 buff = utf8.decode(serverBuffer);
                 //out.print(new String(serverBuffer.array()));
                 if(XMLParser.contains("mechanism",buff)) {
+
                     clientBuffer.flip();
                     ((SocketChannel) key.channel()).write(clientBuffer);
                     serverKey.interestOps(SelectionKey.OP_READ);
                 }else if(XMLParser.startWith("<success",buff)){
+                  //  XMPPLogger.getInstance().debug("CONTAINS <success>");
                         status = Status.CONNECTED;
                         clientKey.interestOps(SelectionKey.OP_READ|SelectionKey.OP_WRITE);
                 }else if(XMLParser.startWith("<failure",buff)){
+                    //XMPPLogger.getInstance().debug("CONTAINS <failure>");
+                    //XMPPLogger.getInstance().error("FAILURE");
                     clientKey.channel().close();
                     serverKey.channel().close();
                     clientKey.cancel();
@@ -184,17 +192,20 @@ public class ProxyConnection implements Connection{
                     //clientBuffer.position(0);
                     buff = utf8.decode(clientBuffer);
                     State s =XMLParser.checkMessage(buff);
-                    if(s == State.INCOMPLETE){
-                        System.out.println("INCOMPLETO ------------------------------");
+                    if(s == State.INCOMPLETE && bytesRead < 65536){
+                        XMPPLogger.getInstance().debug("STATUS: STATE INCOMPLETE");
+                        //System.out.println("INCOMPLETO ------------------------------");
                         System.out.println(new String(buff.array()));
-                        System.out.println("INCOMPLETO ------------------------------");
+                        //System.out.println("INCOMPLETO ------------------------------");
                     }
                     if(!XMLParser.contains("<stream:stream",buff) && s == State.INCOMPLETE){
                         clientBuffer.limit(65536);
                     }else{
                         //out.println("<---" + new String(clientBuffer.array()));
                         if (XMLParser.contains("<stream:stream", buff)) {
+                            XMPPLogger.getInstance().debug("STATUS: COMPLETE AND CONTAINS <stream:stream>");
                             if (ConnectionHandler.isMultiplex(JID)) {
+                                XMPPLogger.getInstance().debug("STATUS: COMPLETE AND CONTAINS <stream:stream> AND IS MULTIPLEXED");
                                 clientBuffer = XMLParser.setTo(clientBuffer, ConnectionHandler.multiplex(JID).split("@")[1]);
                                 //out.println("-->" + new String(clientBuffer.array()));
                             }
@@ -209,6 +220,7 @@ public class ProxyConnection implements Connection{
                                 serverKey.interestOps(SelectionKey.OP_READ);
                             } else {
                                 if (XMLParser.contains("<body", buff)) {
+
                                     if (ConnectionHandler.isL33t(JID)) {
                                         clientBuffer = MessageConverter.convertToL33t(clientBuffer);
                                         //out.println(new String(clientBuffer.array()));
@@ -251,12 +263,14 @@ public class ProxyConnection implements Connection{
             }
         }catch(Exception e){
             try {
+                XMPPLogger.getInstance().error("HANDLE READ ERROR");
                 e.printStackTrace();
                 clientKey.channel().close();
                 serverKey.channel().close();
                 clientKey.cancel();
                 serverKey.cancel();
             }catch (Exception e2){
+                XMPPLogger.getInstance().error("HANDLE READ FATAL ERROR");
                 e2.printStackTrace();
             }
         }

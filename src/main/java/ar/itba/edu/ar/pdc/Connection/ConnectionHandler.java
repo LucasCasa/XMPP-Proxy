@@ -1,16 +1,15 @@
 package ar.itba.edu.ar.pdc.Connection;
 
+import ar.itba.edu.ar.pdc.logger.XMPPLogger;
+
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import ar.itba.edu.ar.pdc.logger.XMPPLogger;
 
 /**
  * Created by Team Muffin on 25/10/16.
@@ -47,6 +46,14 @@ public class ConnectionHandler{
             leet.add("lucas@muffin.com");
             leet.add("nicolas@muffin.com");
             leet.add("nico@example.com");
+            leet.add("nico2@example.com");
+            leet.add("nico3@example.com");
+            leet.add("nico4@example.com");
+            leet.add("nico5@example.com");
+            leet.add("nico6@example.com");
+            leet.add("nico7@example.com");
+            leet.add("nico8@example.com");
+            leet.add("nico9@example.com");
             leet.add("ncastano@example.com");
             silence.add("test@muffin.com");
             multiplex.put("test@muffin2.com","test@muffin.com");
