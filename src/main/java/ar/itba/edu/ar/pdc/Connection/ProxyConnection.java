@@ -81,7 +81,7 @@ public class ProxyConnection implements Connection{
                 }else{
                     serverBuffer.put((ConnectionHandler.INITIAL_STREAM[0] + serverName + ConnectionHandler.INITIAL_STREAM[1]).getBytes("UTF-8"));
                 }
-                //out.println(new String(serverBuffer.array()));
+                out.println(new String(serverBuffer.array()));
                 serverBuffer.flip();
                 byteWrite = ((SocketChannel)key.channel()).write(serverBuffer);
                 key.interestOps(SelectionKey.OP_READ);
@@ -147,8 +147,9 @@ public class ProxyConnection implements Connection{
                     String stringData = new String(d);
                     setJID(stringData.substring(1, stringData.indexOf(0, 1)));
                     out.println(new String(clientBuffer.array()));
+                    String servMultiplexed = ConnectionHandler.multiplex(JID).split("@")[1];
                     SocketChannel serverChannel = SocketChannel.open();
-                    serverChannel.connect(new InetSocketAddress(ConnectionHandler.getAddr(serverName), 5222));
+                    serverChannel.connect(new InetSocketAddress(ConnectionHandler.getAddr(servMultiplexed), 5222));
                     serverChannel.configureBlocking(false);
                     setServerKey(ConnectionHandler.getInstance().addConnection(serverChannel, this));
                     serverKey.interestOps(SelectionKey.OP_WRITE);
@@ -160,7 +161,7 @@ public class ProxyConnection implements Connection{
                 bytesRead = ((SocketChannel) key.channel()).read(serverBuffer);
                 serverBuffer.flip();
                 buff = utf8.decode(serverBuffer);
-                //out.print(new String(serverBuffer.array()));
+                out.print(new String(buff.array()));
                 if(XMLParser.contains("mechanism",buff)) {
 
                     clientBuffer.flip();

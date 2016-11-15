@@ -59,6 +59,8 @@ public class ConnectionHandler{
             multiplex.put("test@muffin2.com","test@muffin.com");
             users.put("muffin", "muffin");
             users.put("MUFFIN", "MUFFIN");
+            hosts.put("muffin.com", "10.1.34.239");
+            multiplex.put("nicolas@example.com", "nicolas@muffin.com");
         }catch (Exception e){
             e.printStackTrace();
         }
