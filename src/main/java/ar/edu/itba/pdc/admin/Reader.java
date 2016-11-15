@@ -41,9 +41,14 @@ public class Reader {
 			return conv.resultOk(Metrics.getL33ted());
 		}else if(aux.equals(Info.StrExit + Info.endOfMessage)){
 			ConnectionHandler.exit();
-			return conv.resultOk("Logged out");
+			if(ConnectionHandler.isLogged()){
+				return conv.resultOk("Logged out");
+			}else{
+				return conv.resultError("Not logged in");
+			}
+			
 		}else{
-			return conv.resultError(unknownError);
+			return conv.resultError(wrongParams);
 		}
 	}
 
