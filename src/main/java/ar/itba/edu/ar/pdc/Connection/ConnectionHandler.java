@@ -22,6 +22,7 @@ public class ConnectionHandler{
     private static Set<String> silence = new HashSet<>();
     private static Map<String,String> multiplex = new HashMap<>();
     private static Map<String,String> users = new HashMap<>();
+    private static Map<String,String> hosts = new HashMap<>();
     private static boolean loggedIn = false;
 
     private static ConnectionHandler ch = new ConnectionHandler();
@@ -170,4 +171,15 @@ public class ConnectionHandler{
 
     }
 
+    public static void addHost(String name, String addr){
+        hosts.put(name,addr);
+    }
+    public static String getAddr(String host){
+        String addr = hosts.get(host);
+        if(addr == null){
+            return "localhost";
+        }else{
+            return addr;
+        }
+    }
 }

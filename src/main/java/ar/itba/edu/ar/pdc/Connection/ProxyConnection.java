@@ -144,7 +144,7 @@ public class ProxyConnection implements Connection{
                     setJID(stringData.substring(1, stringData.indexOf(0, 1)));
                     out.println(new String(clientBuffer.array()));
                     SocketChannel serverChannel = SocketChannel.open();
-                    serverChannel.connect(new InetSocketAddress("localhost", 5222));
+                    serverChannel.connect(new InetSocketAddress(ConnectionHandler.getAddr(serverName), 5222));
                     serverChannel.configureBlocking(false);
                     setServerKey(ConnectionHandler.getInstance().addConnection(serverChannel, this));
                     serverKey.interestOps(SelectionKey.OP_WRITE);
