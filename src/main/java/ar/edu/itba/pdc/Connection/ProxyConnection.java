@@ -40,6 +40,7 @@ public class ProxyConnection implements Connection{
 
     private boolean incomplete = false;
     private boolean silencedIncomplete = false;
+    private boolean clear = true;
     private boolean waiting;
 
 
@@ -95,6 +96,7 @@ public class ProxyConnection implements Connection{
                     byteWrite = ((SocketChannel)clientKey.channel()).write(serverBuffer);
                     XMPPLogger.getInstance().debug("SERVER IS SENDING TO " + JID + " " + byteWrite + " bytes");
                     clientKey.interestOps(SelectionKey.OP_READ);
+                    serverKey.interestOps(SelectionKey.OP_READ);
                     serverBuffer.clear();
                 }else{
                     clientBuffer.flip();
@@ -192,7 +194,9 @@ public class ProxyConnection implements Connection{
             }else if(status == Status.CONNECTED){
                 //Ya estoy conectado, aca toda la logica del proxy
                 if(key.equals(clientKey)){
-                    clientBuffer.clear();
+                    if(clear) {
+                        clientBuffer.clear();
+                    }
                     clientKey.interestOps(SelectionKey.OP_READ);
                     serverKey.interestOps(SelectionKey.OP_WRITE);
                     bytesRead = ((SocketChannel)clientKey.channel()).read(clientBuffer);
@@ -220,13 +224,13 @@ public class ProxyConnection implements Connection{
                         //System.out.println(new String(buff.array()));
                         //System.out.println("INCOMPLETO ------------------------------");
                     }
-                    if(s == State.ERROR){
-                        System.out.println("ERROR " + buff);
-                    }
-                    if(!incomplete && s == State.INCOMPLETE && clientBuffer.position() < 65536 && !XMLParser.contains("<stream:stream",buff)){
+                    if(!incomplete && s == State.INCOMPLETE && clientBuffer.position() < 65536){
                         clientBuffer.limit(65536);
+                        clear = false;
+                        serverKey.interestOps(SelectionKey.OP_WRITE);
                         return;
                     }
+                    clear = true;
                     if (s == State.INCOMPLETE && clientBuffer.position() >= 65536) {
                         if(silencedIncomplete){
                             clientBuffer.clear();
@@ -234,6 +238,7 @@ public class ProxyConnection implements Connection{
                         }
                         if(!incomplete){
                             performOperations(buff,true);
+                            key.interestOps(0);
                         }
                         incomplete = true;
                         if(silencedIncomplete){
@@ -290,8 +295,13 @@ public class ProxyConnection implements Connection{
                                 return;
                             }
                     }
-                    serverKey.interestOps(SelectionKey.OP_READ);
-                    clientKey.interestOps(SelectionKey.OP_WRITE);
+                    if(serverBuffer.position() >= 2000){
+                        clientKey.interestOps(SelectionKey.OP_WRITE);
+                        serverKey.interestOps(0);
+                    }else {
+                        serverKey.interestOps(SelectionKey.OP_READ);
+                        clientKey.interestOps(SelectionKey.OP_WRITE);
+                    }
                 }
             }
         }catch(Exception e){

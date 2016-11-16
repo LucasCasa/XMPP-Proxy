@@ -355,7 +355,7 @@ public class XMLParser {
         int bufferLength = buffer.length();
         char c;
         boolean hasTags = false;
-        for( int i=0; i < bufferLength; i++ ){
+        for( int i=0; i < bufferLength-1; i++ ){
             c = buffer.get(i);
             if(c == '<'){
                 c = buffer.get(i+1);

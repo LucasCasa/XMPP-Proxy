@@ -43,7 +43,7 @@ public class ConnectionHandler{
         try {
             s = Selector.open();
             leet = new HashSet<>();
-            leet.add("lucas@muffin.com");
+            /*leet.add("lucas@muffin.com");
             leet.add("nicolas@muffin.com");
             leet.add("nico@example.com");
             leet.add("nico2@example.com");
@@ -55,14 +55,14 @@ public class ConnectionHandler{
             leet.add("nico8@example.com");
             leet.add("nico9@example.com");
             leet.add("ncastano@example.com");
-            silence.add("test@muffin.com");
+            silence.add("test@muffin.com");*/
             //hosts.put("muffin.com","localhost");
-            multiplex.put("test@muffin2.com","test@muffin.com");
+            //multiplex.put("test@muffin2.com","test@muffin.com");
             users.put("muffin", "muffin");
             users.put("MUFFIN", "MUFFIN");
             hosts.put("muffin.com", "localhost");
             hosts.put("example.com","localhost");
-            multiplex.put("nicolas@example.com", "nicolas@muffin.com");
+            //multiplex.put("nicolas@example.com", "nicolas@muffin.com");
         }catch (Exception e){
             e.printStackTrace();
         }
