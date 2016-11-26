@@ -24,6 +24,8 @@ public class ConnectionHandler{
     private static Map<String,String> hosts = new HashMap<>();
     private static boolean loggedIn = false;
 
+    public static int BUFF_SIZE = 65536;
+
     private static ConnectionHandler ch = new ConnectionHandler();
 
     public static final byte[] INITIAL_SERVER_STREAM = ("<?xml version='1.0' ?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>")
@@ -43,21 +45,6 @@ public class ConnectionHandler{
         try {
             s = Selector.open();
             leet = new HashSet<>();
-            /*leet.add("lucas@muffin.com");
-            leet.add("nicolas@muffin.com");
-            leet.add("nico@example.com");
-            leet.add("nico2@example.com");
-            leet.add("nico3@example.com");
-            leet.add("nico4@example.com");
-            leet.add("nico5@example.com");
-            leet.add("nico6@example.com");
-            leet.add("nico7@example.com");
-            leet.add("nico8@example.com");
-            leet.add("nico9@example.com");
-            leet.add("ncastano@example.com");
-            silence.add("test@muffin.com");*/
-            //hosts.put("muffin.com","localhost");
-            //multiplex.put("test@muffin2.com","test@muffin.com");
             users.put("muffin", "muffin");
             users.put("MUFFIN", "MUFFIN");
             hosts.put("muffin.com", "localhost");
@@ -75,7 +62,9 @@ public class ConnectionHandler{
     public SelectionKey addConnection(SocketChannel sc,Object attr) throws IOException{
         return sc.register(s,SelectionKey.OP_READ,attr);
     }
-
+    public SelectionKey addConnect(SocketChannel sc,Object attr) throws IOException{
+        return sc.register(s,SelectionKey.OP_CONNECT,attr);
+    }
     public Selector getSelector() {
         return s;
     }

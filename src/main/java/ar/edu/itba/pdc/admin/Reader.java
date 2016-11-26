@@ -13,7 +13,7 @@ public class Reader {
 	
 
 	public String Read(CharBuffer cb,boolean logged){
-		StringBuilder sb = new StringBuilder("");
+		StringBuilder sb = new StringBuilder(10);
 		while(cb.hasRemaining()){
 			char c = cb.get();
 			if(c == Info.separator){
@@ -81,8 +81,8 @@ public class Reader {
 
 
 	private static String host(CharBuffer cb,boolean logged) {
-		StringBuilder name = new StringBuilder("");
-		StringBuilder source = new StringBuilder("");
+		StringBuilder name = new StringBuilder(20);
+		StringBuilder source = new StringBuilder(20);
 		int aux = 0;
 		int param = 0;
 		while(cb.hasRemaining()){
@@ -120,7 +120,7 @@ public class Reader {
 
 	private static String unmultiplex(CharBuffer cb,boolean logged) {
 		int aux = 0;
-		StringBuilder sb = new StringBuilder("");
+		StringBuilder sb = new StringBuilder(50);
 		while(cb.hasRemaining()){
 			char c = cb.get();
 			if(c == '\n' && aux == 0){
@@ -151,7 +151,7 @@ public class Reader {
 
 	private  static String unl33t(CharBuffer cb,boolean logged) {
 		int aux = 0;
-		StringBuilder sb = new StringBuilder("");
+		StringBuilder sb = new StringBuilder(50);
 		while(cb.hasRemaining()){
 			char c = cb.get();
 			if(c == '\n' && aux == 0){
@@ -181,7 +181,7 @@ public class Reader {
 
 	private  static String l33t(CharBuffer cb,boolean logged) {
 		int aux = 0;
-		StringBuilder sb = new StringBuilder("");
+		StringBuilder sb = new StringBuilder(50);
 		while(cb.hasRemaining()){
 			char c = cb.get();
 			if(c == '\n' && aux == 0){
@@ -210,8 +210,8 @@ public class Reader {
 
 
 	private  static String multiplex(CharBuffer cb,boolean logged) {
-		StringBuilder name = new StringBuilder("");
-		StringBuilder sb = new StringBuilder("");
+		StringBuilder name = new StringBuilder(50);
+		StringBuilder sb = new StringBuilder(50);
 		int aux = 0;
 		int param = 0;
 		while(cb.hasRemaining()){
@@ -251,7 +251,7 @@ public class Reader {
 
 	private  static String unsilence(CharBuffer cb,boolean logged) {
 		int aux = 0;
-		StringBuilder sb = new StringBuilder("");
+		StringBuilder sb = new StringBuilder(50);
 		while(cb.hasRemaining()){
 			char c = cb.get();
 			if(c == '\n' && aux == 0){
@@ -281,7 +281,7 @@ public class Reader {
 
 	private  static String silence(CharBuffer cb,boolean logged) {
 		int aux = 0;
-		StringBuilder sb = new StringBuilder("");
+		StringBuilder sb = new StringBuilder(50);
 		while(cb.hasRemaining()){
 			char c = cb.get();
 			if(c == '\n' && aux == 0){
@@ -311,7 +311,7 @@ public class Reader {
 
 	private static String see(CharBuffer cb,boolean logged) {
 		int aux = 0;
-		StringBuilder sb = new StringBuilder("");
+		StringBuilder sb = new StringBuilder(10);
 		while(cb.hasRemaining()){
 			char c = cb.get();
 			if(c == '\n' && aux == 0){
@@ -345,8 +345,8 @@ public class Reader {
 
 
 	private static String register(CharBuffer cb,boolean logged) {
-		StringBuilder name = new StringBuilder("");
-		StringBuilder pass = new StringBuilder("");
+		StringBuilder name = new StringBuilder(30);
+		StringBuilder pass = new StringBuilder(30);
 		int aux = 0;
 		int param = 0;
 		while(cb.hasRemaining()){
@@ -382,8 +382,8 @@ public class Reader {
 
 
 	private static String login(CharBuffer cb,boolean logged) {
-		StringBuilder name = new StringBuilder("");
-		StringBuilder pass = new StringBuilder("");
+		StringBuilder name = new StringBuilder(30);
+		StringBuilder pass = new StringBuilder(30);
 		int aux = 0;
 		int param = 0;
 		while(cb.hasRemaining()){

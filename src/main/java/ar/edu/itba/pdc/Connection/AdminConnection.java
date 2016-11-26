@@ -1,6 +1,7 @@
 package ar.edu.itba.pdc.Connection;
 
 import ar.edu.itba.pdc.admin.Reader;
+import ar.edu.itba.pdc.xmlparser.XMLParser;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -30,7 +31,7 @@ public class AdminConnection implements Connection{
             buffer.flip();
             buffer.position(0);
             CharBuffer c = Charset.forName("UTF-8").decode(buffer);
-            if(c.toString().contains("\n.\n")){
+            if(XMLParser.contains("\n.\n",c)){
                 buffer.clear();
                 response = r.Read(c,logged);
                 if(response.contains("Logged in")){
@@ -39,7 +40,7 @@ public class AdminConnection implements Connection{
                     logged = false;
                 }
                 handleWrite(key);
-            }else if(c.toString().equals("\n")){
+            }else if(c.length() == 1 && c.get(0) == '\n'){
                 buffer.clear();
             }else{
                 buffer.limit(4096);

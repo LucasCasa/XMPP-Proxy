@@ -26,28 +26,18 @@ public class Server {
 
             ServerSocketChannel listnChannel = ServerSocketChannel.open();
             ServerSocketChannel adminChannel = ServerSocketChannel.open();
-            SocketChannel originServer = SocketChannel.open();
-            listnChannel.socket().bind(new InetSocketAddress(42069));
-            adminChannel.socket().bind(new InetSocketAddress(42070));
-            originServer.configureBlocking(false);
             adminChannel.configureBlocking(false);
             listnChannel.configureBlocking(false); // must be nonblocking to register
+            listnChannel.socket().bind(new InetSocketAddress(42069));
+            adminChannel.socket().bind(new InetSocketAddress(42070));
             // Register selector with channel. The returned key is ignored
             listnChannel.register(selector, SelectionKey.OP_ACCEPT,false);
             adminChannel.register(selector, SelectionKey.OP_ACCEPT,true);
-            if (!originServer.connect(new InetSocketAddress("localhost", 5222))) {
-                while (!originServer.finishConnect()) {
-                    System.out.print(".a"); // Do something else
-                }
-                XMPPLogger.getInstance().info("CONNECTED TO XMPP SERVER");
-            }
 
             TCPProtocol protocol = new XMPPSelectorProtocol(4096);
             while (true) { // Run forever, processing available I/O operations
                 // Wait for some channel to be ready (or timeout)
                 if (selector.select(3000) == 0) { // returns # of ready chans
-                    //XMPPLogger.getInstance().info("SERVER WAITING");
-                    //System.out.print(".");
                     continue;
                 }
                 // Get iterator on set of keys with I/O to process
@@ -57,6 +47,9 @@ public class Server {
                     // Server socket channel has pending connection requests?
                     if (key.isValid() && key.isAcceptable()) {
                         protocol.handleAccept(key);
+                    }
+                    if(key.isValid() && key.isConnectable()){
+                        protocol.handleConnect(key);
                     }
                     // Client socket channel has pending data?
                     if (key.isValid() && key.isReadable()) {

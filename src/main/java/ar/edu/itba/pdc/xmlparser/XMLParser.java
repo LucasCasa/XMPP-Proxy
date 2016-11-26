@@ -340,6 +340,7 @@ public class XMLParser {
         String str = "<iq type='set' id='purplead6649b3'><pubsub xmlns='http://jabber.org/protocol/pubsub'><publish node='http://jabber.org/protocol/tune'><item><tune xmlns='http://jabber.org/protocol/tune'/></item></publish></pubsub></iq>";
         CharBuffer aux = CharBuffer.wrap(str.toCharArray());
         State s = checkMessage(aux);
+        System.out.println(endsWith("</iq>",aux));
         if(s== State.COMPLETE){
             System.out.println("LEI TODO EL TAG Y ESTA BIEN FORMADO");
         }else if(s == State.INCOMPLETE){
@@ -418,7 +419,7 @@ public class XMLParser {
         char c;
         int length = 0;
         StringBuilder sb = new StringBuilder();
-        while((c = cb.get(cbi)) != ' ' && c != '>' && cbi < cb.length()){
+        while(cbi < cb.length() && (c = cb.get(cbi)) != ' ' && c != '>'){
             if(c == '/'){
                 return cb.length() + 2;
             }
@@ -490,4 +491,13 @@ public class XMLParser {
         return contain && i==length;
     }
 
+    public static boolean endsWith(String s, CharBuffer buff) {
+        int p = s.length()-1;
+        for(int i = buff.length()-1; i>= 0 && p >= 0 ;i--,p--){
+            if(buff.get(i) != s.charAt(p)){
+                return false;
+            }
+        }
+        return p <= 0;
+    }
 }
