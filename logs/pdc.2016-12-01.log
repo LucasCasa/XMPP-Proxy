@@ -1,0 +1,94 @@
+20:36:03.121 [main] INFO  -NEW USER CONNECTING
+20:36:03.125 [main] DEBUG -CONTAINS <stream:stream>
+20:36:03.132 [main] DEBUG -STATUS: WAITING SERVER
+20:36:03.134 [main] INFO  -USER lucas@muffin.com CONECTED TO SERVER
+20:36:03.134 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 60 bytes
+20:36:03.135 [main] DEBUG -STATUS: INCOMPLETE STANZA ON lucas@muffin.com
+20:36:03.136 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 201 bytes
+20:36:03.136 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 527 bytes
+20:36:03.137 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 118 bytes
+20:36:03.137 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 123 bytes
+20:36:03.138 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 110 bytes
+20:36:03.141 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 59 bytes
+20:36:03.141 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 89 bytes
+20:36:03.141 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 457 bytes
+20:36:03.153 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 557 bytes
+20:36:03.154 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 1614 bytes
+20:36:03.175 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 224 bytes
+20:36:03.176 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 279 bytes
+20:36:03.266 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 216 bytes
+20:36:03.266 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 224 bytes
+20:36:07.897 [main] INFO  -NEW USER CONNECTING
+20:36:07.898 [main] DEBUG -CONTAINS <stream:stream>
+20:36:07.899 [main] DEBUG -STATUS: WAITING SERVER
+20:36:07.901 [main] INFO  -USER test@muffin.com CONECTED TO SERVER
+20:36:07.901 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 60 bytes
+20:36:07.902 [main] DEBUG -STATUS: INCOMPLETE STANZA ON test@muffin.com
+20:36:07.902 [main] DEBUG -test@muffin.com IS SENDING TO SERVER 201 bytes
+20:36:07.905 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 527 bytes
+20:36:07.905 [main] DEBUG -test@muffin.com IS SENDING TO SERVER 118 bytes
+20:36:07.906 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 122 bytes
+20:36:07.907 [main] DEBUG -test@muffin.com IS SENDING TO SERVER 110 bytes
+20:36:07.909 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 58 bytes
+20:36:07.910 [main] DEBUG -test@muffin.com IS SENDING TO SERVER 89 bytes
+20:36:07.910 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 553 bytes
+20:36:07.917 [main] DEBUG -test@muffin.com IS SENDING TO SERVER 556 bytes
+20:36:07.919 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 1912 bytes
+20:36:07.920 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 220 bytes
+20:36:07.944 [main] DEBUG -test@muffin.com IS SENDING TO SERVER 222 bytes
+20:36:07.946 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 276 bytes
+20:36:07.954 [main] DEBUG -test@muffin.com IS SENDING TO SERVER 215 bytes
+20:36:07.958 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 222 bytes
+20:36:13.965 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 161 bytes
+20:36:13.965 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 169 bytes
+20:36:22.690 [main] WARN  -USER test@muffin.com DISCONECTED
+20:36:22.690 [main] WARN  -USER lucas@muffin.com DISCONECTED
+20:37:12.020 [main] INFO  -NEW USER CONNECTING
+20:37:12.024 [main] DEBUG -CONTAINS <stream:stream>
+20:37:12.029 [main] DEBUG -STATUS: WAITING SERVER
+20:37:12.031 [main] INFO  -USER lucas@muffin.com CONECTED TO SERVER
+20:37:12.032 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 60 bytes
+20:37:12.032 [main] DEBUG -STATUS: INCOMPLETE STANZA ON lucas@muffin.com
+20:37:12.032 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 201 bytes
+20:37:12.032 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 527 bytes
+20:37:12.033 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 118 bytes
+20:37:12.034 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 123 bytes
+20:37:12.034 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 110 bytes
+20:37:12.038 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 59 bytes
+20:37:12.038 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 89 bytes
+20:37:12.038 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 457 bytes
+20:37:12.047 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 557 bytes
+20:37:12.047 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 1614 bytes
+20:37:12.066 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 224 bytes
+20:37:12.067 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 279 bytes
+20:37:12.155 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 216 bytes
+20:37:12.156 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 224 bytes
+20:37:13.928 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 83 bytes
+20:37:13.930 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 59 bytes
+20:37:17.577 [main] INFO  -NEW USER CONNECTING
+20:37:17.581 [main] DEBUG -CONTAINS <stream:stream>
+20:37:17.582 [main] DEBUG -STATUS: WAITING SERVER
+20:37:17.587 [main] INFO  -USER test@muffin.com CONECTED TO SERVER
+20:37:17.587 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 60 bytes
+20:37:17.587 [main] DEBUG -STATUS: INCOMPLETE STANZA ON test@muffin.com
+20:37:17.587 [main] DEBUG -test@muffin.com IS SENDING TO SERVER 201 bytes
+20:37:17.609 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 527 bytes
+20:37:17.610 [main] DEBUG -test@muffin.com IS SENDING TO SERVER 118 bytes
+20:37:17.611 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 122 bytes
+20:37:17.611 [main] DEBUG -test@muffin.com IS SENDING TO SERVER 110 bytes
+20:37:17.612 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 58 bytes
+20:37:17.613 [main] DEBUG -test@muffin.com IS SENDING TO SERVER 89 bytes
+20:37:17.613 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 553 bytes
+20:37:17.620 [main] DEBUG -test@muffin.com IS SENDING TO SERVER 556 bytes
+20:37:17.621 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 1912 bytes
+20:37:17.622 [main] DEBUG -SERVER IS SENDING TO lucas@muffin.com 220 bytes
+20:37:17.649 [main] DEBUG -test@muffin.com IS SENDING TO SERVER 222 bytes
+20:37:17.650 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 276 bytes
+20:37:17.660 [main] DEBUG -test@muffin.com IS SENDING TO SERVER 215 bytes
+20:37:17.661 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 222 bytes
+20:37:19.048 [main] DEBUG -test@muffin.com IS SENDING TO SERVER 83 bytes
+20:37:19.049 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 58 bytes
+20:37:22.976 [main] DEBUG -lucas@muffin.com IS SENDING TO SERVER 161 bytes
+20:37:22.977 [main] DEBUG -SERVER IS SENDING TO test@muffin.com 169 bytes
+20:37:52.092 [main] WARN  -USER test@muffin.com DISCONECTED
+20:37:52.092 [main] WARN  -USER lucas@muffin.com DISCONECTED

@@ -67,19 +67,16 @@ public class ProxyConnection implements Connection{
         ByteBuffer bf = ByteBuffer.allocate(length);
         for(String s : msg){
             bf.put(s.getBytes());
-            out.println(s);
         }
         bf.flip();
         msg.clear();
         return bf;
     }
     public void handleWrite(SelectionKey key){
-        System.out.println("ESCRIBO");
         try {
             int byteWrite = 0;
             if(status == Status.STARTING){
                 clientBuffer.flip();
-                System.out.println(new String(clientBuffer.array()));
                 byteWrite = ((SocketChannel) key.channel()).write(clientBuffer);
                 status = Status.NEGOTIATING;
                 clientKey.interestOps(SelectionKey.OP_READ);
@@ -91,7 +88,6 @@ public class ProxyConnection implements Connection{
                     } else {
                         serverBuffer.put((ConnectionHandler.INITIAL_STREAM[0] + serverName + ConnectionHandler.INITIAL_STREAM[1]).getBytes("UTF-8"));
                     }
-                    //out.println(new String(serverBuffer.array()));
                     serverBuffer.flip();
                     byteWrite = ((SocketChannel) key.channel()).write(serverBuffer);
                     key.interestOps(SelectionKey.OP_READ);
@@ -104,7 +100,6 @@ public class ProxyConnection implements Connection{
                 if(key.equals(clientKey)){
                     serverBuffer.flip();
 
-                    //System.out.println(JID + " Esta recibiendo: " + new String(serverBuffer.array()));
                     byteWrite = ((SocketChannel)clientKey.channel()).write(serverBuffer);
                     XMPPLogger.getInstance().debug("SERVER IS SENDING TO " + JID + " " + byteWrite + " bytes");
                     clientKey.interestOps(SelectionKey.OP_READ);
@@ -112,7 +107,6 @@ public class ProxyConnection implements Connection{
                     serverBuffer.clear();
                 }else{
                     clientBuffer.flip();
-                    //System.out.println(JID + " Esta enviando: " + new String(clientBuffer.array()));
                     byteWrite = ((SocketChannel)serverKey.channel()).write(clientBuffer);
                     XMPPLogger.getInstance().debug(JID + " IS SENDING TO SERVER" + " " + byteWrite + " bytes");
                     serverKey.interestOps(SelectionKey.OP_READ);
@@ -128,7 +122,6 @@ public class ProxyConnection implements Connection{
     }
 
     public void handleRead(SelectionKey key){
-        System.out.println("LEO");
         Charset utf8 = Charset.forName("UTF-8");
         CharBuffer buff;
         try{
@@ -146,7 +139,7 @@ public class ProxyConnection implements Connection{
                     clientBuffer.clear();
                 }else if(s == State.INCOMPLETE){
                     if(XMLParser.contains("<stream:stream",buff) && (XMLParser.endsWith(">",buff) || XMLParser.endsWith(">\n",buff))){
-                        //XMPPLogger.getInstance().debug("CONTAINS <stream:stream>");
+                        XMPPLogger.getInstance().debug("CONTAINS <stream:stream>");
                         serverName = XMLParser.getTo(buff);
                         clientBuffer.clear();
                         clientBuffer.put(ConnectionHandler.INITIAL_SERVER_STREAM);
@@ -158,11 +151,7 @@ public class ProxyConnection implements Connection{
 
                     }
                 }
-
-
-
             }else if( status == Status.NEGOTIATING){
-                //if lo que leo tiene auth -> leo el usuario y me guardo el stream, sino me quedo esperando / envio auth al server
                 clientBuffer.clear();
                 bytesRead = ((SocketChannel) key.channel()).read(clientBuffer);
                 if(checkConnection(bytesRead)){
@@ -174,7 +163,6 @@ public class ProxyConnection implements Connection{
                     byte[] d = Base64.decodeBase64(XMLParser.getAuth(clientBuffer).getBytes("UTF-8"));
                     String stringData = new String(d,"UTF-8");
                     setJID(stringData.substring(1, stringData.indexOf(0, 1)));
-                    //out.println(new String(clientBuffer.array()));
                     String servMultiplexed = ConnectionHandler.multiplex(JID).split("@")[1];
                     SocketChannel serverChannel = SocketChannel.open();
                     serverChannel.configureBlocking(false);
@@ -197,24 +185,20 @@ public class ProxyConnection implements Connection{
                 }
                 serverBuffer.flip();
                 buff = utf8.decode(serverBuffer);
-                //out.print(new String(buff.array()));
                 if (XMLParser.contains("mechanism", buff)) {
                     serverKey.interestOps(SelectionKey.OP_WRITE);
                     status = Status.SENDING_AUTH;
                 }
-                //System.out.println(new String(clientBuffer.array()));
             }else if(status == Status.SENDING_AUTH){
                 serverBuffer.clear();
                 bytesRead = ((SocketChannel) key.channel()).read(serverBuffer);
                 serverBuffer.flip();
                 buff = utf8.decode(serverBuffer);
                 if (XMLParser.startWith("<success", buff)) {
-                    //  XMPPLogger.getInstance().debug("CONTAINS <success>");
                     XMPPLogger.getInstance().info("USER " + JID + " CONECTED TO SERVER");
                     status = Status.CONNECTED;
                     clientKey.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
                 } else if (XMLParser.startWith("<failure", buff)) {
-                    //XMPPLogger.getInstance().debug("CONTAINS <failure>");
                     XMPPLogger.getInstance().error("FAILURE, CLOSING CONNECTION WITH " + JID);
                     clientKey.channel().close();
                     serverKey.channel().close();
@@ -222,6 +206,7 @@ public class ProxyConnection implements Connection{
                     serverKey.cancel();
                     XMPPLogger.getInstance().warn("USER " + JID + " DISCONECTED");
                 }
+                checkConnection(bytesRead);
             }else if(status == Status.CONNECTED){
                 //Ya estoy conectado, aca toda la logica del proxy
                 if(key.equals(clientKey)){
@@ -372,20 +357,11 @@ public class ProxyConnection implements Connection{
     }
 
     public void performOperations(CharBuffer buff,boolean incomplete){
-        if(incomplete){
-            System.out.println("I");
-        }
         if (XMLParser.contains("<stream:stream", buff)) {
-            //XMPPLogger.getInstance().debug("STATUS: COMPLETE AND CONTAINS <stream:stream>");
+            XMPPLogger.getInstance().debug("STATUS: COMPLETE AND CONTAINS <stream:stream>");
             if (ConnectionHandler.isMultiplex(JID)) {
-                //XMPPLogger.getInstance().debug("STATUS: COMPLETE AND CONTAINS <stream:stream> AND IS MULTIPLEXED");
+                XMPPLogger.getInstance().debug("STATUS: COMPLETE AND CONTAINS <stream:stream> AND IS MULTIPLEXED");
                 clientBuffer = XMLParser.setTo(clientBuffer, ConnectionHandler.multiplex(JID).split("@")[1]);
-                //out.println("-->" + new String(clientBuffer.array()));
-            }
-        }else if(XMLParser.contains("<data>",buff)) {
-            if (ConnectionHandler.isMultiplex(JID)) {
-                //clientBuffer = XMLParser.setFrom(clientBuffer, ConnectionHandler.multiplex(JID).split("@")[1]);
-                //out.println(new String(clientBuffer.array()));
             }
         }else if (XMLParser.startWith("<message", buff)) {
             if (ConnectionHandler.isSilenced(JID)) {
@@ -402,12 +378,10 @@ public class ProxyConnection implements Connection{
 
                     if (ConnectionHandler.isL33t(JID)) {
                         clientBuffer = MessageConverter.convertToL33t(clientBuffer);
-                        //out.println(new String(clientBuffer.array()));
                         Metrics.incrementL33ted();
                     }
                     if (ConnectionHandler.isMultiplex(JID)) {
                         clientBuffer = XMLParser.setFrom(clientBuffer, ConnectionHandler.multiplex(JID).split("@")[1]);
-                        //out.println(new String(clientBuffer.array()));
                     }
                 }
             }
@@ -416,7 +390,6 @@ public class ProxyConnection implements Connection{
     public void setJID(String JID){
         JIDName = JID;
         this.JID = JIDName + "@" + serverName;
-        out.println("TENGO ID: " + this.JID);
     }
     public boolean isWaiting() {
         return waiting;

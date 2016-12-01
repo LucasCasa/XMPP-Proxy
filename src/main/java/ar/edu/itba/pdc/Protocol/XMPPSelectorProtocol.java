@@ -29,7 +29,6 @@ public class XMPPSelectorProtocol implements TCPProtocol {
             channel.configureBlocking(false);
             AdminConnection ac = new AdminConnection();
             ConnectionHandler.getInstance().addConnection(channel, ac);
-            XMPPLogger.getInstance().info("ADMIN CONNECTED");
         }else {
             SocketChannel clntChan = ((ServerSocketChannel) key.channel()).accept();
             clntChan.configureBlocking(false); // Must be nonblocking to register
@@ -52,7 +51,6 @@ public class XMPPSelectorProtocol implements TCPProtocol {
     @Override
     public void handleConnect(SelectionKey key) throws IOException {
         if(((SocketChannel) key.channel()).finishConnect()){
-            System.out.println("FINISHED");
             key.interestOps(SelectionKey.OP_WRITE);
             ((ProxyConnection)key.attachment()).setServerKey(key);
         }

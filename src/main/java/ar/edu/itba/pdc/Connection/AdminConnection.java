@@ -1,6 +1,7 @@
 package ar.edu.itba.pdc.Connection;
 
 import ar.edu.itba.pdc.admin.Reader;
+import ar.edu.itba.pdc.logger.XMPPLogger;
 import ar.edu.itba.pdc.xmlparser.XMLParser;
 
 import java.nio.ByteBuffer;
@@ -35,8 +36,10 @@ public class AdminConnection implements Connection{
                 buffer.clear();
                 response = r.Read(c,logged);
                 if(response.contains("Logged in")){
+                    XMPPLogger.getInstance().info("ADMIN CONNECTED");
                     logged = true;
                 }else if(response.contains("Logged out")){
+                    XMPPLogger.getInstance().info("ADMIN DISCONNECTED");
                     logged = false;
                 }
                 handleWrite(key);

@@ -2,7 +2,6 @@
 *.class
 
 # Package Files #
-*.jar
 *.war
 *.ear
 
@@ -13,7 +12,6 @@ hs_err_pid*
 # ---- Eclipse ----
 
 .metadata
-bin/
 tmp/
 *.tmp
 *.bak
