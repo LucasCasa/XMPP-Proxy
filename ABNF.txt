@@ -1,4 +1,4 @@
-S 		= (Query / Response) ENTER . ENTER
+S 		= (Query / Response) ENTER DOT ENTER
 
 Query 		= C SP String SP String / D SP String / E / “SEE” SP F 
 
@@ -19,3 +19,7 @@ Message		= String / List
 List		= ENTER String / 
 
 Status 		= "OK" / "ERROR"
+
+ENTER 		= %x0A
+
+DOT			= %x2E
